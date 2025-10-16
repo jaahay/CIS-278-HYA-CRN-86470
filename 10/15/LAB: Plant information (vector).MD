@@ -2,30 +2,30 @@ Given a base Plant class and a derived Flower class, complete main() to create a
 
 Ex. If the input is:
 
-plant Spirea 10
-flower Hydrangea 30 false lilac
-flower Rose 6 false white
-plant Mint 4
--1
+> plant Spirea 10
+> flower Hydrangea 30 false lilac
+> flower Rose 6 false white
+> plant Mint 4
+> -1
 
 the output is:
 
-Plant 1 Information:
-   Plant name: Spirea
-   Cost: 10
+> Plant 1 Information:
+>>   Plant name: Spirea
+>>   Cost: 10
 
-Plant 2 Information:
-   Plant name: Hydrangea
-   Cost: 30
-   Annual: false
-   Color of flowers: lilac
+> Plant 2 Information:
+>>   Plant name: Hydrangea
+>>   Cost: 30
+>>   Annual: false
+>>   Color of flowers: lilac
 
-Plant 3 Information:
-   Plant name: Rose
-   Cost: 6
-   Annual: false
-   Color of flowers: white
+> Plant 3 Information:
+>>   Plant name: Rose
+>>   Cost: 6
+>>   Annual: false
+>>   Color of flowers: white
 
-Plant 4 Information:
-   Plant name: Mint
-   Cost: 4
+> Plant 4 Information:
+>>   Plant name: Mint
+>>   Cost: 4
