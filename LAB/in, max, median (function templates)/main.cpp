@@ -23,6 +23,8 @@ template<typename TheType> void Write(const vector<TheType>& list) {
 
 // Return the min, median, and max of the vector parameter in a new vector
 template<typename TheType> vector<TheType> GetStatistics(const vector<TheType>& list) {
+   return {list[0], list[list.size() / 2], list[list.size() - 1]};
+
    /* Type your code here. */
    
 }
@@ -30,8 +32,13 @@ template<typename TheType> vector<TheType> GetStatistics(const vector<TheType>& 
 // Read values into a vector, sort the vector, output the sorted vector,
 // then output the min, median, and max of the sorted vector
 template<typename TheType> void Run(vector<TheType>& list) {
-   /* Type your code here. */
-   
+   Read(list);
+   // Write(list);
+   std::sort(list.begin(), list.end());
+   Write(list);
+   cout << endl;
+   Write(GetStatistics(list));
+   cout << endl;
 }
 
 int main() {
