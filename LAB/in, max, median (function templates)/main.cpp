@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include <algorithm> // to use sort()
 using namespace std;
 
@@ -24,26 +23,6 @@ template<typename TheType> void Write(const vector<TheType>& list) {
 
 // Return the min, median, and max of the vector parameter in a new vector
 template<typename TheType> vector<TheType> GetStatistics(const vector<TheType>& list) {
-   std::unordered_map<TheType, int> freqMap{};
-   freqMap[list[0]] = 1;
-   TheType min = list[0],
-            max = list[0];
-   for(size_t i = 1; i < list.size(); i++) {
-      min = std::min(min, list.at(i));
-      max = std::max(max, list.at(i));
-      freqMap[list[i]]++;
-   }
-   TheType median = list[0];
-   int median_count = freqMap[median];
-   for(const auto& pair : freqMap) {
-      if(pair.second > median_count) {
-         median = pair.first;
-         median_count = pair.second;
-      }
-   }
-
-   return {min, median, max};
-
    /* Type your code here. */
    
 }
@@ -51,10 +30,8 @@ template<typename TheType> vector<TheType> GetStatistics(const vector<TheType>& 
 // Read values into a vector, sort the vector, output the sorted vector,
 // then output the min, median, and max of the sorted vector
 template<typename TheType> void Run(vector<TheType>& list) {
-   Write(list);
-   std::sort(list.begin(), list.end());
-   Write(list);
-   Write(GetStatistics(list));
+   /* Type your code here. */
+   
 }
 
 int main() {
