@@ -7,8 +7,8 @@
 
 class IBank {
     public:
-    virtual std::future<IElevator*> CallElevator(int floor) const = 0;
-    
+    virtual std::future<IElevator*> CallElevator(int floor) = 0;
+    virtual void Report(std::ostream& out, size_t bufferSize) const = 0;
     virtual void toString(char* buffer, size_t bufferSize) const = 0;
 };
 

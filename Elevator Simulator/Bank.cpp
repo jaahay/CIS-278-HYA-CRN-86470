@@ -5,7 +5,9 @@
 #include <chrono>
 #include <future>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -14,11 +16,11 @@
 #include "Elevator.cpp"
 
 class Bank : public IBank {
-    private: static const int CHECK_INTERVAL_MS = 100;
+    private: static const int CHECK_INTERVAL_MS = 3000;
 
     private:
     int floorCount;
-    Elevator* elevatorPtr;
+    std::vector<Elevator> elevators;
 
     const int checkIntervalMs;
 
@@ -27,81 +29,92 @@ class Bank : public IBank {
         if (numFloors <= 0 || numElevators <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }
-        elevatorPtr = new Elevator[numElevators];
+        elevators.resize(numElevators);
     }
     ~Bank() {
-        delete[] elevatorPtr;
+        // Destructor
     }
     Bank(const Bank& other) : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs) {
-        int numElevators = other.elevatorPtr ? sizeof(other.elevatorPtr) / sizeof(Elevator*) : 0;
-        elevatorPtr = new Elevator[numElevators];
+        int numElevators = other.elevators.size();
+        elevators.resize(numElevators);
         for (int i = 0; i < numElevators; ++i) {
-            elevatorPtr[i] = other.elevatorPtr[i];
+            elevators[i] = other.elevators[i];
         }
     }
     Bank& operator=(const Bank& other) {
         if (this != &other) {
-            delete[] elevatorPtr;
             floorCount = other.floorCount;
-
-            int numElevators = other.elevatorPtr ? sizeof(other.elevatorPtr) / sizeof(Elevator*) : 0;
-            elevatorPtr = new Elevator[numElevators];
-            for (int i = 0; i < numElevators; ++i) {
-                elevatorPtr[i] = other.elevatorPtr[i];
-            }
+            elevators = other.elevators;
         }
         return *this;
     }
-    Bank(const Bank&& other) noexcept : floorCount(other.floorCount), elevatorPtr(other.elevatorPtr), checkIntervalMs(other.checkIntervalMs) {
-        delete[] other.elevatorPtr;
+    Bank(const Bank&& other) noexcept : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs) {
+        elevators = std::move(other.elevators);
     }
     Bank& operator=(const Bank&& other) noexcept {
         if (this != &other) {
-            delete[] elevatorPtr;
             floorCount = other.floorCount;
-            elevatorPtr = other.elevatorPtr;
-            delete[] other.elevatorPtr;
+            elevators = std::move(other.elevators);
         }
         return *this;
     }
 
-    std::future<IElevator*> CallElevator(int floor) const {
+    std::future<IElevator*> CallElevator(int floor) {
         if (floor < 1 || floor > floorCount) {
             throw std::out_of_range("Requested floor is out of range.");
         }
-        std::cout << "Calling elevator to floor " << floor << "..." << std::endl;
-
-        return std::async(std::launch::async, [this, floor]() {
-            IElevator* elPtr = nullptr;
-            while(elPtr == nullptr) {
-                int range = floorCount;
-                for (size_t i = 0; i < sizeof(elevatorPtr) / sizeof(IElevator*) + 1; ++i) {
-                    std::cout << "Checking elevator " << i + 1 << "..." << std::endl;
-                    if (elevatorPtr[i].IsIdle()) {
-                        std::cout << "Elevator " << i + 1 << " is idle at floor " << elevatorPtr[i].GetCurrentFloor() << "." << std::endl;
-                        if( abs(elevatorPtr[i].GetCurrentFloor() - floor) < range ) {
-                            range = abs(elevatorPtr[i].GetCurrentFloor() - floor);
-                            elPtr = &elevatorPtr[i];
+       
+        return std::async(std::launch::async, [this, floor]() -> IElevator* {
+            int range = floorCount + 1;
+            std::cout << "Searching for an idle elevator to service floor " << floor << "..." << std::endl;
+            IElevator* called = nullptr;
+            while (called == nullptr) {
+                for (int i = 0; i < elevators.size(); ++i) {
+                    Elevator& elevator = elevators[i];
+                    if (elevator.IsIdle()) {
+                        // std::cout << "Elevator " << i + 1 << " is idle at floor " << elevator.GetCurrentFloor() << "." << std::endl;
+                        if (elevator.GetCurrentFloor() == floor) {
+                            std::cout << "Elevator " << i + 1 << " is already at the requested floor." << std::endl;
+                            return &elevator;
+                        } else if( abs(elevator.GetCurrentFloor() - floor) < range ) {
+                            range = abs(elevator.GetCurrentFloor() - floor);
+                            called = &elevator;
                         }
                     }
                 }
-                if (elPtr == nullptr) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(CHECK_INTERVAL_MS));
+                if(called == nullptr) {
+                    std::cout << "No idle elevators available to service floor " << floor << ". Retrying in " << checkIntervalMs << " ms..." << std::endl;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(checkIntervalMs));
+                } else {
+                    std::cout << "Elevator selected to service floor " << floor << "." << std::endl;
                 }
             }
-            elPtr->MoveToFloor(floor);
-            return elPtr;
+            called->MoveToFloor(floor);
+            return called;
         });
     }
 
-    void toString(char* buffer, size_t bufferSize) const override {
-        strncpy(buffer, "Bank status:", bufferSize);
-        if (bufferSize > 0) buffer[bufferSize - 1] = '\0';
-        char elevatorBuffer[100];
-        for (size_t i = 0; i < sizeof(elevatorPtr) / sizeof(IElevator*) + 1; ++i) {
-            elevatorPtr[i].toString(elevatorBuffer, sizeof(elevatorBuffer));
-            strncat(buffer, "\n", bufferSize - strlen(buffer) - 1);
-            strncat(buffer, elevatorBuffer, bufferSize - strlen(buffer) - 1);
+    void Report(std::ostream& out, size_t bufferSize) const override {
+        for (int i = 0; i < elevators.size(); ++i) {
+            out << "Elevator " << std::to_string(i + 1) << ": Current Floor " << std::to_string(elevators[i].GetCurrentFloor());
+            out << (elevators[i].IsIdle() ? " (Idle)\n" : " (Active)\n");
         }
     }
+
+    void toString(char* buffer, size_t bufferSize) const override {
+        std::string status = "Bank Status:\n";
+        for (int i = 0; i < elevators.size(); ++i) {
+            status += "Elevator " + std::to_string(i + 1) + ": Current Floor " + std::to_string(elevators[i].GetCurrentFloor());
+            status += elevators[i].IsIdle() ? " (Idle)\n" : " (Active)\n";
+        }
+        strncpy_s(buffer, bufferSize, status.c_str(), bufferSize - 1);
+        buffer[bufferSize - 1] = '\0'; // Ensure null-termination
+    }
 };
+
+std::ostream& operator<<(std::ostream& os, const Bank& bank) {
+    char buffer[1024];
+    bank.toString(buffer, sizeof(buffer));
+    os << buffer;
+    return os;
+}

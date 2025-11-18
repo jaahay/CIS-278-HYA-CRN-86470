@@ -17,7 +17,7 @@ class IState {
 class IElevator {
     public:
     virtual int GetCurrentFloor() const = 0;
-    virtual std::future<int> MoveToFloor(int floor) = 0;
+    virtual void MoveToFloor(int floor) = 0;
     virtual bool IsIdle() const = 0;
     
     virtual void toString(char* buffer, size_t bufferSize) const = 0;

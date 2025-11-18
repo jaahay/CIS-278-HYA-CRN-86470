@@ -53,31 +53,34 @@ class Elevator : public IElevator {
         int doorDelayMs;
         int moveDelayMs;
         int currentFloor;
+        int destinationFloor;
         IState* statePtr;
 
     public:
-    Elevator(int doorDelay = DOOR_DELAY_MS, int moveDelay = MOVE_DELAY_MS) : doorDelayMs(doorDelay), moveDelayMs(moveDelay), currentFloor(1), statePtr((IState*)IDLE) {}
-    Elevator(const Elevator& other) : currentFloor(other.currentFloor), statePtr((IState*)IDLE) {}
+    Elevator(int initialFloor = 1, int doorDelay = DOOR_DELAY_MS, int moveDelay = MOVE_DELAY_MS)
+        : currentFloor(initialFloor), doorDelayMs(doorDelay), moveDelayMs(moveDelay), statePtr((IState*)IDLE), destinationFloor(initialFloor) {}
     
     ~Elevator() {}
-    
+    Elevator(const Elevator& other) : currentFloor(other.currentFloor), doorDelayMs(other.doorDelayMs), moveDelayMs(other.moveDelayMs), statePtr(other.statePtr), destinationFloor(other.destinationFloor) {}
     Elevator& operator=(const Elevator& other) {
         if (this != &other) {
             currentFloor = other.currentFloor;
+            doorDelayMs = other.doorDelayMs;
+            moveDelayMs = other.moveDelayMs;
             statePtr = other.statePtr;
+            destinationFloor = other.destinationFloor;
         }
         return *this;
     }
-
-    Elevator(const Elevator&& other) noexcept {
-        currentFloor = other.currentFloor;
-        statePtr = other.statePtr;
-    }
-
-    Elevator& operator=(const Elevator&& other) noexcept {
+    Elevator(Elevator&& other) noexcept
+        : currentFloor(other.currentFloor), doorDelayMs(other.doorDelayMs), moveDelayMs(other.moveDelayMs), statePtr(other.statePtr), destinationFloor(other.destinationFloor) {}
+    Elevator& operator=(Elevator&& other) noexcept {
         if (this != &other) {
             currentFloor = other.currentFloor;
+            doorDelayMs = other.doorDelayMs;
+            moveDelayMs = other.moveDelayMs;
             statePtr = other.statePtr;
+            destinationFloor = other.destinationFloor;
         }
         return *this;
     }
@@ -86,23 +89,24 @@ class Elevator : public IElevator {
         return currentFloor;
     }
 
-    std::future<int> MoveToFloor(int floor) override {
+    void MoveToFloor(int floor) override {
         if( floor < 1 ) {
             throw std::invalid_argument("Floor number must be positive.");
         }
         if( statePtr == (IState*)ACTIVE || statePtr == (IState*)DOORS_CLOSED || statePtr == (IState*)DOORS_OPEN ) {
             throw std::logic_error("Elevator is already moving.");
         }
-        if( floor == currentFloor ) {
-            return std::async(std::launch::async, [this]() {
-                return this->currentFloor;
-            });
+        if ( floor == currentFloor ) {
+            std::cout << "Elevator is already at floor " << floor << "." << std::endl;
+            return;
         }
-        statePtr = (IState*)DOORS_CLOSED;
-        std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
-        return std::async(std::launch::async, [this, floor]() {
-            std::cout << "Moving elevator from floor " << currentFloor << " to floor " << floor << "..." << std::endl;
-            statePtr = (IState*) ACTIVE;
+        std::cout << "Moving elevator from floor " << currentFloor << " to floor " << floor << "..." << std::endl;
+        statePtr = (IState*)ACTIVE;
+        destinationFloor = floor;
+        std::thread t([this, floor]() {
+            statePtr = (IState*)DOORS_CLOSED;
+            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
+            statePtr = (IState*)ACTIVE;
             while(currentFloor != floor) {
                 if (currentFloor < floor) {
                     currentFloor++;
@@ -110,7 +114,6 @@ class Elevator : public IElevator {
                     currentFloor--;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
-                std::cout << "Elevator arrived at floor " << currentFloor << "." << std::endl;
             }
             statePtr = (IState*)DOORS_OPEN;
             std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
@@ -118,17 +121,29 @@ class Elevator : public IElevator {
             std::cout << "Elevator has arrived at floor " << currentFloor << "." << std::endl;
             return currentFloor;
         });
+        t.detach();
     }
     bool IsIdle() const override {
         return statePtr == IDLE;
     }
 
     void toString(char* buffer, size_t bufferSize) const override {
-        strncpy(buffer, "Elevator status:", bufferSize);
-        if (bufferSize > 0) buffer[bufferSize - 1] = '\0';
-        char stateBuffer[50];
-        statePtr->toString(stateBuffer, sizeof(stateBuffer));
-        strncat(buffer, " ", bufferSize - strlen(buffer) - 1);
-        strncat(buffer, stateBuffer, bufferSize - strlen(buffer) - 1);
+        snprintf(buffer, bufferSize, "Elevator is currently at floor %d last sent to floor %d. State: ", currentFloor, destinationFloor);
+        size_t len = strlen(buffer);
+        statePtr->toString(buffer + len, bufferSize - len);
     }
 };
+
+std::ostream& operator<<(std::ostream& os, const IState& state) {
+    char buffer[1024];
+    state.toString(buffer, sizeof(buffer));
+    os << buffer;
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
+    char buffer[1024];
+    elevator.toString(buffer, sizeof(buffer));
+    os << buffer;
+    return os;
+}
