@@ -2,19 +2,22 @@
  * Implementation of the Bank class for Elevator Simulator
  */
 
-#include "Bank.h"
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <thread>
 #include <vector>
 
+#include "Bank.h"
+
+#include "Elevator.cpp"
+
 class BankImpl : public Bank {
     private: static const int CHECK_INTERVAL_MS = 100;
 
     private:
     int floorCount;
-    Elevator** elevatorPtr;
+    ElevatorImpl* elevatorPtr;
 
     const int checkIntervalMs;
 
@@ -23,14 +26,14 @@ class BankImpl : public Bank {
         if (numFloors <= 0 || numElevators <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }
-        elevatorPtr = new Elevator*[numElevators];
+        elevatorPtr = new ElevatorImpl[numElevators];
     }
     ~BankImpl() {
         delete[] elevatorPtr;
     }
     BankImpl(const BankImpl& other) : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs) {
         int numElevators = other.elevatorPtr ? sizeof(other.elevatorPtr) / sizeof(Elevator*) : 0;
-        elevatorPtr = new Elevator*[numElevators];
+        elevatorPtr = new ElevatorImpl[numElevators];
         for (int i = 0; i < numElevators; ++i) {
             elevatorPtr[i] = other.elevatorPtr[i];
         }
@@ -41,7 +44,7 @@ class BankImpl : public Bank {
             floorCount = other.floorCount;
 
             int numElevators = other.elevatorPtr ? sizeof(other.elevatorPtr) / sizeof(Elevator*) : 0;
-            elevatorPtr = new Elevator*[numElevators];
+            // elevatorPtr = new ElevatorImpl[numElevators];
             for (int i = 0; i < numElevators; ++i) {
                 elevatorPtr[i] = other.elevatorPtr[i];
             }
@@ -61,26 +64,29 @@ class BankImpl : public Bank {
         return *this;
     }
 
-    Elevator* CallElevator(int floor) {
+    Elevator* CallElevator(int floor) const override{
         if (floor < 1 || floor > floorCount) {
             throw std::out_of_range("Requested floor is out of range.");
         }
-        Elevator* elevator = nullptr;
-        while(elevator == nullptr) {
+        std::cout << "Calling elevator to floor " << floor << "..." << std::endl;
+        ElevatorImpl* elPtr = nullptr;
+        while(elPtr == nullptr) {
             int range = floorCount;
             for (size_t i = 0; i < sizeof(elevatorPtr) / sizeof(Elevator*); ++i) {
-                if (elevatorPtr[i]->IsIdle()) {
-                    if( abs(elevatorPtr[i]->GetCurrentFloor() - floor) < range ) {
-                        range = abs(elevatorPtr[i]->GetCurrentFloor() - floor);
-                        elevator = elevatorPtr[i];
+                std::cout << "Checking elevator " << i + 1 << "..." << std::endl;
+                if (elevatorPtr[i].IsIdle()) {
+                    std::cout << "Elevator " << i + 1 << " is idle at floor " << elevatorPtr[i].GetCurrentFloor() << "." << std::endl;
+                    if( abs(elevatorPtr[i].GetCurrentFloor() - floor) < range ) {
+                        range = abs(elevatorPtr[i].GetCurrentFloor() - floor);
+                        elPtr = &elevatorPtr[i];
                     }
                 }
             }
-            if (elevator == nullptr) {
+            if (elPtr == nullptr) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(CHECK_INTERVAL_MS));
             }
         }
-        elevator->MoveToFloor(floor);
-        return elevator;
+        elPtr->MoveToFloor(floor);
+        return elPtr;
     }
 };

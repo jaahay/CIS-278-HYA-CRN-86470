@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstring>
+#include <iostream>
 #include <thread>
 
 #include "Elevator.h"
@@ -96,6 +97,7 @@ class ElevatorImpl : public Elevator {
             return currentFloor;
         }
         statePtr = (State*)DOORS_CLOSED;
+        std::cout << "Moving elevator from floor " << currentFloor << " to floor " << floor << "..." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
         statePtr = (State*)ACTIVE;
         while(currentFloor != floor) {
@@ -109,6 +111,7 @@ class ElevatorImpl : public Elevator {
         statePtr = (State*)DOORS_OPEN;
         std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
         statePtr = (State*)IDLE;
+        std::cout << "Elevator has arrived at floor " << currentFloor << "." << std::endl;
         return currentFloor;
     }
     bool IsIdle() {

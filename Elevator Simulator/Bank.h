@@ -4,8 +4,8 @@
 #include "Elevator.h"
 
 class Bank {
-    protected:
-        virtual Elevator* CallElevator() = 0;
+    public:
+        virtual Elevator* CallElevator(int floor) const = 0;
 };
 
 #endif // BANK_H
