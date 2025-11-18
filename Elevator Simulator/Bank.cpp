@@ -44,7 +44,7 @@ class BankImpl : public Bank {
             floorCount = other.floorCount;
 
             int numElevators = other.elevatorPtr ? sizeof(other.elevatorPtr) / sizeof(Elevator*) : 0;
-            // elevatorPtr = new ElevatorImpl[numElevators];
+            elevatorPtr = new ElevatorImpl[numElevators];
             for (int i = 0; i < numElevators; ++i) {
                 elevatorPtr[i] = other.elevatorPtr[i];
             }
@@ -72,7 +72,7 @@ class BankImpl : public Bank {
         ElevatorImpl* elPtr = nullptr;
         while(elPtr == nullptr) {
             int range = floorCount;
-            for (size_t i = 0; i < sizeof(elevatorPtr) / sizeof(Elevator*); ++i) {
+            for (size_t i = 0; i < sizeof(elevatorPtr) / sizeof(Elevator*) + 1; ++i) {
                 std::cout << "Checking elevator " << i + 1 << "..." << std::endl;
                 if (elevatorPtr[i].IsIdle()) {
                     std::cout << "Elevator " << i + 1 << " is idle at floor " << elevatorPtr[i].GetCurrentFloor() << "." << std::endl;
