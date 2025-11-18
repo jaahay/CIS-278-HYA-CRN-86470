@@ -1,7 +1,11 @@
+#ifndef BANK_H
+#define BANK_H
+
 #include "Elevator.h"
 
 class Bank {
-    public:
-        int AddElevator();
-        void MoveElevator(int elevatorID, int floor);
-}
+    protected:
+        virtual Elevator* CallElevator() = 0;
+};
+
+#endif // BANK_H

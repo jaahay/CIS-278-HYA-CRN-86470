@@ -11,7 +11,7 @@ class State {
     static const State IDLE;
 };
 
-class IElevator {
+class Elevator {
     public:
         virtual int Floor() = 0;
         virtual int MoveToFloor(int floor) = 0;

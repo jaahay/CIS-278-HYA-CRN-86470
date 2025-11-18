@@ -41,13 +41,37 @@ static const State* DOORS_CLOSED = new DoorsClosed();
 static const State* ACTIVE = new Active();
 static const State* IDLE = new Idle();
 
-class Elevator : public IElevator {
+class ElevatorImpl : public Elevator {
         
     protected:
         int currentFloor{0};
         const State* statePtr{nullptr};
     public:
-    Elevator() : currentFloor(0), statePtr(IDLE) {}
+    ElevatorImpl(int startFloor) : currentFloor(startFloor), statePtr(IDLE) {}
+    
+    ~ElevatorImpl() {}
+    
+    ElevatorImpl& operator=(const ElevatorImpl& other) {
+        if (this != &other) {
+            currentFloor = other.currentFloor;
+            statePtr = other.statePtr;
+        }
+        return *this;
+    }
+
+    ElevatorImpl(const ElevatorImpl&& other) noexcept {
+        currentFloor = other.currentFloor;
+        statePtr = other.statePtr;
+    }
+
+    ElevatorImpl& operator=(const ElevatorImpl&& other) noexcept {
+        if (this != &other) {
+            currentFloor = other.currentFloor;
+            statePtr = other.statePtr;
+        }
+        return *this;
+    }
+
     int MoveToFloor(int floor) {
         currentFloor = floor;
         return currentFloor;
