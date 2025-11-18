@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstring>
+#include <future>
 #include <iostream>
 #include <thread>
 
@@ -86,33 +87,38 @@ class ElevatorImpl : public Elevator {
         return currentFloor;
     }
 
-    int MoveToFloor(int floor) {
+    std::future<int> MoveToFloor(int floor) {
         if( floor < 1 ) {
             throw std::invalid_argument("Floor number must be positive.");
         }
-        if( statePtr == ACTIVE ) {
+        if( statePtr == (State*)ACTIVE || statePtr == (State*)DOORS_CLOSED || statePtr == (State*)DOORS_OPEN ) {
             throw std::logic_error("Elevator is already moving.");
         }
         if( floor == currentFloor ) {
-            return currentFloor;
+            return std::async(std::launch::async, [this]() {
+                return this->currentFloor;
+            });
         }
-        statePtr = (State*)DOORS_CLOSED;
         std::cout << "Moving elevator from floor " << currentFloor << " to floor " << floor << "..." << std::endl;
+        statePtr = (State*)DOORS_CLOSED;
         std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
         statePtr = (State*)ACTIVE;
-        while(currentFloor != floor) {
-            if (currentFloor < floor) {
-                currentFloor++;
-            } else {
-                currentFloor--;
+        return std::async(std::launch::async, [this, floor]() {
+            while(currentFloor != floor) {
+                if (currentFloor < floor) {
+                    currentFloor++;
+                } else {
+                    currentFloor--;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
+                std::cout << "Elevator arrived at floor " << currentFloor << "." << std::endl;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs));
-        }
-        statePtr = (State*)DOORS_OPEN;
-        std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
-        statePtr = (State*)IDLE;
-        std::cout << "Elevator has arrived at floor " << currentFloor << "." << std::endl;
-        return currentFloor;
+            statePtr = (State*)DOORS_OPEN;
+            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
+            statePtr = (State*)IDLE;
+            std::cout << "Elevator has arrived at floor " << currentFloor << "." << std::endl;
+            return currentFloor;
+        });
     }
     bool IsIdle() {
         return statePtr == IDLE;

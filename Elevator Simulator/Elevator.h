@@ -2,6 +2,7 @@
 #define ELEVATOR_H
 
 #include <cstring>
+#include <future>
 
 class State {
     public:
@@ -19,7 +20,7 @@ class State {
 class Elevator {
     public:
     virtual int GetCurrentFloor() = 0;
-    virtual int MoveToFloor(int floor) = 0;
+    virtual std::future<int> MoveToFloor(int floor) = 0;
     virtual bool IsIdle() = 0;
 };
 
