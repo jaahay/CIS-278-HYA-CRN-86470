@@ -3,11 +3,15 @@
  */
 
 #include "Bank.h"
+#include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 
 class BankImpl : public Bank {
+    private: static const int CHECK_INTERVAL_MS = 100;
+
     private:
     int floorCount;
     Elevator** ElevatorPtr;
@@ -26,7 +30,7 @@ class BankImpl : public Bank {
         int numElevators = other.ElevatorPtr ? sizeof(other.ElevatorPtr) / sizeof(Elevator*) : 0;
         ElevatorPtr = new Elevator*[numElevators];
         for (int i = 0; i < numElevators; ++i) {
-            ElevatorPtr[i]->MoveToFloor(other.ElevatorPtr[i]->Floor());
+            ElevatorPtr[i] = other.ElevatorPtr[i];
         }
     }
     BankImpl& operator=(const BankImpl& other) {
@@ -36,7 +40,7 @@ class BankImpl : public Bank {
             int numElevators = other.ElevatorPtr ? sizeof(other.ElevatorPtr) / sizeof(Elevator*) : 0;
             ElevatorPtr = new Elevator*[numElevators];
             for (int i = 0; i < numElevators; ++i) {
-                ElevatorPtr[i]->MoveToFloor(other.ElevatorPtr[i]->Floor());
+                ElevatorPtr[i] = other.ElevatorPtr[i];
             }
         }
         return *this;
@@ -55,7 +59,18 @@ class BankImpl : public Bank {
     }
 
     Elevator* CallElevator() {
-        // TODO: implement elevator selection logic
-        return nullptr;
+        Elevator* elevator = nullptr;
+        while(elevator == nullptr) {
+            for (size_t i = 0; i < sizeof(ElevatorPtr) / sizeof(Elevator*); ++i) {
+                if (ElevatorPtr[i]->IsIdle()) {
+                    elevator = ElevatorPtr[i];
+                    break;
+                }
+            }
+            if (elevator == nullptr) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(CHECK_INTERVAL_MS));
+            }
+        }
+        return elevator;
     }
 };

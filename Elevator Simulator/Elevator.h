@@ -13,10 +13,8 @@ class State {
 
 class Elevator {
     public:
-        virtual int Floor() = 0;
         virtual int MoveToFloor(int floor) = 0;
-        virtual State* OpenDoors() = 0;
-        virtual State* CloseDoors() = 0;
+        virtual bool IsIdle() = 0;
 };
 
 #endif // ELEVATOR_H
