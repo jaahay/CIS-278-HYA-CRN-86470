@@ -2,35 +2,6 @@
 
 #include "Panel.h"
 
-class UpButton : public IButton {
-    public:
-    UpButton() {}
-
-    std::ostream& operator<<(std::ostream& os) const override {
-        os << "Up Button";
-        return os;
-    }
-    std::string label() const override {
-        return "Up";
-    }    
-};
-
-class DownButton : public IButton {
-    public:
-    DownButton() {}
-
-    std::ostream& operator<<(std::ostream& os) const override {
-        os << "Down Button";
-        return os;
-    }
-    std::string label() const override {
-        return "Down";
-    }    
-};
-
-static const IButton* UP_BUTTON = new UpButton();
-static const IButton* DOWN_BUTTON = new DownButton();
-
 class PressedState : public IButtonState {
     public:
     PressedState() {}
@@ -51,66 +22,73 @@ class ReleasedState : public IButtonState {
     }    
 };
 
+class UpButton : public IButton {
+    public:
+    UpButton() {}
+
+    std::ostream& operator<<(std::ostream& os) const override {
+        os << "Up Button";
+        return os;
+    }
+};
+
+class DownButton : public IButton {
+    public:
+    DownButton() {}
+
+    std::ostream& operator<<(std::ostream& os) const override {
+        os << "Down Button";
+        return os;
+    }
+};
+
 static const IButtonState* PRESSED_STATE = new PressedState();
 static const IButtonState* RELEASED_STATE = new ReleasedState();
 
+static const IButton* UP_BUTTON = new UpButton();
+static const IButton* DOWN_BUTTON = new DownButton();
+
 class ElevatorPanel : public IPanel {
     private:
-    IButton* downButton;
     IButtonState* downButtonState;
-    IButton* upButton;
     IButtonState* upButtonState;
+
+    IButton* downButton;
+    IButton* upButton;
 
     public:
     ElevatorPanel() 
-        : downButton((IButton*)DOWN_BUTTON), downButtonState((IButtonState*)RELEASED_STATE),
-          upButton((IButton*)UP_BUTTON), upButtonState((IButtonState*)RELEASED_STATE) {}
+        : downButtonState((IButtonState*)RELEASED_STATE), upButtonState((IButtonState*)RELEASED_STATE),
+          downButton((IButton*)DOWN_BUTTON), upButton((IButton*)UP_BUTTON) {}
 
     ~ElevatorPanel() {}
 
     ElevatorPanel(const ElevatorPanel& other) 
-        : downButton(other.downButton), downButtonState(other.downButtonState),
-          upButton(other.upButton), upButtonState(other.upButtonState) {}
+        : downButtonState(other.downButtonState), upButtonState(other.upButtonState),
+          downButton(other.downButton), upButton(other.upButton) {}
 
     ElevatorPanel& operator=(const ElevatorPanel& other) {
         if (this != &other) {
-            downButton = other.downButton;
             downButtonState = other.downButtonState;
-            upButton = other.upButton;
             upButtonState = other.upButtonState;
+            downButton = other.downButton;
+            upButton = other.upButton;
         }
         return *this;
     }
 
     ElevatorPanel(ElevatorPanel&& other) noexcept
-        : downButton(other.downButton), downButtonState(other.downButtonState),
-          upButton(other.upButton), upButtonState(other.upButtonState) {
-        // other.downButton = nullptr;
-        // other.downButtonState = nullptr;
-        // other.upButton = nullptr;
-        // other.upButtonState = nullptr;
-    }
+        : downButtonState(other.downButtonState), upButtonState(other.upButtonState),
+          downButton(other.downButton), upButton(other.upButton) {}
 
     ElevatorPanel& operator=(ElevatorPanel&& other) noexcept {
         if (this != &other) {
-            downButton = other.downButton;
             downButtonState = other.downButtonState;
-            upButton = other.upButton;
             upButtonState = other.upButtonState;
-
-            // other.downButton = nullptr;
-            // other.downButtonState = nullptr;
-            // other.upButton = nullptr;
-            // other.upButtonState = nullptr;
+            downButton = other.downButton;
+            upButton = other.upButton;
         }
         return *this;
-    }
-
-    std::ostream& operator<<(std::ostream& os) const override {
-        os << "Panel Status:\n";
-        os << "  " << upButton << ": " << upButtonState << "\n";
-        os << "  " << downButton << ": " << downButtonState << "\n";
-        return os;
     }
 
     IButtonState* PressDownButton() {
