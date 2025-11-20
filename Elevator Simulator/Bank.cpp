@@ -25,22 +25,19 @@ class Bank : public IBank {
     const int checkIntervalMs;
 
     public:
+    
     Bank(int numFloors = 10, int numElevators = 2, int checkInterval = CHECK_INTERVAL_MS) : floorCount(numFloors), checkIntervalMs(checkInterval) {
         if (numFloors <= 0 || numElevators <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }
         elevators.resize(numElevators);
     }
+    
     ~Bank() {
         // Destructor
     }
-    Bank(const Bank& other) : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs) {
-        int numElevators = other.elevators.size();
-        elevators.resize(numElevators);
-        for (int i = 0; i < numElevators; ++i) {
-            elevators[i] = other.elevators[i];
-        }
-    }
+    Bank(const Bank& other) : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs), elevators(other.elevators) { }
+
     Bank& operator=(const Bank& other) {
         if (this != &other) {
             floorCount = other.floorCount;
@@ -48,9 +45,11 @@ class Bank : public IBank {
         }
         return *this;
     }
+    
     Bank(const Bank&& other) noexcept : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs) {
         elevators = std::move(other.elevators);
     }
+    
     Bank& operator=(const Bank&& other) noexcept {
         if (this != &other) {
             floorCount = other.floorCount;
@@ -58,6 +57,8 @@ class Bank : public IBank {
         }
         return *this;
     }
+    
+    friend std::ostream& operator<<(std::ostream& os, const Bank& bank);
 
     std::future<IElevator*> CallElevator(int floor) {
         if (floor < 1 || floor > floorCount) {
@@ -69,15 +70,13 @@ class Bank : public IBank {
             std::cout << "Searching for an idle elevator to service floor " << floor << "..." << std::endl;
             IElevator* called = nullptr;
             while (called == nullptr) {
-                for (int i = 0; i < elevators.size(); ++i) {
-                    Elevator& elevator = elevators[i];
+                for(auto& elevator : elevators) {
                     if (elevator.IsIdle()) {
-                        // std::cout << "Elevator " << i + 1 << " is idle at floor " << elevator.GetCurrentFloor() << "." << std::endl;
-                        if (elevator.GetCurrentFloor() == floor) {
-                            std::cout << "Elevator " << i + 1 << " is already at the requested floor." << std::endl;
+                        if (elevator.CurrentFloor() == floor) {
+                            std::cout << "Elevator is already at the requested floor." << std::endl;
                             return &elevator;
-                        } else if( abs(elevator.GetCurrentFloor() - floor) < range ) {
-                            range = abs(elevator.GetCurrentFloor() - floor);
+                        } else if( std::abs(elevator.CurrentFloor() - floor) < range ) {
+                            range = std::abs(elevator.CurrentFloor() - floor);
                             called = &elevator;
                         }
                     }
@@ -89,32 +88,15 @@ class Bank : public IBank {
                     std::cout << "Elevator selected to service floor " << floor << "." << std::endl;
                 }
             }
-            called->MoveToFloor(floor);
+            called->RequestFloor(floor);
             return called;
         });
-    }
-
-    void Report(std::ostream& out, size_t bufferSize) const override {
-        for (int i = 0; i < elevators.size(); ++i) {
-            out << "Elevator " << std::to_string(i + 1) << ": Current Floor " << std::to_string(elevators[i].GetCurrentFloor());
-            out << (elevators[i].IsIdle() ? " (Idle)\n" : " (Active)\n");
-        }
-    }
-
-    void toString(char* buffer, size_t bufferSize) const override {
-        std::string status = "Bank Status:\n";
-        for (int i = 0; i < elevators.size(); ++i) {
-            status += "Elevator " + std::to_string(i + 1) + ": Current Floor " + std::to_string(elevators[i].GetCurrentFloor());
-            status += elevators[i].IsIdle() ? " (Idle)\n" : " (Active)\n";
-        }
-        strncpy_s(buffer, bufferSize, status.c_str(), bufferSize - 1);
-        buffer[bufferSize - 1] = '\0'; // Ensure null-termination
     }
 };
 
 std::ostream& operator<<(std::ostream& os, const Bank& bank) {
-    char buffer[1024];
-    bank.toString(buffer, sizeof(buffer));
-    os << buffer;
+    for(const auto& elevator : bank.elevators) {
+        os << elevator << std::endl;
+    }
     return os;
 }

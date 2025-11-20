@@ -7,9 +7,8 @@
 
 class IBank {
     public:
+    friend std::ostream& operator<<(std::ostream& os, const IBank& bank);
     virtual std::future<IElevator*> CallElevator(int floor) = 0;
-    virtual void Report(std::ostream& out, size_t bufferSize) const = 0;
-    virtual void toString(char* buffer, size_t bufferSize) const = 0;
 };
 
 #endif // BANK_H

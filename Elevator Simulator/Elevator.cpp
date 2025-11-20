@@ -3,147 +3,181 @@
 #include <cstring>
 #include <future>
 #include <iostream>
+#include <unordered_set>
 #include <thread>
 
 #include "Elevator.h"
+#include "Panel.h"
+#include "Passenger.h"
 
-class DoorsOpen : public IState {
-public:
-    void toString(char* buffer, size_t bufferSize) const override {
-        strncpy(buffer, "Doors are open", bufferSize);
-        if (bufferSize > 0) buffer[bufferSize - 1] = '\0';
-    }
+class Active : public State {};
+std::ostream& operator<<(std::ostream& os, const Active& _){
+    os << "Elevator is moving.";
+    return os;
 };
 
-class DoorsClosed : public IState {
-public:
-    void toString(char* buffer, size_t bufferSize) const override {
-        strncpy(buffer, "Doors are closed", bufferSize);
-        if (bufferSize > 0) buffer[bufferSize - 1] = '\0';
-    }
+class Idle : public State {};
+std::ostream& operator<<(std::ostream& os, const Idle& _){
+    os << "Elevator is idle.";
+    return os;
 };
 
-class Active : public IState {
-public:
-    void toString(char* buffer, size_t bufferSize) const override {
-        strncpy(buffer, "Elevator is active", bufferSize);
-        if (bufferSize > 0) buffer[bufferSize - 1] = '\0';
-    }
+static const State* ACTIVE = new Active();
+static const State* IDLE = new Idle();
+
+class DoorsOpen : public DoorState {};
+std::ostream& operator<<(std::ostream& os, const DoorsOpen& _){
+    os << "Doors are open.";
+    return os;
 };
 
-class Idle : public IState {
-public:
-    void toString(char* buffer, size_t bufferSize) const override {
-        strncpy(buffer, "Elevator is idle", bufferSize);
-        if (bufferSize > 0) buffer[bufferSize - 1] = '\0';
-    }
+class DoorsClosed : public DoorState {};
+std::ostream& operator<<(std::ostream& os, const DoorsClosed& _){
+    os << "Doors are closed.";
+    return os;
 };
 
-static const IState* DOORS_OPEN = new DoorsOpen();
-static const IState* DOORS_CLOSED = new DoorsClosed();
-static const IState* ACTIVE = new Active();
-static const IState* IDLE = new Idle();
+static const DoorState* DOORS_OPEN = new DoorsOpen();
+static const DoorState* DOORS_CLOSED = new DoorsClosed();
+
+class GoingUp : public Heading {};
+std::ostream& operator<<(std::ostream& os, const GoingUp& _){
+    os << "Going up.";
+    return os;
+};
+
+class GoingDown : public Heading {};
+std::ostream& operator<<(std::ostream& os, const GoingDown& _){
+    os << "Going down.";
+    return os;
+};
+
+class Stopped : public Heading {};
+std::ostream& operator<<(std::ostream& os, const Stopped& _){
+    os << "Stopped.";
+    return os;
+};
+
+static const Heading* GOING_UP = new GoingUp();
+static const Heading* GOING_DOWN = new GoingDown();
+static const Heading* STOPPED = new Stopped();
 
 class Elevator : public IElevator {
     private:
-    static const int DOOR_DELAY_MS = 300;
-    static const int MOVE_DELAY_MS = 500;
+    static const int DOOR_DELAY = 300;
+    static const int MOVE_DELAY = 500;
 
     private:
-        int doorDelayMs;
-        int moveDelayMs;
-        int currentFloor;
-        int destinationFloor;
-        IState* statePtr;
+        int doorDelay;
+        int moveDelay;
+        int current;
+        State* state;
+        Heading* heading;
+        DoorState* doorState;
+        std::unordered_set<int> requests;
 
     public:
-    Elevator(int initialFloor = 1, int doorDelay = DOOR_DELAY_MS, int moveDelay = MOVE_DELAY_MS)
-        : currentFloor(initialFloor), doorDelayMs(doorDelay), moveDelayMs(moveDelay), statePtr((IState*)IDLE), destinationFloor(initialFloor) {}
+
+    Elevator(int doorDelay = DOOR_DELAY, int moveDelay = MOVE_DELAY)
+           : doorDelay(doorDelay), moveDelay(moveDelay), current(1), state((State*)IDLE), heading((Heading*)STOPPED), doorState((DoorState*)DOORS_OPEN), requests() {}
     
     ~Elevator() {}
-    Elevator(const Elevator& other) : currentFloor(other.currentFloor), doorDelayMs(other.doorDelayMs), moveDelayMs(other.moveDelayMs), statePtr(other.statePtr), destinationFloor(other.destinationFloor) {}
+
+    Elevator(const Elevator& other) : doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current), state(other.state), heading(other.heading), doorState(other.doorState), requests(other.requests) {}
+    
     Elevator& operator=(const Elevator& other) {
         if (this != &other) {
-            currentFloor = other.currentFloor;
-            doorDelayMs = other.doorDelayMs;
-            moveDelayMs = other.moveDelayMs;
-            statePtr = other.statePtr;
-            destinationFloor = other.destinationFloor;
+            doorDelay = other.doorDelay;
+            moveDelay = other.moveDelay;
+            current = other.current;
+            state = other.state;
+            heading = other.heading;
+            doorState = other.doorState;
+            requests = other.requests;
         }
         return *this;
     }
+
     Elevator(Elevator&& other) noexcept
-        : currentFloor(other.currentFloor), doorDelayMs(other.doorDelayMs), moveDelayMs(other.moveDelayMs), statePtr(other.statePtr), destinationFloor(other.destinationFloor) {}
+            : doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current), state(other.state), heading(other.heading), doorState(other.doorState), requests(other.requests) {}
+
     Elevator& operator=(Elevator&& other) noexcept {
         if (this != &other) {
-            currentFloor = other.currentFloor;
-            doorDelayMs = other.doorDelayMs;
-            moveDelayMs = other.moveDelayMs;
-            statePtr = other.statePtr;
-            destinationFloor = other.destinationFloor;
+            doorDelay = other.doorDelay;
+            moveDelay = other.moveDelay;
+            current = other.current;
+            state = other.state;
+            heading = other.heading;
+            doorState = other.doorState;
+            requests = other.requests;
         }
         return *this;
     }
 
-    int GetCurrentFloor() const override {
-        return currentFloor;
+    friend std::ostream& operator<<(std::ostream& os, const Elevator& elevator);
+
+    bool IsIdle() override { std::cout << state; return state == IDLE; }
+    int CurrentFloor() override { return current; }
+
+    std::unordered_set<int> RequestFloor(const int floor) override {
+        if(current == floor) {
+            return requests;
+        }
+        auto search = requests.find(floor);
+        if(search != requests.end()) {
+            return requests;
+        } 
+        requests.insert(floor);
+        Move();
+        return requests;
     }
 
-    void MoveToFloor(int floor) override {
-        if( floor < 1 ) {
-            throw std::invalid_argument("Floor number must be positive.");
-        }
-        if( statePtr == (IState*)ACTIVE || statePtr == (IState*)DOORS_CLOSED || statePtr == (IState*)DOORS_OPEN ) {
-            throw std::logic_error("Elevator is already moving.");
-        }
-        if ( floor == currentFloor ) {
-            std::cout << "Elevator is already at floor " << floor << "." << std::endl;
-            return;
-        }
-        std::cout << "Moving elevator from floor " << currentFloor << " to floor " << floor << "..." << std::endl;
-        statePtr = (IState*)ACTIVE;
-        destinationFloor = floor;
-        std::thread t([this, floor]() {
-            statePtr = (IState*)DOORS_CLOSED;
-            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
-            statePtr = (IState*)ACTIVE;
-            while(currentFloor != floor) {
-                if (currentFloor < floor) {
-                    currentFloor++;
-                } else {
-                    currentFloor--;
+    protected:
+    void Move() override {
+        if(state == ACTIVE) { return; }
+        std::thread t([this]() {
+            state = (State*)ACTIVE;
+            while(!requests.empty()) {
+                if(requests.empty()) {
+                    state = (State*)IDLE;
+                    heading = (Heading*)STOPPED;
+                    break;
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
+                auto search = requests.find(current);
+                if(search != requests.end()) {
+                    requests.erase(*search);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
+                    doorState = (DoorState*)DOORS_OPEN;
+                }
+                if(heading == STOPPED) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
+                    doorState = (DoorState*)DOORS_CLOSED;
+                    int dest = *requests.begin();
+                    int dist = dest - current;
+                    for(const int& p : requests) {
+                        if(std::abs(p - current) < dist) {
+                            dest = p;
+                            dist = p - current;
+                        }
+                    }
+                    heading = (Heading*) ( dist > 0 ? GOING_UP : GOING_DOWN );
+                }
+                if(heading == GOING_UP) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
+                    ++current;
+                }
+                if(heading == GOING_DOWN) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
+                    --current;
+                }
             }
-            statePtr = (IState*)DOORS_OPEN;
-            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
-            statePtr = (IState*)IDLE;
-            std::cout << "Elevator has arrived at floor " << currentFloor << "." << std::endl;
-            return currentFloor;
         });
         t.detach();
     }
-    bool IsIdle() const override {
-        return statePtr == IDLE;
-    }
-
-    void toString(char* buffer, size_t bufferSize) const override {
-        snprintf(buffer, bufferSize, "Elevator is currently at floor %d last sent to floor %d. State: ", currentFloor, destinationFloor);
-        size_t len = strlen(buffer);
-        statePtr->toString(buffer + len, bufferSize - len);
-    }
 };
 
-std::ostream& operator<<(std::ostream& os, const IState& state) {
-    char buffer[1024];
-    state.toString(buffer, sizeof(buffer));
-    os << buffer;
-    return os;
-}
-
 std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
-    char buffer[1024];
-    elevator.toString(buffer, sizeof(buffer));
-    os << buffer;
+    os << "Elevator is currently at floor " << elevator.current << ".";
+    os << " " << elevator.state << " " << elevator.heading << " " << elevator.doorState << "";
     return os;
 }

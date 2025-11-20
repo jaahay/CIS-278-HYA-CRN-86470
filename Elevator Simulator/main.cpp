@@ -13,11 +13,9 @@ int main() {
         std::cout << "Enter number of elevators: ";
         std::cin >> numElevators;
         Bank bank(numFloors, numElevators);
-        
-        std::thread monitorThread([&bank]() {
+        std::thread monitorThread([bank]() {
             while (true) {
-                char buffer[512];
-                bank.Report(std::cout, sizeof(buffer));
+                std::cout << bank << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(10));
             }
         });

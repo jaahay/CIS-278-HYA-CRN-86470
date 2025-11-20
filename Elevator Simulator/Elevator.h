@@ -1,26 +1,23 @@
 #ifndef ELEVATOR_H
 #define ELEVATOR_H
 
-#include <cstring>
-#include <future>
+#include <iostream>
+#include <unordered_set>
 
-class IState {
-    public:
-    static const IState DOORS_OPEN;
-    static const IState DOORS_CLOSED;
-    static const IState ACTIVE;
-    static const IState IDLE;
+class State {};
 
-    virtual void toString(char* buffer, size_t bufferSize) const = 0;
-};
+class DoorState {};
+
+class Heading {};
 
 class IElevator {
     public:
-    virtual int GetCurrentFloor() const = 0;
-    virtual void MoveToFloor(int floor) = 0;
-    virtual bool IsIdle() const = 0;
+    virtual int CurrentFloor() = 0;
+    virtual bool IsIdle() = 0;
+    virtual std::unordered_set<int> RequestFloor(const int floor) = 0;
     
-    virtual void toString(char* buffer, size_t bufferSize) const = 0;
+    protected:
+    virtual void Move() = 0;
 };
 
 #endif // ELEVATOR_H

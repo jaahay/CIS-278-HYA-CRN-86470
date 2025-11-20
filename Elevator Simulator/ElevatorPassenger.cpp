@@ -2,57 +2,45 @@
 
 #include "Passenger.h"
 
-class Floor : public IPosition {
-    private:
-    int num;
-
-    public:
-    std::ostream& operator<<(std::ostream& os) const override {
-        os << "Floor: " << num;
-        return os;
-    }
-};
-
-template <typename T>
 class ElevatorPassenger : public IPassenger {
     private:
-    const Floor* originFloor;
-    const Floor* destinationFloor;
+    const int* origin;
+    const int* destination;
 
     public:
-    ElevatorPassenger(const Floor* origin, const Floor* destination)
-        : originFloor(origin), destinationFloor(destination) {}
+    ElevatorPassenger(const int* origin, const int* destination)
+        : origin(origin), destination(destination) {}
 
     ~ElevatorPassenger() {}
 
     ElevatorPassenger(const ElevatorPassenger& other)
-        : originFloor(other.originFloor), destinationFloor(other.destinationFloor) {}
+        : origin(other.origin), destination(other.destination) {}
 
     ElevatorPassenger& operator=(const ElevatorPassenger& other) {
         if (this != &other) {
-            originFloor = other.originFloor;
-            destinationFloor = other.destinationFloor;
+            origin = other.origin;
+            destination = other.destination;
         }
         return *this;
     }
 
     ElevatorPassenger(ElevatorPassenger&& other) noexcept
-        : originFloor(other.originFloor), destinationFloor(other.destinationFloor) {}
+        : origin(other.origin), destination(other.destination) {}
 
     ElevatorPassenger& operator=(ElevatorPassenger&& other) noexcept {
         if (this != &other) {
-            originFloor = other.originFloor;
-            destinationFloor = other.destinationFloor;
+            origin = other.origin;
+            destination = other.destination;
         }
         return *this;
     }
 
     std::ostream& operator<<(std::ostream& os) const override {
-        os << "Origin: " << originFloor;
-        os << "Destination: " << destinationFloor;
+        os << "Origin: " << origin;
+        os << "Destination: " << destination;
         return os;
     }
 
-    T* origin() const override { return originFloor; }
-    T* destination() const override { return destinationFloor; }
+    int origin() const { return *origin; }
+    int destination() const { return *destination; }
 };
