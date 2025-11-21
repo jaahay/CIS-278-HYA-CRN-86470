@@ -5,18 +5,18 @@
 #include <map>
 
 class IButtonState {
-    public:
-    virtual std::ostream& operator<<(std::ostream& os) const = 0;
+public:
+    virtual std::ostream& Printout(std::ostream&) const = 0;
 };
 
 class IButton {
     public:
-    virtual std::ostream& operator<<(std::ostream& os) const = 0;
+    virtual std::ostream& Printout(std::ostream&) const = 0;
 };
 
 class IPanel {
     public:
-    virtual std::ostream& operator<<(std::ostream& os) const = 0;
+    virtual std::ostream& Printout(std::ostream&) const = 0;
 };
 
 #endif // PANEL_H

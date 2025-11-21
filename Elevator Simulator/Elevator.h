@@ -4,17 +4,29 @@
 #include <iostream>
 #include <unordered_set>
 
-class State {};
+class State {
+public: 
+    bool operator==(const State& other) const { return this == &other; };
+    virtual std::ostream& Printout(std::ostream&) const = 0;
+};
 
-class DoorState {};
+class DoorState {
+public: 
+    bool operator==(const DoorState& other) const { return this == &other; };
+    virtual std::ostream& Printout(std::ostream&) const = 0;
+};
 
-class Heading {};
+class Heading {
+public: 
+    bool operator==(const Heading& other) const { return this == &other; };
+    virtual std::ostream& Printout(std::ostream&) const = 0;
+};
 
 class IElevator {
     public:
-    virtual int CurrentFloor() = 0;
     virtual bool IsIdle() = 0;
-    virtual std::unordered_set<int> RequestFloor(const int floor) = 0;
+    virtual int CurrentFloor() = 0;
+    virtual std::unordered_set<int> RequestFloor(const int&) = 0;
     
     protected:
     virtual void Move() = 0;

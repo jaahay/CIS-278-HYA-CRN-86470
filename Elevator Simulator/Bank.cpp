@@ -4,10 +4,7 @@
 
 #include <chrono>
 #include <future>
-#include <iostream>
-#include <iterator>
 #include <stdexcept>
-#include <string>
 #include <thread>
 #include <vector>
 
@@ -20,7 +17,7 @@ class Bank : public IBank {
 
     private:
     int floorCount;
-    std::vector<Elevator> elevators;
+    std::vector<Elevator*> elevators;
 
     const int checkIntervalMs;
 
@@ -30,7 +27,10 @@ class Bank : public IBank {
         if (numFloors <= 0 || numElevators <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }
-        elevators.resize(numElevators);
+        elevators.reserve(numElevators);
+        for(int i = 0; i < numElevators; ++i) {
+            elevators.push_back(new Elevator());
+        }
     }
     
     ~Bank() {
@@ -67,17 +67,17 @@ class Bank : public IBank {
        
         return std::async(std::launch::async, [this, floor]() -> IElevator* {
             int range = floorCount + 1;
-            std::cout << "Searching for an idle elevator to service floor " << floor << "..." << std::endl;
-            IElevator* called = nullptr;
+            std::cout << std::endl << "Searching for an idle elevator to service floor " << floor << "..." << std::endl;
+            Elevator* called = nullptr;
             while (called == nullptr) {
-                for(auto& elevator : elevators) {
-                    if (elevator.IsIdle()) {
-                        if (elevator.CurrentFloor() == floor) {
+                for(Elevator* elevator : elevators) {
+                    if (elevator->IsIdle()) {
+                        if (elevator->CurrentFloor() == floor) {
                             std::cout << "Elevator is already at the requested floor." << std::endl;
-                            return &elevator;
-                        } else if( std::abs(elevator.CurrentFloor() - floor) < range ) {
-                            range = std::abs(elevator.CurrentFloor() - floor);
-                            called = &elevator;
+                            return elevator;
+                        } else if ( std::abs(elevator->CurrentFloor() - floor) < range ) {
+                            range = std::abs(elevator->CurrentFloor() - floor);
+                            called = elevator;
                         }
                     }
                 }
@@ -95,8 +95,8 @@ class Bank : public IBank {
 };
 
 std::ostream& operator<<(std::ostream& os, const Bank& bank) {
-    for(const auto& elevator : bank.elevators) {
-        os << elevator << std::endl;
+    for(const auto elevator : bank.elevators) {
+        os << *elevator << std::endl;
     }
     return os;
 }
