@@ -2,7 +2,9 @@
 #include "Panel.h"
 #include "Passenger.h"
 
-#include <iostream>
+#include <chrono>
+#include <thread>
+#include <vector>
 
 class Idle : public State {
 public:
@@ -128,22 +130,16 @@ class Elevator : public IElevator {
             return requests;
         } 
         requests.insert(floor);
-        std::cout << "#requests: " << requests.size() << std::endl;
         Move();
         return requests;
     }
     protected:
     void Move() override {
         if(state == ACTIVE) { return; }
-        std::cout << "let's go!" << std::endl;
         std::thread t([this]() {
-            state = (Active*)ACTIVE;
 
+            state = (Active*)ACTIVE;
             while(!requests.empty()) {
-                // std::cout << "itr" << std::endl;
-                std::cout << "\tfloor~~" << current << " heading~~";
-                heading->Printout(std::cout);
-                std::cout << std::endl;
                 auto search = requests.find(current);
                 if(search != requests.end()) {
                     requests.erase(*search);
@@ -169,6 +165,10 @@ class Elevator : public IElevator {
                         heading = (GoingDown*)GOING_DOWN;
                     }
                 }
+                if(requests.empty()) {
+                    state = (Idle*)IDLE;
+                    heading = (Stopped*)STOPPED;
+                }
                 if(heading == GOING_UP) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
                     ++current;
@@ -178,9 +178,6 @@ class Elevator : public IElevator {
                     --current;
                 }
             }
-            
-            state = (Idle*)IDLE;
-            heading = (Stopped*)STOPPED;
             return;
         });
         t.detach();
@@ -193,6 +190,13 @@ std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
     elevator.doorState->Printout(os);
     os << " ";
     elevator.heading->Printout(os);
-    os << "\n";
+    if(!elevator.requests.empty()) {
+        os << " Requested floor(s): " << std::endl;
+        std::vector<int> as_vector(elevator.requests.begin(), elevator.requests.end());
+        for(int i = 0; i < as_vector.size() - 1; ++i) {
+            os << as_vector.at(i) << ", ";
+        }
+        os << as_vector.back();
+    }
     return os;
 };
