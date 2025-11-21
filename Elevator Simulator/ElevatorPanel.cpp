@@ -3,40 +3,32 @@
 #include "Panel.h"
 
 class PressedState : public IButtonState {
-    public:
-    PressedState() {}
-
-    std::ostream& operator<<(std::ostream& os) const override {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
         os << "Pressed";
         return os;
     }    
 };
 
 class ReleasedState : public IButtonState {
-    public:
-    ReleasedState() {}
-
-    std::ostream& operator<<(std::ostream& os) const override {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
         os << "Released";
         return os;
     }    
 };
 
 class UpButton : public IButton {
-    public:
-    UpButton() {}
-
-    std::ostream& operator<<(std::ostream& os) const override {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
         os << "Up Button";
         return os;
     }
 };
 
 class DownButton : public IButton {
-    public:
-    DownButton() {}
-
-    std::ostream& operator<<(std::ostream& os) const override {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
         os << "Down Button";
         return os;
     }

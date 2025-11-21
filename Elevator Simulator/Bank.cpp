@@ -75,7 +75,7 @@ class Bank : public IBank {
                         if (elevator.CurrentFloor() == floor) {
                             std::cout << "Elevator is already at the requested floor." << std::endl;
                             return &elevator;
-                        } else if( std::abs(elevator.CurrentFloor() - floor) < range ) {
+                        } else if ( std::abs(elevator.CurrentFloor() - floor) < range ) {
                             range = std::abs(elevator.CurrentFloor() - floor);
                             called = &elevator;
                         }

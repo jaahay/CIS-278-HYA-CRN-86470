@@ -1,6 +1,4 @@
-#include <iostream>
 #include "Bank.cpp"
-
 int main() {
 
     bool running = true;
@@ -25,18 +23,16 @@ int main() {
         while (calling)
         {
             int floor;
-            std::cout << "Enter the floor number to call the elevator (1-" << numFloors << "), or 0 to exit: ";
+            std::cout << "Enter the floor number to call the elevator (1-" << numFloors << "), or 0 to exit:\n";
             std::cin >> floor;
             if (floor == 0) {
                 calling = false;
                 continue;
             }
-            std::future<IElevator*> elevatorFuture;
-            try {
-                 elevatorFuture = bank.CallElevator(floor);
-            } catch (const std::exception& e) {
-                std::cerr << "Error: " << e.what() << std::endl;
-            }
+            std::thread callElevator([&bank, floor]() {
+                bank.CallElevator(floor);
+            });
+            callElevator.detach();
             std::cout << bank << std::endl;
         }
         char continueChoice;

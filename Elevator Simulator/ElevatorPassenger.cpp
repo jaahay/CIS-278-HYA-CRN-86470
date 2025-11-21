@@ -41,6 +41,6 @@ class ElevatorPassenger : public IPassenger {
         return os;
     }
 
-    int origin() const { return *origin; }
-    int destination() const { return *destination; }
+    const int* origin() const { return origin; }
+    const int* destination() const { return destination; }
 };
