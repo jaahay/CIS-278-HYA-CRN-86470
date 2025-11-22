@@ -40,7 +40,7 @@ static const IButtonState* RELEASED_STATE = new ReleasedState();
 static const IButton* UP_BUTTON = new UpButton();
 static const IButton* DOWN_BUTTON = new DownButton();
 
-class ElevatorPanel : public IPanel {
+class Panel : public IPanel {
     private:
     IButtonState* downButtonState;
     IButtonState* upButtonState;
@@ -49,17 +49,17 @@ class ElevatorPanel : public IPanel {
     IButton* upButton;
 
     public:
-    ElevatorPanel() 
+    Panel() 
         : downButtonState((IButtonState*)RELEASED_STATE), upButtonState((IButtonState*)RELEASED_STATE),
           downButton((IButton*)DOWN_BUTTON), upButton((IButton*)UP_BUTTON) {}
 
-    ~ElevatorPanel() {}
+    ~Panel() {}
 
-    ElevatorPanel(const ElevatorPanel& other) 
+    Panel(const Panel& other) 
         : downButtonState(other.downButtonState), upButtonState(other.upButtonState),
           downButton(other.downButton), upButton(other.upButton) {}
 
-    ElevatorPanel& operator=(const ElevatorPanel& other) {
+    Panel& operator=(const Panel& other) {
         if (this != &other) {
             downButtonState = other.downButtonState;
             upButtonState = other.upButtonState;
@@ -69,11 +69,11 @@ class ElevatorPanel : public IPanel {
         return *this;
     }
 
-    ElevatorPanel(ElevatorPanel&& other) noexcept
+    Panel(Panel&& other) noexcept
         : downButtonState(other.downButtonState), upButtonState(other.upButtonState),
           downButton(other.downButton), upButton(other.upButton) {}
 
-    ElevatorPanel& operator=(ElevatorPanel&& other) noexcept {
+    Panel& operator=(Panel&& other) noexcept {
         if (this != &other) {
             downButtonState = other.downButtonState;
             upButtonState = other.upButtonState;

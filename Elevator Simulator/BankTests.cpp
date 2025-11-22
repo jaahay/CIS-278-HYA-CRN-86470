@@ -5,7 +5,7 @@
 void test_bank_call_elevator() {
     Bank bank(10, 2); // 10 floors, 2 elevators
 
-    IElevator* elevator = bank.CallElevator(5).get();
+    Elevator* elevator = bank.CallElevator(5).get();
     assert(elevator != nullptr);
     std::cout << "Test CallElevator to floor 5 passed. Elevator current floor: " << elevator->GetCurrentFloor() << std::endl;
 }
@@ -31,11 +31,11 @@ void test_bank_invalid_floor() {
 void test_bank_multiple_calls() {
     Bank bank(10, 2); // 10 floors, 2 elevators
 
-    IElevator* elevator1 = bank.CallElevator(7).get();
+    Elevator* elevator1 = bank.CallElevator(7).get();
     assert(elevator1 != nullptr);
     std::cout << "First CallElevator to floor 7 passed. Elevator current floor: " << elevator1->GetCurrentFloor() << std::endl;
 
-    IElevator* elevator2 = bank.CallElevator(2).get();
+    Elevator* elevator2 = bank.CallElevator(2).get();
     assert(elevator2 != nullptr);
     std::cout << "Second CallElevator to floor 2 passed. Elevator current floor: " << elevator2->GetCurrentFloor() << std::endl;
 
@@ -46,7 +46,7 @@ void test_bank_multiple_calls() {
 void test_bank_elevator_movement() {
     Bank bank(10, 2); // 10 floors, 2 elevators
 
-    IElevator* elevator = bank.CallElevator(4).get();
+    Elevator* elevator = bank.CallElevator(4).get();
     assert(elevator != nullptr);
     elevator->MoveToFloor(4);
     assert(elevator->GetCurrentFloor() == 4);

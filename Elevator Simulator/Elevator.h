@@ -4,6 +4,8 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "Passenger.h"
+
 class State {
 public: 
     bool operator==(const State& other) const { return this == &other; };
@@ -26,6 +28,7 @@ class IElevator {
     public:
     virtual bool IsIdle() = 0;
     virtual int CurrentFloor() = 0;
+    virtual std::unordered_set<IPassenger*> ReceivePassenger(const IPassenger&) = 0;
     virtual std::unordered_set<int> RequestFloor(const int&) = 0;
     
     protected:
