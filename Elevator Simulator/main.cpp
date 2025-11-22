@@ -25,15 +25,16 @@ int main() {
         while (calling)
         {
             int embark, disembark;
-            std::cout << "Enter the floor number to call the elevator (1-" << numFloors << ") for embarkment, or 0 to exit:";
-            std::cin >> embark;
-            if (embark == 0) {
+            std::cout << "Enter the from and to floor numbers\n\tseparated by a space:\n\tEnter 0 to exit." << std::endl;
+            // std::cout << "Enter the floor number to call the elevator (1-" << numFloors << ") for embarkment, or 0 to exit:";
+            std::cin >> embark >> disembark;
+            if (embark == 0 || disembark == 0) {
                 calling = false;
                 continue;
             }
-            std::cout << std::endl;
-            std::cout << "disembarkment:";
-            std::cin >> disembark;
+
+            Passenger passenger(embark, disembark, numFloors);
+
             std::thread receivePassenger([&bank, &embark, &disembark]() {
                 bank.ReceivePassenger(embark, disembark);
             });
