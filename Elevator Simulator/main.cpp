@@ -1,4 +1,5 @@
 #include "Bank.cpp"
+
 int main() {
 
     bool running = true;
@@ -23,18 +24,20 @@ int main() {
         bool calling = true;
         while (calling)
         {
-            int floor;
-            std::cout << "Enter the floor number to call the elevator (1-" << numFloors << "), or 0 to exit:";
-            std::cin >> floor;
-            std::cout << std::endl;
-            if (floor == 0) {
+            int embark, disembark;
+            std::cout << "Enter the floor number to call the elevator (1-" << numFloors << ") for embarkment, or 0 to exit:";
+            std::cin >> embark;
+            if (embark == 0) {
                 calling = false;
                 continue;
             }
-            std::thread callElevator([&bank, floor]() {
-                bank.CallElevator(floor);
+            std::cout << std::endl;
+            std::cout << "disembarkment:";
+            std::cin >> disembark;
+            std::thread receivePassenger([&bank, &embark, &disembark]() {
+                bank.ReceivePassenger(embark, disembark);
             });
-            callElevator.detach();
+            receivePassenger.detach();
             std::cout << bank << std::endl;
         }
         char continueChoice;
@@ -46,6 +49,5 @@ int main() {
         }
     }
     
-
     return 0;
 }

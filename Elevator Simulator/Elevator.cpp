@@ -1,10 +1,9 @@
-#include "Elevator.h"
-#include "Panel.h"
-#include "Passenger.h"
-
 #include <chrono>
 #include <thread>
 #include <vector>
+
+#include "Elevator.h"
+#include "Passenger.h"
 
 class Idle : public State {
 public:
@@ -76,65 +75,106 @@ class Elevator : public IElevator {
         State* state;
         DoorState* doorState;
         Heading* heading;
+        std::unordered_set<IPassenger*> passengers;
         std::unordered_set<int> requests;
 
     public:
 
     Elevator(int doorDelay = DOOR_DELAY, int moveDelay = MOVE_DELAY)
-           : doorDelay(doorDelay), moveDelay(moveDelay), current(1), state((State*)IDLE), doorState((DoorState*)DOORS_OPEN), heading((Heading*)STOPPED), requests() {}
+           : doorDelay(doorDelay), moveDelay(moveDelay), current(1), state((State*)IDLE), doorState((DoorState*)DOORS_OPEN), heading((Heading*)STOPPED), passengers(), requests() {}
     
-    ~Elevator() {}
+    // ~Elevator() {}
 
-    Elevator(const Elevator& other) : doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current), state(other.state), doorState(other.doorState), heading(other.heading), requests(other.requests) {}
+    // Elevator(const Elevator& other) : doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current), state(other.state), doorState(other.doorState), heading(other.heading), passengers(other.passengers), requests(other.requests) {}
     
-    Elevator& operator=(const Elevator& other) {
-        if (this != &other) {
-            doorDelay = other.doorDelay;
-            moveDelay = other.moveDelay;
-            current = other.current;
-            state = other.state;
-            doorState = other.doorState;
-            heading = other.heading;
-            requests = other.requests;
-        }
-        return *this;
-    }
+    // Elevator& operator=(const Elevator& other) {
+    //     if (this != &other) {
+    //         doorDelay = other.doorDelay;
+    //         moveDelay = other.moveDelay;
+    //         current = other.current;
+    //         state = other.state;
+    //         doorState = other.doorState;
+    //         heading = other.heading;
+    //         passengers = other.passengers;
+    //         requests = other.requests;
+    //     }
+    //     return *this;
+    // }
 
-    Elevator(Elevator&& other) noexcept
-            : doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current), state(other.state), doorState(other.doorState), heading(other.heading), requests(other.requests) {}
+    // Elevator(Elevator&& other) noexcept
+    //         : doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current), state(other.state), doorState(other.doorState), heading(other.heading), passengers(other.passengers), requests(other.requests) {}
 
-    Elevator& operator=(Elevator&& other) noexcept {
-        if (this != &other) {
-            doorDelay = other.doorDelay;
-            moveDelay = other.moveDelay;
-            current = other.current;
-            state = other.state;
-            doorState = other.doorState;
-            heading = other.heading;
-            requests = other.requests;
-        }
-        return *this;
-    }
+    // Elevator& operator=(Elevator&& other) noexcept {
+    //     if (this != &other) {
+    //         doorDelay = other.doorDelay;
+    //         moveDelay = other.moveDelay;
+    //         current = other.current;
+    //         state = other.state;
+    //         doorState = other.doorState;
+    //         heading = other.heading;
+    //         passengers = other.passengers;
+    //         requests = other.requests;
+    //     }
+    //     return *this;
+    // }
 
-    friend std::ostream& operator<<(std::ostream& os, const Elevator& elevator);
+    friend std::ostream& operator<<(std::ostream&, const Elevator&);
 
     bool IsIdle() override { return state == IDLE; }
-    int CurrentFloor() override { return current; }
+    int CurrentFloor() { return current; }
 
-    std::unordered_set<int> RequestFloor(const int& floor) override {
-        if(current == floor) {
-            return requests;
-        }
-        auto search = requests.find(floor);
-        if(search != requests.end()) {
-            return requests;
-        } 
-        requests.insert(floor);
-        Move();
-        return requests;
+    /**
+     *  ... weight limit...
+     *  ... elevator spread when no passengers no requests ...
+     * 
+     *  same floor same direction
+     *      win
+     *      
+     *  stopped
+     *      win
+     * 
+     *  different floor same direction within
+     *      distance = abs (current floor - embark floor)
+     *  different floor same direction further out
+     *      distance = abs (current floor - disembark floor)
+     * 
+     *  same floor different direction
+     *      distance = 2 * farthest distance + opposite distance
+     * 
+     *  different floor different direction
+     *      distance = 2 * abs (current floor - farthest floor)
+     *                  + abs (disembark floor - farthest floor)
+     * 
+     */
+
+    std::unordered_set<IPassenger*> ReceivePassenger(const IPassenger& passenger) override {
+        throw std::logic_error("not yet implemented");
+        // return std::unordered_set<Passenger>();
+        // passenger->origin();
+        // passenger.origin();
+        // if(current == passenger.origin()) {
+
+        // }
+    }
+
+    std::unordered_set<int> RequestFloor(const int& floor) {
+        throw std::logic_error("not yet implemented");
+
+        // if(current == floor) {
+        //     return requests;
+        // }
+        // auto search = requests.find(floor);
+        // if(search != requests.end()) {
+        //     return requests;
+        // } 
+        // requests.insert(floor);
+        // Move();
+        // return requests;
     }
     protected:
     void Move() override {
+        throw std::logic_error("not yet implemented");
+
         if(state == ACTIVE) { return; }
         std::thread t([this]() {
 

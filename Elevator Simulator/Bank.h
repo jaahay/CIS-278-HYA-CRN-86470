@@ -4,11 +4,12 @@
 #include <future>
 
 #include "Elevator.h"
+#include "Passenger.h"
 
 class IBank {
     public:
-    friend std::ostream& operator<<(std::ostream& os, const IBank& bank);
-    virtual std::future<IElevator*> CallElevator(int floor) = 0;
+    // friend std::ostream& operator<<(std::ostream&, const IBank&);
+    virtual std::future<IElevator*> ReceivePassenger(const int embark, const int disembark) = 0;
 };
 
 #endif // BANK_H

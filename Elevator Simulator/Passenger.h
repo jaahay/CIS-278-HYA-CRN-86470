@@ -5,7 +5,8 @@
 
 class IPassenger {
     public:
-    virtual std::ostream& operator<<(std::ostream& os) const = 0;
+    virtual int Origin() = 0;
+    virtual int Destination() = 0;
  };
 
  #endif // PASSENGER_H
