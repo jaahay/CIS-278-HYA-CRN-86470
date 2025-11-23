@@ -56,9 +56,8 @@ class IElevator {
     public:
     virtual bool IsIdle() = 0;
     virtual int CurrentFloor() = 0;
-    virtual double Divergence(const IPassenger&) const = 0;
-    virtual std::unordered_set<IPassenger*> ReceivePassenger(const IPassenger&) = 0;
-    virtual std::unordered_set<int> RequestFloor(const int&) = 0;
+    virtual const double Divergence(const IPassenger&) const = 0;
+    virtual std::unordered_set<IPassenger*> ReceivePassenger(IPassenger*) = 0;
     
     protected:
     virtual void Move() = 0;

@@ -58,40 +58,21 @@ class Bank : public IBank {
     
     
     
-    
+    IElevator* Closest(const IPassenger& passenger) const {
+        Elevator* leastDivergent = elevators.at(0);
+        double leastDivergence = leastDivergent->Divergence(passenger);
+        for(Elevator* elevator : elevators) {
+            double divergence = elevator->Divergence(passenger);
+            if(divergence < leastDivergence) {
+                leastDivergent = elevator;
+                leastDivergence = divergence;
+            }
+        }
+        return leastDivergent;
+    }
 
     std::future<IElevator*> ReceivePassenger(const IPassenger& passenger) override {
-        throw std::logic_error("not yet implemented");
-        // if (floor < 1 || floor > floorCount) {
-        //     throw std::out_of_range("Requested floor is out of range.");
-        // }
-       
-        // return std::async(std::launch::async, [this, floor]() -> Elevator* {
-        //     int range = floorCount + 1;
-        //     std::cout << std::endl << "Searching for an idle elevator to service floor " << floor << "..." << std::endl;
-        //     Elevator* called = nullptr;
-        //     while (called == nullptr) {
-        //         for(Elevator* elevator : elevators) {
-        //             if (elevator->IsIdle()) {
-        //                 if (elevator->CurrentFloor() == floor) {
-        //                     std::cout << "Elevator is already at the requested floor." << std::endl;
-        //                     return elevator;
-        //                 } else if ( std::abs(elevator->CurrentFloor() - floor) < range ) {
-        //                     range = std::abs(elevator->CurrentFloor() - floor);
-        //                     called = elevator;
-        //                 }
-        //             }
-        //         }
-        //         if(called == nullptr) {
-        //             std::cout << "No idle elevators available to service floor " << floor << ". Retrying in " << checkIntervalMs << " ms..." << std::endl;
-        //             std::this_thread::sleep_for(std::chrono::milliseconds(checkIntervalMs));
-        //         } else {
-        //             std::cout << "Elevator selected to service floor " << floor << "." << std::endl;
-        //         }
-        //     }
-        //     called->RequestFloor(floor);
-        //     return called;
-        // });
+        return std::async(std::launch::async, [&](){ return Closest(passenger); });
     }
     
     friend std::ostream& operator<<(std::ostream& os, const Bank& bank);

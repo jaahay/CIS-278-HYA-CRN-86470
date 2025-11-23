@@ -40,7 +40,11 @@ int main() {
             }
 
             std::thread receivePassenger([&bank, &embark, &disembark]() {
-                bank.ReceivePassenger(Passenger(embark, disembark));
+                const IPassenger* passenger = new Passenger(embark, disembark);
+                std::cout << std::endl << "Searching for an idle elevator to service " << passenger << "..." << std::endl;
+                const IElevator* elevator = bank.ReceivePassenger(*passenger).get();
+                std::cout << "Elevator selected to service " << passenger << "." << std::endl;
+                std::cout << "It'll cost approx " << elevator->Divergence(*passenger);
             });
             receivePassenger.detach();
             std::cout << bank << std::endl;
