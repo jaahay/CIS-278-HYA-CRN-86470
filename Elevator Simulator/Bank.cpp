@@ -6,10 +6,6 @@
 
 #include "Bank.h"
 
-// #include "Elevator.h"
-// #include "Passenger.h"
-
-// #include "Bank.cpp"
 #include "Elevator.cpp"
 #include "Passenger.cpp"
 
@@ -59,9 +55,12 @@ class Bank : public IBank {
     //     return *this;
     // }
     
-    friend std::ostream& operator<<(std::ostream& os, const Bank& bank);
+    
+    
+    
+    
 
-    std::future<IElevator*> ReceivePassenger(const int embark, const int disembark) override {
+    std::future<IElevator*> ReceivePassenger(const IPassenger& passenger) override {
         throw std::logic_error("not yet implemented");
         // if (floor < 1 || floor > floorCount) {
         //     throw std::out_of_range("Requested floor is out of range.");
@@ -94,6 +93,8 @@ class Bank : public IBank {
         //     return called;
         // });
     }
+    
+    friend std::ostream& operator<<(std::ostream& os, const Bank& bank);
 };
 
 std::ostream& operator<<(std::ostream& os, const Bank& bank) {

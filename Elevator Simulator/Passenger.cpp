@@ -1,29 +1,35 @@
 #include "Passenger.h"
 
-#include <format>
 #include <stdexcept>
+
+class GoingUp : public IHeading {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
+        os << "Going up.";
+        return os;
+    }
+};
+class GoingDown : public IHeading {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
+        os << "Going down.";
+        return os;
+    }
+};
+static const GoingUp* GOING_UP = new GoingUp();
+static const GoingDown* GOING_DOWN = new GoingDown();
 
 class Passenger : public IPassenger {
     private:
-    int origin;
-    int destination;
+    const int origin;
+    const int destination;
 
     public:
 
-    Passenger(int origin = 1, int destination = 1, int numFloors)
+    Passenger(int origin = 1, int destination = 1)
         : origin(origin), destination(destination) {
             if(origin == destination) {
                 throw std::invalid_argument("Embark and disembark from two different floors, please.");
-            }
-            if(origin < 1 || origin > numFloors) {
-                throw std::invalid_argument(
-                    std::format("Please embark from a valid floor between 1 and {}.", numFloors)
-                );
-            }
-            if(destination < 1 || destination > numFloors) {
-                throw std::invalid_argument(
-                    std::format("Please disembark from a valid floor between 1 and {}.", numFloors)
-                );
             }
         }
 
@@ -53,8 +59,19 @@ class Passenger : public IPassenger {
     
     friend std::ostream& operator<<(std::ostream&, const Passenger&);
 
-    int Origin() override { return origin; }
-    int Destination() override { return destination; }
+    const int Origin() const override { return origin; }
+    const int Destination() const override { return destination; }
+
+    const IHeading* Heading() const override {
+        if(origin > destination) {
+            return GOING_DOWN;
+        }
+        return GOING_UP;
+    }
+    const bool FloorWithin(const int floor) const override {
+        if(floor >= origin) { return GOING_UP; }
+        return GOING_DOWN;
+    }
     
 };
 

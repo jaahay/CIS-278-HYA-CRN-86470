@@ -1,9 +1,9 @@
 #include <chrono>
+#include <cmath>
 #include <thread>
 #include <vector>
 
 #include "Elevator.h"
-#include "Passenger.h"
 
 class Idle : public State {
 public:
@@ -39,30 +39,14 @@ public:
 static const DoorsOpen* DOORS_OPEN = new DoorsOpen();
 static const DoorsClosed* DOORS_CLOSED = new DoorsClosed();
 
-class Stopped : public Heading {
+class Stopped : public IHeading {
 public:
     std::ostream& Printout(std::ostream& os) const override {
         os << "Stopped.";
         return os;
     }
 };
-class GoingUp : public Heading {
-public:
-    std::ostream& Printout(std::ostream& os) const override {
-        os << "Going up.";
-        return os;
-    }
-};
-class GoingDown : public Heading {
-public:
-    std::ostream& Printout(std::ostream& os) const override {
-        os << "Going down.";
-        return os;
-    }
-};
 static const Stopped* STOPPED = new Stopped();
-static const GoingUp* GOING_UP = new GoingUp();
-static const GoingDown* GOING_DOWN = new GoingDown();
 
 static const int DOOR_DELAY = int(300);
 static const int MOVE_DELAY = int(500);
@@ -74,14 +58,14 @@ class Elevator : public IElevator {
 
         State* state;
         DoorState* doorState;
-        Heading* heading;
+        IHeading* heading;
         std::unordered_set<IPassenger*> passengers;
         std::unordered_set<int> requests;
 
     public:
 
     Elevator(int doorDelay = DOOR_DELAY, int moveDelay = MOVE_DELAY)
-           : doorDelay(doorDelay), moveDelay(moveDelay), current(1), state((State*)IDLE), doorState((DoorState*)DOORS_OPEN), heading((Heading*)STOPPED), passengers(), requests() {}
+           : doorDelay(doorDelay), moveDelay(moveDelay), current(1), state((State*)IDLE), doorState((DoorState*)DOORS_OPEN), heading((IHeading*)STOPPED), passengers(), requests() {}
     
     // ~Elevator() {}
 
@@ -126,12 +110,17 @@ class Elevator : public IElevator {
     /**
      *  ... weight limit...
      *  ... elevator spread when no passengers no requests ...
-     * 
+     *
+    /
+
+    /*
      *  same floor same direction
      *      win
-     *      
+     * 
      *  stopped
-     *      win
+     *      distance to origin
+     * 
+     *      
      * 
      *  different floor same direction within
      *      distance = abs (current floor - embark floor)
@@ -146,6 +135,31 @@ class Elevator : public IElevator {
      *                  + abs (disembark floor - farthest floor)
      * 
      */
+
+    double Divergence(const IPassenger& passenger) const override {
+        if(doorState == DOORS_OPEN && current == passenger.Origin() && heading == passenger.Heading()) {
+            return 0;
+        }
+        const int passengerDistance = std::abs(current - passenger.Origin());
+        if(state == IDLE) {
+            return std::abs(current - passenger.Origin());
+        }
+        if(heading == passenger.Heading() && passenger.AlongTheWay(current)) {
+            return std::abs(current - passenger.Origin());
+        } else {
+            IPassenger* farthestPassenger;
+            int farthestDistance;
+            for(const auto& somePassenger : passengers) {
+                if(farthestPassenger == nullptr) {
+                    farthestPassenger = somePassenger;
+
+                }
+            }
+        }
+        
+
+        return 0.0;
+    }
 
     std::unordered_set<IPassenger*> ReceivePassenger(const IPassenger& passenger) override {
         throw std::logic_error("not yet implemented");

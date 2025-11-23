@@ -25,18 +25,22 @@ int main() {
         while (calling)
         {
             int embark, disembark;
-            std::cout << "Enter the from and to floor numbers\n\tseparated by a space:\n\tEnter 0 to exit." << std::endl;
-            // std::cout << "Enter the floor number to call the elevator (1-" << numFloors << ") for embarkment, or 0 to exit:";
+            std::cout << "Enter from and to floors separated by a space:\n\tEnter 0 to exit." << std::endl;
             std::cin >> embark >> disembark;
             if (embark == 0 || disembark == 0) {
                 calling = false;
                 continue;
             }
 
-            Passenger passenger(embark, disembark, numFloors);
+            if(embark < 1 || embark > numFloors) {
+                std::cout << "Please embark from a valid floor between 1 and " << numFloors << ".";
+            }
+            if(disembark < 1 || disembark > numFloors) {
+                std::cout << "Please disembark from a valid floor between 1 and " << numFloors << ".";
+            }
 
             std::thread receivePassenger([&bank, &embark, &disembark]() {
-                bank.ReceivePassenger(embark, disembark);
+                bank.ReceivePassenger(Passenger(embark, disembark));
             });
             receivePassenger.detach();
             std::cout << bank << std::endl;
