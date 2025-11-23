@@ -39,8 +39,6 @@ class Passenger : public IPassenger {
     //     }
     //     return *this;
     // }
-    
-    friend std::ostream& operator<<(std::ostream&, const Passenger&);
 
     const int Origin() const override { return origin; }
     const int Destination() const override { return destination; }
@@ -51,15 +49,11 @@ class Passenger : public IPassenger {
         }
         return GOING_UP;
     }
-    const bool FloorWithin(const int floor) const override {
-        if(floor >= origin) { return GOING_UP; }
-        return GOING_DOWN;
-    }
     
+    friend std::ostream& operator<<(std::ostream&, const Passenger&);
 };
 
 std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {
-    os << "Origin: " << passenger.origin;
-    os << "Destination: " << passenger.destination;
+    os << passenger.origin << "->" << passenger.destination;
     return os;
 }
