@@ -2,23 +2,6 @@
 
 #include <stdexcept>
 
-class GoingUp : public IHeading {
-public:
-    std::ostream& Printout(std::ostream& os) const override {
-        os << "Going up.";
-        return os;
-    }
-};
-class GoingDown : public IHeading {
-public:
-    std::ostream& Printout(std::ostream& os) const override {
-        os << "Going down.";
-        return os;
-    }
-};
-static const GoingUp* GOING_UP = new GoingUp();
-static const GoingDown* GOING_DOWN = new GoingDown();
-
 class Passenger : public IPassenger {
     private:
     const int origin;

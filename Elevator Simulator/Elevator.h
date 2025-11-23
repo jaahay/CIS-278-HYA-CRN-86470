@@ -13,11 +13,44 @@ public:
     virtual std::ostream& Printout(std::ostream&) const = 0;
 };
 
+class Idle : public State {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
+        os << "Elevator is idle.";
+        return os;
+    }
+};
+class Active : public State {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
+        os << "Elevator is moving.";
+        return os;
+    }
+};
+static const Idle* IDLE = new Idle();
+static const Active* ACTIVE = new Active();
+
 class DoorState {
 public: 
     bool operator==(const DoorState& other) const { return this == &other; };
     virtual std::ostream& Printout(std::ostream&) const = 0;
 };
+class DoorsOpen : public DoorState {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
+        os << "Doors are open.";
+        return os;
+    }
+};
+class DoorsClosed : public DoorState {
+public:
+    std::ostream& Printout(std::ostream& os) const override {
+        os << "Doors are closed.";
+        return os;
+    }
+};
+static const DoorsOpen* DOORS_OPEN = new DoorsOpen();
+static const DoorsClosed* DOORS_CLOSED = new DoorsClosed();
     
 class IElevator {
     public:
@@ -30,10 +63,5 @@ class IElevator {
     protected:
     virtual void Move() = 0;
 };
-
-static bool Within(const int floor, const IPassenger& passenger) {
-    const auto [lower, higher] = std::minmax(passenger.Origin(), passenger.Destination());
-    return lower <= floor && floor <= higher;
-}
 
 #endif // ELEVATOR_H
