@@ -54,15 +54,25 @@ class Bank : public IBank {
     //     }
     //     return *this;
     // }
+
+    std::future<IElevator*> ReceivePassenger(IPassenger* passenger) override {
+        return std::async(std::launch::async, [&](){ 
+            IElevator* closestElevator = Closest(passenger);
+            closestElevator->ReceivePassenger(passenger);
+            return closestElevator;
+        });
+    }
     
-    
-    
-    
-    IElevator* Closest(const IPassenger& passenger) const {
-        Elevator* leastDivergent = elevators.at(0);
+    friend std::ostream& operator<<(std::ostream& os, const Bank& bank);
+
+    private:
+
+    IElevator* Closest(IPassenger* passenger) const {
+        IElevator* leastDivergent = elevators.at(0);
         double leastDivergence = leastDivergent->Divergence(passenger);
-        for(Elevator* elevator : elevators) {
+        for(IElevator* elevator : elevators) {
             double divergence = elevator->Divergence(passenger);
+            std::cout << "Div: " << divergence;
             if(divergence < leastDivergence) {
                 leastDivergent = elevator;
                 leastDivergence = divergence;
@@ -70,17 +80,20 @@ class Bank : public IBank {
         }
         return leastDivergent;
     }
-
-    std::future<IElevator*> ReceivePassenger(const IPassenger& passenger) override {
-        return std::async(std::launch::async, [&](){ return Closest(passenger); });
-    }
-    
-    friend std::ostream& operator<<(std::ostream& os, const Bank& bank);
 };
 
 std::ostream& operator<<(std::ostream& os, const Bank& bank) {
+    os << bank.elevators.size() << " elevators." << std::endl;
+    if(
+        std::any_of(
+            bank.elevators.begin(), bank.elevators.end(), [](const auto& elevator) { return !elevator->IsIdle(); }
+        )
+    ) {
+        os << "\tActive elevators:" << std::endl;
+    }
     for(const auto elevator : bank.elevators) {
-        os << *elevator << std::endl;
+        if(elevator->IsIdle()) { continue; }
+        os << "\t" << *elevator << std::endl;
     }
     return os;
 }
