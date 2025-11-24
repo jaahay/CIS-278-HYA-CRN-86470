@@ -17,7 +17,7 @@ int main() {
         std::thread monitorThread([&]() {
             while (true) {
                 std::cout << std::endl << "Elevator bank status:" << std::endl;
-                std::cout << b << std::endl;
+                std::cout << bank << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(10));
             }
         });
