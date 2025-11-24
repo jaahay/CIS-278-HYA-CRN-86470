@@ -8,7 +8,7 @@
 
 class IBank {
     public:
-    virtual std::future<IElevator*> ReceivePassenger(const IPassenger&) = 0;
+    virtual std::future<IElevator*> ReceivePassenger(IPassenger*) = 0;
 };
 
 #endif // BANK_H

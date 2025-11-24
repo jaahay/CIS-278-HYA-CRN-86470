@@ -60,36 +60,38 @@ class Elevator : public IElevator {
     // }
 
 
-    bool IsIdle() override { return state == IDLE; }
-    int CurrentFloor() { return current; }
+    const bool IsIdle() override { return state == IDLE; }
+    const int CurrentFloor() override { return current; }
 
-    /**
-     *  ... weight limit...
-     *  ... elevator spread when no passengers no requests ...
-    */
-
-    const IHeading* ClosestHeading() const {
-        if(passengers.empty()) { return STOPPED; }
-        IHeading* closestHeading = (Stopped*)STOPPED;
-        std::vector<int> origins(passengers.size());
-        std::transform(
-            passengers.begin(), passengers.end(),
-            origins.begin(), 
-            [this](const auto& passenger) { return passenger->Origin() - current; }
-        );
-        int closest = origins.at(0);
-        for(const auto& origin : origins) {
-            if(std::abs(origin) < std::abs(closest)) {
-                closest = origin;
-            }
+    const double Divergence(IPassenger* passenger) override {
+        std::cout << "Check " << &passenger;
+        if(doorState == DOORS_OPEN && current == passenger->Origin() && heading == passenger->Heading()) {
+            return 0;
         }
-        return (closest > 0) ? (IHeading*) GOING_UP : (IHeading*) GOING_DOWN;
+
+        const int passengerDistance = std::abs(current - passenger->Origin());
+        if(state == IDLE) {
+            return passengerDistance;
+        }
+
+        if(Passed(passenger)) {
+            return 2 * FarthestAhead() + passengerDistance;
+        }
+
+        return passengerDistance;
     }
+
+    const std::unordered_set<IPassenger*> ReceivePassenger(IPassenger* passenger) override {
+        if(passengers.insert(passenger).second) { Move(); }
+        return passengers;
+    }
+
+    private:
 
     const double FarthestAhead() const {
         std::vector<IPassenger*> forwards;
         for(const auto& passenger : passengers) {
-            if(!Passed(*passenger)) {
+            if(!Passed(passenger)) {
                 forwards.push_back(passenger);
             }
         }
@@ -116,35 +118,34 @@ class Elevator : public IElevator {
         }
         return farthest;
     }
+   /**
+     *  ... weight limit...
+     *  ... elevator spread when no passengers no requests ...
+    */
 
-    bool Passed(const IPassenger& passenger) const {
-        return heading == GOING_DOWN && passenger.Origin() > current || heading == GOING_UP && passenger.Origin() < current;
+    IHeading* ClosestHeading() {
+        if(passengers.empty()) { return (Stopped*)STOPPED; }
+        IHeading* closestHeading = (Stopped*)STOPPED;
+        std::vector<int> origins(passengers.size());
+        std::transform(
+            passengers.begin(), passengers.end(),
+            origins.begin(), 
+            [this](const auto& passenger) { return passenger->Origin() - current; }
+        );
+        int closest = origins.at(0);
+        for(const auto& origin : origins) {
+            if(std::abs(origin) < std::abs(closest)) {
+                closest = origin;
+            }
+        }
+        return (closest > 0) ? (IHeading*) GOING_UP : (IHeading*) GOING_DOWN;
     }
 
-    const double Divergence(const IPassenger& passenger) const override {
-        if(doorState == DOORS_OPEN && current == passenger.Origin() && heading == passenger.Heading()) {
-            return 0;
-        }
-
-        const int passengerDistance = std::abs(current - passenger.Origin());
-        if(state == IDLE) {
-            return passengerDistance;
-        }
-
-        if(Passed(passenger)) {
-            return 2 * FarthestAhead() + passengerDistance;
-        }
-
-        return passengerDistance;
+    bool Passed(IPassenger* passenger) const {
+        return heading == GOING_DOWN && passenger->Origin() > current || heading == GOING_UP && passenger->Origin() < current;
     }
 
-    std::unordered_set<IPassenger*> ReceivePassenger(IPassenger* passenger) override {
-        if(passengers.insert(passenger).second) { Move(); }
-        return passengers;
-    }
-
-    protected:
-    void Move() override {
+    void Move() {
         if(state == ACTIVE) { return; }
         std::thread t([&]() {
             state = (Active*)ACTIVE;
@@ -184,7 +185,7 @@ class Elevator : public IElevator {
     friend std::ostream& operator<<(std::ostream&, const Elevator&);
 };
 std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
-    os << "\tElevator is currently at floor " << elevator.current << ". ";
+    os << "\tCurrently at floor " << elevator.current << ". ";
     elevator.state->Printout(os);
     os << " ";
     elevator.doorState->Printout(os);

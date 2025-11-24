@@ -54,13 +54,10 @@ static const DoorsClosed* DOORS_CLOSED = new DoorsClosed();
     
 class IElevator {
     public:
-    virtual bool IsIdle() = 0;
-    virtual int CurrentFloor() = 0;
-    virtual const double Divergence(const IPassenger&) const = 0;
-    virtual std::unordered_set<IPassenger*> ReceivePassenger(IPassenger*) = 0;
-    
-    protected:
-    virtual void Move() = 0;
+    virtual const bool IsIdle() = 0;
+    virtual const int CurrentFloor() = 0;
+    virtual const double Divergence(IPassenger*) = 0;
+    virtual const std::unordered_set<IPassenger*> ReceivePassenger(IPassenger*) = 0;
 };
 
 #endif // ELEVATOR_H
