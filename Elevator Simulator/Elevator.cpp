@@ -36,16 +36,15 @@ class Elevator : public IElevator {
         if(doorState == DOORS_OPEN && current == passenger.Origin() && heading == passenger.Heading()) {
             return 0;
         }
-        const int passengerDistance = std::abs(current - passenger.Origin());
         if(state == IDLE) {
-            return passengerDistance;
+            return std::abs(current - passenger.Origin());
         }
 
         if(Passed(passenger)) {
-            return 2 * FarthestAhead() + passengerDistance;
+            return 2 * FurthestAhead() + std::abs(current - passenger.Origin());
         }
         // std::cout << "Checked.";
-        return passengerDistance;
+        return std::abs(current - passenger.Origin());
     }
 
     const std::vector<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
@@ -65,7 +64,12 @@ class Elevator : public IElevator {
 
     private:
 
-    const double FarthestAhead() const {
+   /**
+     *  ... weight limit...
+     *  ... elevator spread when no passengers no requests ...
+    */
+
+    const double FurthestAhead() const {
         std::vector<const IPassenger *> forwards;
         for(const auto passenger : passengers) {
             const auto op = Passed(*passenger);
@@ -100,10 +104,6 @@ class Elevator : public IElevator {
     const bool Passed(const IPassenger &passenger) const {
         return heading == GOING_DOWN && passenger.Origin() > current || heading == GOING_UP && passenger.Origin() < current;
     }
-   /**
-     *  ... weight limit...
-     *  ... elevator spread when no passengers no requests ...
-    */
 
     IHeading* ClosestHeading() {
         if(passengers.empty() && boardedPassengers.empty()) { return (Stopped*)STOPPED; }
@@ -163,7 +163,6 @@ class Elevator : public IElevator {
                 
                 if(board || alight) {
                     std::cout << "An elevator is currently servicing floor " << current << std::endl;
-                    heading = (Stopped*)STOPPED;
                     std::cout << "Doors opening... ";
                     std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
                     doorState = (DoorsOpen*)DOORS_OPEN;
@@ -204,6 +203,16 @@ class Elevator : public IElevator {
         doorState->print(os);
         os << " ";
         heading->print(os);
+
+        if(!passengers.empty()) {
+            os << std::endl << "\t" << passengers.size() << " awaiting passenger(s): ";
+            for(int i = 0; i < passengers.size() - 1; ++i) {
+                passengers.at(i)->print(os);
+                os << ", ";
+            }
+            passengers.back()->print(os);
+        }
+
         if(!boardedPassengers.empty()) {
             os << std::endl << "\t" << boardedPassengers.size() << " boarded passenger(s): ";
             for(int i = 0; i < boardedPassengers.size() - 1; ++i) {
@@ -211,15 +220,6 @@ class Elevator : public IElevator {
                 os << ", ";
             }
             boardedPassengers.back()->print(os);
-        }
-
-        if(!passengers.empty()) {
-            os << std::endl << "\t" << passengers.size() << " passenger(s): ";
-            for(int i = 0; i < passengers.size() - 1; ++i) {
-                passengers.at(i)->print(os);
-                os << ", ";
-            }
-            passengers.back()->print(os);
         }
         return os;
     };

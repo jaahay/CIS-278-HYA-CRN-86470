@@ -19,7 +19,7 @@ int main() {
 
         std::thread monitorThread([&bank]() {
             while (true) {
-                std::this_thread::sleep_for(std::chrono::seconds(5));
+                std::this_thread::sleep_for(std::chrono::seconds(10));
                 std::cout << std::endl << "Elevator bank status:" << std::endl;
                 bank.print(std::cout);
                 std::cout << std::endl;
