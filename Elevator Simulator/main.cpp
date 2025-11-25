@@ -11,13 +11,13 @@ int main() {
         std::cin >> numFloors;
         std::cout << "Enter number of elevators: ";
         std::cin >> numElevators;
-        Bank b(numFloors, numElevators);
-        IBank* bank = &b;
+        Bank bank(numFloors, numElevators);
 
         std::thread monitorThread([&]() {
             while (true) {
                 std::cout << std::endl << "Elevator bank status:" << std::endl;
-                std::cout << bank << std::endl;
+                bank.print(std::cout);
+                std::cout << b << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(10));
             }
         });
@@ -45,7 +45,7 @@ int main() {
             std::thread receivePassenger([&bank, &embark, &disembark]() {
                 Passenger passenger(embark, disembark);
                 std::cout << std::endl << "Searching for an idle elevator to service " << passenger << "..." << std::endl;
-                IElevator* elevator = bank->ReceivePassenger(&passenger).get();
+                IElevator* elevator = bank.ReceivePassenger(&passenger).get();
                 std::cout << "Elevator selected to service " << passenger << "." << std::endl;
                 std::cout << "It'll cost approx " << elevator->Divergence(&passenger);
             });
