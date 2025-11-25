@@ -96,12 +96,14 @@ class Bank : public IBank {
                 elevators.begin(), elevators.end(), [](const IElevator* elevator) { return !elevator->IsIdle(); }
             )
         ) {
-            os << "\tActive elevators:" << std::endl;
+            // os << "\tActive elevators:" << std::endl;
         }
         for(const auto& e : elevators) {
-            os << "\t";
-            e->print(os);
-            os << std::endl;
+            // if(!e->IsIdle()) {
+                os << "\t";
+                e->print(os);
+                os << std::endl;
+            // }
         }
         return os;
     }
