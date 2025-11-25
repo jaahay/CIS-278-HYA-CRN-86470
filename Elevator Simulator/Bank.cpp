@@ -60,6 +60,9 @@ class Bank : public IBank {
 
     IElevator &ReceivePassenger(const IPassenger &passenger) override {
         auto closest = &Closest(passenger);
+        std::cout << "Closest elevator found as: " << std::endl << "\t";
+        closest->print(std::cout);
+        std::cout << std::endl;
         // std::cout << closest.CurrentFloor();
         // x.CurrentFloor();
         auto q = closest->ReceivePassenger(passenger);
@@ -90,7 +93,7 @@ class Bank : public IBank {
     // }
     
     const std::ostream& print(std::ostream& os) const override {
-        os << elevators.size() << " elevators." << std::endl;
+        // os << elevators.size() << " elevators." << std::endl;
         if(
             std::any_of(
                 elevators.begin(), elevators.end(), [](const IElevator* elevator) { return !elevator->IsIdle(); }
@@ -112,7 +115,7 @@ class Bank : public IBank {
 
     IElevator &Closest(const IPassenger &passenger) {
         IElevator *leastDivergent = elevators.at(0);
-        leastDivergent->print(std::cout);
+        // leastDivergent->print(std::cout);
         // &leastDivergent.print(std::cout);
         auto leastDivergence = leastDivergent->Divergence(passenger);
         // std::cout << "hoho";

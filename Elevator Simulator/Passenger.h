@@ -6,26 +6,26 @@
 class IHeading {
 public: 
     bool operator==(const IHeading& other) const { return this == &other; };
-    virtual std::ostream& Printout(std::ostream&) const = 0;
+    virtual std::ostream& print(std::ostream&) const = 0;
 };
 
 class GoingUp : public IHeading {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
+    std::ostream& print(std::ostream& os) const override {
         os << "Going up.";
         return os;
     }
 };
 class GoingDown : public IHeading {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
+    std::ostream& print(std::ostream& os) const override {
         os << "Going down.";
         return os;
     }
 };
 class Stopped : public IHeading {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
+    std::ostream& print(std::ostream& os) const override {
         os << "Stopped.";
         return os;
     }

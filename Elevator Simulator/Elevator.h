@@ -10,20 +10,20 @@
 class State {
 public: 
     bool operator==(const State& other) const { return this == &other; };
-    virtual std::ostream& Printout(std::ostream&) const = 0;
+    virtual std::ostream& print(std::ostream&) const = 0;
 };
 
 class Idle : public State {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
+    std::ostream& print(std::ostream& os) const override {
         os << "Elevator is idle.";
         return os;
     }
 };
 class Active : public State {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
-        os << "Elevator is moving.";
+    std::ostream& print(std::ostream& os) const override {
+        os << "Elevator is active.";
         return os;
     }
 };
@@ -33,18 +33,18 @@ static const Active* ACTIVE = new Active();
 class DoorState {
 public: 
     bool operator==(const DoorState& other) const { return this == &other; };
-    virtual std::ostream& Printout(std::ostream&) const = 0;
+    virtual std::ostream& print(std::ostream&) const = 0;
 };
 class DoorsOpen : public DoorState {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
+    std::ostream& print(std::ostream& os) const override {
         os << "Doors are open.";
         return os;
     }
 };
 class DoorsClosed : public DoorState {
 public:
-    std::ostream& Printout(std::ostream& os) const override {
+    std::ostream& print(std::ostream& os) const override {
         os << "Doors are closed.";
         return os;
     }

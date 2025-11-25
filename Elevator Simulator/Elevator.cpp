@@ -5,7 +5,7 @@
 
 #include "Elevator.h"
 
-static const int DOOR_DELAY = int(300);
+static const int DOOR_DELAY = int(3000);
 static const int MOVE_DELAY = int(500);
 
 class Elevator : public IElevator {
@@ -18,11 +18,14 @@ class Elevator : public IElevator {
         DoorState* doorState;
         IHeading* heading;
         std::vector<const IPassenger *> passengers;
+        std::vector<const IPassenger *> boardedPassengers;
 
     public:
 
-    Elevator(int doorDelay = DOOR_DELAY, int moveDelay = MOVE_DELAY)
-           : doorDelay(doorDelay), moveDelay(moveDelay), current(1), state((State*)IDLE), doorState((DoorState*)DOORS_OPEN), heading((IHeading*)STOPPED), passengers() {}
+    Elevator(int doorDelay = DOOR_DELAY, int moveDelay = MOVE_DELAY) :
+        doorDelay(doorDelay), moveDelay(moveDelay), 
+        current(1), state((State*)IDLE), doorState((DoorState*)DOORS_OPEN), heading((IHeading*)STOPPED), 
+        passengers(), boardedPassengers(std::vector<const IPassenger*>()) {}
 
     const bool IsIdle() const override { return state == IDLE; }
     const int CurrentFloor() const override { return current; }
@@ -46,8 +49,15 @@ class Elevator : public IElevator {
     }
 
     const std::vector<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
-        passengers.push_back(&passenger);
-        if(&passenger == passengers.back()) { 
+        if(passengers.end() == std::find(passengers.begin(), passengers.end(), &passenger)) {
+            std::cout << "Passenger request ";
+            passenger.print(std::cout);
+            std::cout << " received." << std::endl;
+            // passengers.push_back(&passenger);
+            passengers.insert(passengers.end(), &passenger);
+            std::cout << "Currently: ";
+            print(std::cout);
+            std::cout << std::endl;
             Move();
         }
         return passengers;
@@ -96,12 +106,23 @@ class Elevator : public IElevator {
     */
 
     IHeading* ClosestHeading() {
-        if(passengers.empty()) { return (Stopped*)STOPPED; }
-        IHeading* closestHeading = (Stopped*)STOPPED;
-        int closestRelative = passengers.at(0)->Origin() - current;
-        for(const auto& passenger : passengers) {
-            if(std::abs(closestRelative) > std::abs(passenger->Origin())) {
-                closestRelative = passenger->Origin();
+        if(passengers.empty() && boardedPassengers.empty()) { return (Stopped*)STOPPED; }
+        int closestRelative;
+        if(!boardedPassengers.empty()) {
+            IHeading* closestHeading = (Stopped*)STOPPED;
+            closestRelative = boardedPassengers.at(0)->Destination() - current;
+            for(const auto& boardedPassenger : boardedPassengers) {
+                if(std::abs(closestRelative) > std::abs(boardedPassenger->Destination())) {
+                    closestRelative = boardedPassenger->Origin();
+                }
+            }
+        } else {
+            IHeading* closestHeading = (Stopped*)STOPPED;
+            closestRelative = passengers.at(0)->Origin() - current;
+            for(const auto& passenger : passengers) {
+                if(std::abs(closestRelative) > std::abs(passenger->Origin())) {
+                    closestRelative = passenger->Origin();
+                }
             }
         }
         return (closestRelative > 0) ? (IHeading*) GOING_UP : (IHeading*) GOING_DOWN;
@@ -112,26 +133,53 @@ class Elevator : public IElevator {
         std::thread t([&]() {
             // std::cout << "We have movement." << std::endl;
             state = (Active*)ACTIVE;
-            while(!passengers.empty()) {
+            while(!passengers.empty() || !boardedPassengers.empty()) {
                 // std::cout << "Found a pass" << std::endl;
-                bool del = false;
+                bool alight = false;
+                for(auto boardedPassenger = boardedPassengers.begin(); boardedPassenger != boardedPassengers.end();) {
+                    if(current == (*boardedPassenger)->Destination()) {
+                        std::cout << std::endl;
+                        (*boardedPassenger)->print(std::cout);
+                        std::cout << " has gotten off." << std::endl;
+                        passengers.erase(boardedPassenger);
+                        alight = true;
+                    } else {
+                        ++boardedPassenger;
+                    }
+                }
+                bool board = false;
                 for(auto passenger = passengers.begin(); passenger != passengers.end();) {
-                    if(current == (*passenger)->Destination()) {
+                    if(current == (*passenger)->Origin()) {
+                        std::cout << std::endl;
+                        (*passenger)->print(std::cout);
+                        std::cout << " has boarded." << std::endl;
+                        boardedPassengers.push_back(*passenger);
                         passengers.erase(passenger);
-                        del = true;
+                        board = true;
                     } else {
                         ++passenger;
                     }
                 }
-                if(del) {
+                
+                if(board || alight) {
+                    std::cout << "An elevator is currently servicing floor " << current << std::endl;
+                    heading = (Stopped*)STOPPED;
+                    std::cout << "Doors opening... ";
                     std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
                     doorState = (DoorsOpen*)DOORS_OPEN;
+                    
+                    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
+                    doorState = (DoorsClosed*)DOORS_CLOSED;
+                    std::cout << "Doors closed." << std::endl;
                 }
                 if(heading == STOPPED) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
                     heading = ClosestHeading();
+                    std::cout << "Elevator has picked direction ";
+                    heading->print(std::cout);
+                    std::cout << "." << std::endl;
                 }
-                if(passengers.empty()) {
+                if(passengers.empty() && boardedPassengers.empty()) {
+                    std::cout << "Elevator has come to a halt." << std::endl;
                     state = (Idle*)IDLE;
                     heading = (Stopped*)STOPPED;
                 }
@@ -144,24 +192,32 @@ class Elevator : public IElevator {
                     --current;
                 }
             }
-            std::cout << "Moved!!!";
+            // std::cout << "Moved!!!";
         });
         t.detach();
     }
 
     const std::ostream& print(std::ostream& os) const override {
         os << "Currently at floor " << current << ". ";
-        state->Printout(os);
+        state->print(os);
         os << " ";
-        doorState->Printout(os);
+        doorState->print(os);
         os << " ";
-        heading->Printout(os);
+        heading->print(os);
+        if(!boardedPassengers.empty()) {
+            os << std::endl << "\t" << boardedPassengers.size() << " boarded passenger(s): ";
+            for(int i = 0; i < boardedPassengers.size() - 1; ++i) {
+                boardedPassengers.at(i)->print(os);
+                os << ", ";
+            }
+            boardedPassengers.back()->print(os);
+        }
+
         if(!passengers.empty()) {
-            os << std::endl << "\t" << passengers.size() << " passengers:" << std::endl;
+            os << std::endl << "\t" << passengers.size() << " passenger(s): ";
             for(int i = 0; i < passengers.size() - 1; ++i) {
-                os << "\t";
                 passengers.at(i)->print(os);
-                os << "," << std::endl;
+                os << ", ";
             }
             passengers.back()->print(os);
         }
