@@ -43,8 +43,14 @@ class Elevator : public IElevator {
         if(Passed(passenger)) {
             return 2 * FurthestAhead() + std::abs(current - passenger.Origin());
         }
-        // std::cout << "Checked.";
-        return std::abs(current - passenger.Origin());
+        if(heading == passenger.Heading()) {
+            std::cout << "Going my way darling." << std::endl;
+            return std::abs(current - passenger.Origin());
+        } else {
+            return
+                std::abs(passenger.Origin() - passenger.Destination()) + 
+                std::abs(current - passenger.Origin());
+        }
     }
 
     const std::vector<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
