@@ -115,42 +115,78 @@ class Elevator : public IElevator {
 
     const void Move() {
         if(state == ACTIVE) { return; }
-        std::thread t([&]() {
-            std::cout << "We have movement." << std::endl;
-            state = (Active*)ACTIVE;
-            while(!passengers.empty()) {
-                std::cout << "Found a pass" << std::endl;
-                int currentNumPassengers = passengers.size();
-                auto arrivals = std::find_if(
-                    passengers.begin(),
-                    passengers.end(), 
-                    [&](auto passenger){ return current == passenger->Destination(); }
-                );
-                passengers.erase(arrivals);
-                if(passengers.size() != currentNumPassengers) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
-                    doorState = (DoorsOpen*)DOORS_OPEN;
-                }
-                if(heading == STOPPED) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
-                }
-                if(passengers.empty()) {
-                    state = (Idle*)IDLE;
-                    heading = (Stopped*)STOPPED;
-                }
-                if(heading == GOING_UP) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
-                    ++current;
-                }
-                if(heading == GOING_DOWN) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
-                    --current;
+        std::cout << "We have movement." << std::endl;
+        state = (Active*)ACTIVE;
+        while(!passengers.empty()) {
+            // std::cout << "Found a pass" << std::endl;
+            bool del = false;
+            for(auto passenger = passengers.begin(); passenger != passengers.end();) {
+                if(current == (*passenger)->Destination()) {
+                    passengers.erase(passenger);
+                    del = true;
+                } else {
+                    ++passenger;
                 }
             }
-            std::cout << "Moved!!!";
-            return;
-        });
-        t.detach();
+            if(del) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
+                doorState = (DoorsOpen*)DOORS_OPEN;
+            }
+            if(heading == STOPPED) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
+                heading = ClosestHeading();
+            }
+            if(passengers.empty()) {
+                state = (Idle*)IDLE;
+                heading = (Stopped*)STOPPED;
+            }
+            if(heading == GOING_UP) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
+                ++current;
+            }
+            if(heading == GOING_DOWN) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
+                --current;
+            }
+        }
+        std::cout << "Moved!!!";
+        // std::thread t([&]() {
+        //         std::cout << "We have movement." << std::endl;
+        //         state = (Active*)ACTIVE;
+        //         while(!passengers.empty()) {
+        //             std::cout << "Found a pass" << std::endl;
+        //             int currentNumPassengers = passengers.size();
+        //             auto arrivals = std::find_if(
+        //                 passengers.begin(),
+        //                 passengers.end(), 
+        //                 [&](auto passenger){ return current == passenger->Destination(); }
+        //             );
+        //             passengers.erase(arrivals);
+        //             if(passengers.size() != currentNumPassengers) {
+        //                 std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
+        //                 doorState = (DoorsOpen*)DOORS_OPEN;
+        //             }
+        //             if(heading == STOPPED) {
+        //                 std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
+        //             }
+        //             if(passengers.empty()) {
+        //                 state = (Idle*)IDLE;
+        //                 heading = (Stopped*)STOPPED;
+        //             }
+        //             if(heading == GOING_UP) {
+        //                 std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
+        //                 ++current;
+        //             }
+        //             if(heading == GOING_DOWN) {
+        //                 std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
+        //                 --current;
+        //             }
+        //         }
+        //         std::cout << "Moved!!!";
+        //         return;
+        //     }
+        // );
+        // t.detach();
     }
 
     const std::ostream& print(std::ostream& os) const override {

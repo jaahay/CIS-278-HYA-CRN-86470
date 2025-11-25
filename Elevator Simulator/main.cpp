@@ -31,9 +31,10 @@ int main() {
         while (true)
         {
             int embark, disembark;
-            std::cout << "Enter from and to floors separated by a space:\n\tEnter 0 to exit." << std::endl;
-            // std::cin >> embark >> disembark;
+            std::cout << "Board:" << std::endl;
             std::cin >> embark;
+            // std::cin >> embark >> disembark;
+            std::cout << "Destination:" << std::endl;
             std::cin >> disembark;
             if (embark == 0 || disembark == 0) {
                 std::cout << "You've entered 0. Detaching from current simulation." << std::endl;
