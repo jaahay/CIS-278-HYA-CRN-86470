@@ -43,8 +43,14 @@ class Elevator : public IElevator {
         if(Passed(passenger)) {
             return 2 * FurthestAhead() + std::abs(current - passenger.Origin());
         }
-        // std::cout << "Checked.";
-        return std::abs(current - passenger.Origin());
+        if(heading == passenger.Heading()) {
+            std::cout << "Going my way darling." << std::endl;
+            return std::abs(current - passenger.Origin());
+        } else {
+            return
+                std::abs(passenger.Origin() - passenger.Destination()) + 
+                std::abs(current - passenger.Origin());
+        }
     }
 
     const std::vector<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
@@ -113,7 +119,7 @@ class Elevator : public IElevator {
             closestRelative = boardedPassengers.at(0)->Destination() - current;
             for(const auto& boardedPassenger : boardedPassengers) {
                 if(std::abs(closestRelative) > std::abs(boardedPassenger->Destination())) {
-                    closestRelative = boardedPassenger->Origin();
+                    closestRelative = boardedPassenger->Destination() - current;
                 }
             }
         } else {
@@ -121,7 +127,7 @@ class Elevator : public IElevator {
             closestRelative = passengers.at(0)->Origin() - current;
             for(const auto& passenger : passengers) {
                 if(std::abs(closestRelative) > std::abs(passenger->Origin())) {
-                    closestRelative = passenger->Origin();
+                    closestRelative = passenger->Origin() - current;
                 }
             }
         }
@@ -170,6 +176,9 @@ class Elevator : public IElevator {
                     std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
                     doorState = (DoorsClosed*)DOORS_CLOSED;
                     std::cout << "Doors closed." << std::endl;
+                    if ( passengers.empty() && !boardedPassengers.empty() ) {
+                        heading = ClosestHeading();
+                    }
                 }
                 if(heading == STOPPED) {
                     heading = ClosestHeading();
