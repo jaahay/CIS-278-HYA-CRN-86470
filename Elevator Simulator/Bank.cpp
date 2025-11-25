@@ -14,25 +14,28 @@ class Bank : public IBank {
 
     private:
     int floorCount;
-    std::vector<Elevator*> elevators;
+    std::vector<IElevator *> elevators;
 
     const int checkIntervalMs;
 
     public:
     
-    Bank(int numFloors = 10, int numElevators = 2, int checkInterval = CHECK_INTERVAL_MS) : floorCount(numFloors), checkIntervalMs(checkInterval) {
-        if (numFloors <= 0 || numElevators <= 0) {
+    Bank(std::vector<IElevator *> elevators, int numFloors = 10, int checkInterval = CHECK_INTERVAL_MS) : elevators(elevators), floorCount(numFloors), checkIntervalMs(checkInterval) {
+        if (numFloors <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }
-        elevators.reserve(numElevators);
-        for(int i = 0; i < numElevators; ++i) {
-            elevators.push_back(new Elevator());
+        if (elevators.size() == 0) {
+            throw std::invalid_argument("Must have at least one elevator to function.");
         }
+        // IElevator *e = elevators.at(0);
+        // std::cout << e;
+        // std::cout << &elevators.at(0);
     }
     
     // ~Bank() {
-    //     // Destructor
+    //     // delete[] elevators;
     // }
+
     // Bank(const Bank& other) : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs), elevators(other.elevators) { }
 
     // Bank& operator=(const Bank& other) {
@@ -55,45 +58,72 @@ class Bank : public IBank {
     //     return *this;
     // }
 
-    std::future<IElevator*> ReceivePassenger(IPassenger* passenger) override {
-        return std::async(std::launch::async, [&](){ 
-            IElevator* closestElevator = Closest(passenger);
-            closestElevator->ReceivePassenger(passenger);
-            return closestElevator;
-        });
+    IElevator &ReceivePassenger(const IPassenger &passenger) override {
+        auto closest = &Closest(passenger);
+        // std::cout << closest.CurrentFloor();
+        // x.CurrentFloor();
+        auto q = closest->ReceivePassenger(passenger);
+        return *closest;
     }
+
+    // auto it(const IPassenger &passenger) {
+    //     auto r = std::async(
+    //         std::launch::async,
+    //         [&]{
+    //         return Closest(passenger);
+    //     });
+    //     auto s = std::async(
+    //         std::launch::async,
+    //         [&](std::future<IElevator *> closestF){
+    //             auto closest = closestF.get();
+    //             closest->ReceivePassenger(passenger);
+    //             return closest;
+    //         },
+    //         r
+    //     );
+    //     return s;
+    // }
+
+    // std::future<IElevator *> ReceivePassenger(const IPassenger &passenger) override {
+    //     auto r = it(passenger);
+    //     return r;
+    // }
     
-    friend std::ostream& operator<<(std::ostream& os, const Bank& bank);
+    const std::ostream& print(std::ostream& os) const override {
+        os << elevators.size() << " elevators." << std::endl;
+        if(
+            std::any_of(
+                elevators.begin(), elevators.end(), [](const IElevator* elevator) { return !elevator->IsIdle(); }
+            )
+        ) {
+            os << "\tActive elevators:" << std::endl;
+        }
+        for(const auto& e : elevators) {
+            os << "\t";
+            e->print(os);
+            os << std::endl;
+        }
+        return os;
+    }
 
     private:
 
-    IElevator* Closest(IPassenger* passenger) const {
-        IElevator* leastDivergent = elevators.at(0);
-        double leastDivergence = leastDivergent->Divergence(passenger);
-        for(IElevator* elevator : elevators) {
-            double divergence = elevator->Divergence(passenger);
-            std::cout << "Div: " << divergence;
+    IElevator &Closest(const IPassenger &passenger) {
+        IElevator *leastDivergent = elevators.at(0);
+        leastDivergent->print(std::cout);
+        // &leastDivergent.print(std::cout);
+        auto leastDivergence = leastDivergent->Divergence(passenger);
+        // std::cout << "hoho";
+        for(IElevator *elevator : elevators) {
+            auto divergence = elevator->Divergence(passenger);
+            // std::cout << "Div: " << divergence;
             if(divergence < leastDivergence) {
+                // auto r = *elevator;
                 leastDivergent = elevator;
                 leastDivergence = divergence;
             }
         }
-        return leastDivergent;
+        return *leastDivergent;
     }
 };
 
-std::ostream& operator<<(std::ostream& os, const Bank& bank) {
-    os << bank.elevators.size() << " elevators." << std::endl;
-    if(
-        std::any_of(
-            bank.elevators.begin(), bank.elevators.end(), [](const auto& elevator) { return !elevator->IsIdle(); }
-        )
-    ) {
-        os << "\tActive elevators:" << std::endl;
-    }
-    for(const auto elevator : bank.elevators) {
-        if(elevator->IsIdle()) { continue; }
-        os << "\t" << *elevator << std::endl;
-    }
-    return os;
-}

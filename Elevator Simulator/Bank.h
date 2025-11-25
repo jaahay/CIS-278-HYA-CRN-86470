@@ -8,7 +8,11 @@
 
 class IBank {
     public:
-    virtual std::future<IElevator*> ReceivePassenger(IPassenger*) = 0;
+    virtual IElevator &ReceivePassenger(const IPassenger &) = 0;
+    // virtual std::future<IElevator *> ReceivePassenger(const IPassenger &) = 0;
+    virtual const std::ostream& print(std::ostream&) const = 0;
 };
+
+const std::ostream& operator<<(std::ostream& os, const IBank& bank) { return bank.print(os); }
 
 #endif // BANK_H

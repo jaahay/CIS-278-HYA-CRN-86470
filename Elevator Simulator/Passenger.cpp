@@ -49,11 +49,9 @@ class Passenger : public IPassenger {
         }
         return GOING_UP;
     }
-    
-    friend std::ostream& operator<<(std::ostream&, const Passenger&);
-};
 
-std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {
-    os << passenger.origin << "->" << passenger.destination;
-    return os;
-}
+    const std::ostream& print(std::ostream& os) const override {
+        os << origin << "->" << destination;
+        return os;
+    }
+};

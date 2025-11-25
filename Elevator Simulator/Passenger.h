@@ -39,7 +39,7 @@ class IPassenger {
     virtual const int Origin() const = 0;
     virtual const int Destination() const = 0;
     virtual const IHeading* Heading() const = 0;
-
+    virtual const std::ostream& print(std::ostream&) const = 0;
  };
 
  #endif // PASSENGER_H

@@ -54,10 +54,13 @@ static const DoorsClosed* DOORS_CLOSED = new DoorsClosed();
     
 class IElevator {
     public:
-    virtual const bool IsIdle() = 0;
-    virtual const int CurrentFloor() = 0;
-    virtual const double Divergence(IPassenger*) = 0;
-    virtual const std::unordered_set<IPassenger*> ReceivePassenger(IPassenger*) = 0;
+    virtual const bool IsIdle() const = 0;
+    virtual const int CurrentFloor() const = 0;
+    virtual const double Divergence(const IPassenger &) const = 0;
+    virtual const std::vector<const IPassenger *> ReceivePassenger(const IPassenger &) = 0;
+    virtual const std::ostream& print(std::ostream&) const = 0;
 };
+
+const std::ostream& operator<<(std::ostream& os, const IElevator& elevator) { return elevator.print(os); }
 
 #endif // ELEVATOR_H

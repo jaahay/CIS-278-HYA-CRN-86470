@@ -11,28 +11,34 @@ int main() {
         std::cin >> numFloors;
         std::cout << "Enter number of elevators: ";
         std::cin >> numElevators;
-        Bank bank(numFloors, numElevators);
+        std::vector<IElevator *> elevators(numElevators);
+        for(int i = 0; i < numElevators; ++i) {
+            elevators.at(i) = new Elevator();
+        }
+        Bank bank(elevators, numFloors);
 
-        std::thread monitorThread([&]() {
+        std::thread monitorThread([&bank]() {
             while (true) {
                 std::cout << std::endl << "Elevator bank status:" << std::endl;
                 bank.print(std::cout);
-                std::cout << b << std::endl;
+                std::cout << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(10));
             }
         });
         monitorThread.detach();
 
         bool calling = true;
-        while (calling)
+        while (true)
         {
             int embark, disembark;
             std::cout << "Enter from and to floors separated by a space:\n\tEnter 0 to exit." << std::endl;
-            std::cin >> embark >> disembark;
+            // std::cin >> embark >> disembark;
+            std::cin >> embark;
+            std::cin >> disembark;
             if (embark == 0 || disembark == 0) {
                 std::cout << "You've entered 0. Detaching from current simulation." << std::endl;
                 calling = false;
-                continue;
+                break;
             }
 
             if(embark < 1 || embark > numFloors) {
@@ -42,15 +48,25 @@ int main() {
                 std::cout << "Please disembark from a valid floor between 1 and " << numFloors << ".";
             }
 
-            std::thread receivePassenger([&bank, &embark, &disembark]() {
+            // std::thread receivePassenger([&bank, &embark, &disembark]() {
                 Passenger passenger(embark, disembark);
-                std::cout << std::endl << "Searching for an idle elevator to service " << passenger << "..." << std::endl;
-                IElevator* elevator = bank.ReceivePassenger(&passenger).get();
-                std::cout << "Elevator selected to service " << passenger << "." << std::endl;
-                std::cout << "It'll cost approx " << elevator->Divergence(&passenger);
-            });
-            receivePassenger.detach();
+                // const IPassenger* p = &passenger;
+                std::cout << std::endl << "Searching for an idle elevator to service ";
+                passenger.print(std::cout);
+                std::cout << "..." << std::endl;
+                auto elevator = &(bank.ReceivePassenger(passenger));
+                // std::cout << it << std::endl;
+                // auto f = bank.ReceivePassenger(passenger);
+                // auto elevator = f.get();
+                std::cout << "Elevator selected to service ";
+                passenger.print(std::cout);
+                std::cout << "." << std::endl;
+                std::cout << "It'll cost approx " << elevator->Divergence(passenger) << "." << std::endl;
+            // });
+            // receivePassenger.detach();
+            std::cout << "Next!" << std::endl;
         }
+        std::cout << "ok!" << std::endl;
         char continueChoice;
         std::cout << "Do you want to configure another bank? (y/n): " << std::endl;
         std::cin >> continueChoice;
