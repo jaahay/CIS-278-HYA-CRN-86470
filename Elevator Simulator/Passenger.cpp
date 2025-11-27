@@ -16,29 +16,17 @@ class Passenger : public IPassenger {
             }
         }
 
-    // ~Passenger() {}
+    ~Passenger() {}
 
-    // Passenger(const Passenger& other)
-    //     : origin(other.origin), destination(other.destination) {}
+    Passenger(const Passenger& other) :
+        origin(other.origin), destination(other.destination) {}
 
-    // Passenger& operator=(const Passenger& other) {
-    //     if (this != &other) {
-    //         origin = other.origin;
-    //         destination = other.destination;
-    //     }
-    //     return *this;
-    // }
+    Passenger& operator=(const Passenger&) = delete;
 
-    // Passenger(Passenger&& other) noexcept
-    //     : origin(other.origin), destination(other.destination) {}
+    Passenger(Passenger&& other) noexcept :
+        origin(other.origin), destination(other.destination) {}
 
-    // Passenger& operator=(Passenger&& other) noexcept {
-    //     if (this != &other) {
-    //         origin = other.origin;
-    //         destination = other.destination;
-    //     }
-    //     return *this;
-    // }
+    Passenger& operator=(Passenger&&) = delete;
 
     const int Origin() const override { return origin; }
     const int Destination() const override { return destination; }

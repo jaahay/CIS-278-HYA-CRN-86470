@@ -30,9 +30,9 @@ public:
         return os;
     }
 };
-static const GoingUp* GOING_UP = new GoingUp();
-static const GoingDown* GOING_DOWN = new GoingDown();
-static const Stopped* STOPPED = new Stopped();
+static const IHeading* GOING_UP = new GoingUp();
+static const IHeading* GOING_DOWN = new GoingDown();
+static const IHeading* STOPPED = new Stopped();
 
 class IPassenger {
     public:

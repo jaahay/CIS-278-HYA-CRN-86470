@@ -3,7 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include <unordered_set>
+#include <list>
 
 #include "Passenger.h"
 
@@ -27,8 +27,8 @@ public:
         return os;
     }
 };
-static const Idle* IDLE = new Idle();
-static const Active* ACTIVE = new Active();
+static const State* IDLE = new Idle();
+static const State* ACTIVE = new Active();
 
 class DoorState {
 public: 
@@ -49,15 +49,15 @@ public:
         return os;
     }
 };
-static const DoorsOpen* DOORS_OPEN = new DoorsOpen();
-static const DoorsClosed* DOORS_CLOSED = new DoorsClosed();
+static const DoorState* DOORS_OPEN = new DoorsOpen();
+static const DoorState* DOORS_CLOSED = new DoorsClosed();
     
 class IElevator {
     public:
     virtual const bool IsIdle() const = 0;
     virtual const int CurrentFloor() const = 0;
     virtual const double Divergence(const IPassenger &) const = 0;
-    virtual const std::vector<const IPassenger *> ReceivePassenger(const IPassenger &) = 0;
+    virtual const std::list<const IPassenger *> ReceivePassenger(const IPassenger &) = 0;
     virtual const std::ostream& print(std::ostream&) const = 0;
 };
 
