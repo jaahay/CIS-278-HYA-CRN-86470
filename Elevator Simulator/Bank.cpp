@@ -10,17 +10,14 @@
 #include "Passenger.cpp"
 
 class Bank : public IBank {
-    private: static const int CHECK_INTERVAL_MS = 3000;
 
     private:
     int floorCount;
     std::vector<IElevator *> elevators;
 
-    const int checkIntervalMs;
-
     public:
     
-    Bank(std::vector<IElevator *> elevators, int numFloors = 10, int checkInterval = CHECK_INTERVAL_MS) : elevators(elevators), floorCount(numFloors), checkIntervalMs(checkInterval) {
+    Bank(std::vector<IElevator *> elevators, int numFloors = 10, int checkInterval = CHECK_INTERVAL_MS) : elevators(elevators), floorCount(numFloors) {
         if (numFloors <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }
@@ -31,11 +28,11 @@ class Bank : public IBank {
     
     ~Bank() { }
 
-    Bank(const Bank& other) : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs), elevators(other.elevators) { }
+    Bank(const Bank& other) : floorCount(other.floorCount), elevators(other.elevators) { }
 
     Bank& operator=(const Bank&) = delete;
     
-    Bank(const Bank&& other) noexcept : floorCount(other.floorCount), checkIntervalMs(other.checkIntervalMs), elevators(other.elevators) { }
+    Bank(const Bank&& other) noexcept : floorCount(other.floorCount), elevators(other.elevators) { }
     
     Bank& operator=(const Bank&&) noexcept = delete;
 
@@ -49,12 +46,15 @@ class Bank : public IBank {
     }
     
     const std::ostream& print(std::ostream& os) const override {
+        os << "Elevator bank status: " << std::endl;
         if(
             std::any_of(
                 elevators.begin(), elevators.end(), [](const IElevator* elevator) { return !elevator->IsIdle(); }
             )
         ) {
-            // os << "\tActive elevators:" << std::endl;
+            os << "\tactive. Active elevators:" << std::endl;
+        } else {
+            os << "\tinactive." << std::endl;
         }
         for(const auto& e : elevators) {
             if(!e->IsIdle()) {
