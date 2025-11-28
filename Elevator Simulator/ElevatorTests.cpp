@@ -27,6 +27,7 @@ void test_equality() {
 void test_elevator_initial_state() {
     TestElevator elevator;
     assert(elevator.IsIdle());
+    assert(elevator.CurrentFloor() == 1);
     std::cout << "Test initial state passed." << std::endl;
 }
 
