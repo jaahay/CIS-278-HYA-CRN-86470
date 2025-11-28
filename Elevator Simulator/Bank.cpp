@@ -36,25 +36,28 @@ class Bank : public IBank {
     
     Bank& operator=(const Bank&&) noexcept = delete;
 
+    friend const int ClosestIdx(const Bank &, const IPassenger &);
+
     IElevator &ReceivePassenger(const IPassenger &passenger) override {
-        auto closest = &Closest(passenger);
+        auto closestIt = ClosestIdx(*this, passenger);
+        auto closest = elevators.at(closestIt);
         std::cout << "Closest elevator found as: " << std::endl << "\t";
         closest->print(std::cout);
         std::cout << std::endl;
-        auto q = closest->ReceivePassenger(passenger);
+        auto q = closest->ReceivePassenger(passenger);;
         return *closest;
     }
     
     const std::ostream& print(std::ostream& os) const override {
-        os << "Elevator bank status: " << std::endl;
+        os << "Elevator bank status: ";
         if(
             std::any_of(
                 elevators.begin(), elevators.end(), [](const IElevator* elevator) { return !elevator->IsIdle(); }
             )
         ) {
-            os << "\tactive. Active elevators:" << std::endl;
+            os << "active. Active elevators:" << std::endl;
         } else {
-            os << "\tinactive." << std::endl;
+            os << "inactive." << std::endl;
         }
         for(const auto& e : elevators) {
             if(!e->IsIdle()) {
@@ -65,21 +68,18 @@ class Bank : public IBank {
         }
         return os;
     }
-
-    private:
-
-    IElevator &Closest(const IPassenger &passenger) {
-        IElevator *leastDivergent = elevators.at(0);
-        auto leastDivergence = leastDivergent->Divergence(passenger);
-        for(IElevator *elevator : elevators) {
-            auto divergence = elevator->Divergence(passenger);
-            // std::cout << "Div: " << divergence;
-            if(divergence < leastDivergence) {
-                leastDivergent = elevator;
-                leastDivergence = divergence;
-            }
-        }
-        return *leastDivergent;
-    }
 };
 
+const int ClosestIdx(const Bank &bank, const IPassenger &passenger) {
+    int idx = 0;
+    auto leastDivergence = bank.elevators.at(idx)->Divergence(passenger);
+    for(int i = 0; i < bank.elevators.size(); ++i) {
+        auto divergence = bank.elevators.at(i)->Divergence(passenger);
+        // std::cout << "Div: " << divergence;
+        if(divergence < leastDivergence) {
+            idx = i;
+            leastDivergence = divergence;
+        }
+    }
+    return idx;
+}
