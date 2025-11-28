@@ -17,7 +17,7 @@ class Bank : public IBank {
 
     public:
     
-    Bank(std::vector<IElevator *> elevators, int numFloors = 10, int checkInterval = CHECK_INTERVAL_MS) : elevators(elevators), floorCount(numFloors) {
+    Bank(std::vector<IElevator *> elevators, int numFloors = 10) : elevators(elevators), floorCount(numFloors) {
         if (numFloors <= 0) {
             throw std::invalid_argument("Number of floors and elevators must be positive.");
         }

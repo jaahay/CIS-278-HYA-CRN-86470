@@ -6,8 +6,8 @@
 
 #include "Elevator.h"
 
-static const int DOOR_DELAY = int(5);
-static const int MOVE_DELAY = int(1);
+static const int DOOR_DELAY_MS = int(5000);
+static const int MOVE_DELAY_MS = int(1000);
 
 class Elevator : public IElevator {
     private:
@@ -23,8 +23,8 @@ class Elevator : public IElevator {
 
     public:
 
-    Elevator(int doorDelay = DOOR_DELAY, int moveDelay = MOVE_DELAY, int current = 1) :
-        doorDelay(doorDelay), moveDelay(moveDelay), current(current),
+    Elevator(int doorDelayMs = DOOR_DELAY_MS, int moveDelayMs = MOVE_DELAY_MS, int current = 1) :
+        doorDelay(doorDelayMs), moveDelay(moveDelayMs), current(current),
         state(IDLE), doorState(DOORS_OPEN), heading(STOPPED), 
         pendingPassengers(), boardedPassengers() {}
 
@@ -51,46 +51,6 @@ class Elevator : public IElevator {
     const bool IsIdle() const override { return state == IDLE; }
     const int CurrentFloor() const override { return current; }
 
-    /**
-     * Calculate how inconvenient it would be to pick up a passenger. Cases:
-     * 1. Same floor, doors opened and either stopped or same direction (0-distance)
-     * 2. Stopped; no direction (distance between current floor and passenger's origin)
-     * 3. Heading in same direction and away floor (twice distance between current and farthest + distance between current and passenger's origin)
-     * 4. Heading in same direction on approach floor (distance between current and passenger's origin)
-     * 5. Heading in opposite direction ( distance between farthest and current + distance between farthest and passenger's origin)
-     */
-    const double Divergence(const IPassenger &passenger) const override {
-        // std::cout << "Check ";
-        // passenger.print(std::cout);
-
-        if(heading == STOPPED) {
-            if(current == passenger.Origin() && doorState == DOORS_OPEN && 
-                ( state == IDLE || heading == passenger.Heading() )
-            ) {
-                return 0;
-            }
-
-            if(state == IDLE) {
-                return std::abs(current - passenger.Origin());
-            }
-        }
-
-        if(heading == passenger.Heading()) {
-            if(PassedOrigin(passenger)) {
-                return 2 * std::abs(current - FarthestToGo()) + std::abs(current - passenger.Origin());
-            } else {
-                return std::abs(current - passenger.Origin());
-            }
-        }
-
-        if(heading != passenger.Heading()) {
-            double f = FarthestToGo();
-            return std::abs(f - current) + std::abs(f - passenger.Origin());
-        }
-
-        throw std::invalid_argument("Invalid heading for elevator.");
-    }
-
     const std::list<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
         if(pendingPassengers.end() == std::find(pendingPassengers.begin(), pendingPassengers.end(), &passenger)) {
             std::cout << "Passenger request ";
@@ -111,11 +71,18 @@ class Elevator : public IElevator {
         return pendingPassengers;
     }
 
-    private:
+    /**
+     * Calculate how inconvenient it would be to pick up a passenger. Cases:
+     * 1. Same floor, doors opened and either stopped or same direction (0-distance)
+     * 2. Stopped; no direction (distance between current floor and passenger's origin)
+     * 3. Heading in same direction and away floor (twice distance between current and farthest + distance between current and passenger's origin)
+     * 4. Heading in same direction on approach floor (distance between current and passenger's origin)
+     * 5. Heading in opposite direction ( distance between farthest and current + distance between farthest and passenger's origin)
+     */
+    friend double Divergence(const Elevator &, const IPassenger &);
     
-    const bool PassedOrigin(const IPassenger &passenger) const {
-        return heading == GOING_DOWN && passenger.Origin() > current || heading == GOING_UP && passenger.Origin() < current;
-    }
+    friend bool PassedOrigin(const Elevator &, const IPassenger &);
+    
     const bool PassedDestination(const IPassenger &passenger) const {
         return heading == GOING_DOWN && passenger.Destination() > current || heading == GOING_UP && passenger.Destination() < current;
     }
@@ -133,7 +100,7 @@ class Elevator : public IElevator {
     const double FarthestToGo() const {
         std::list<double> forwardStops;
         for(const auto& pendingPassenger : pendingPassengers) {
-            if(!PassedOrigin(*pendingPassenger)) {
+            if(!PassedOrigin(*this, *pendingPassenger)) {
                 forwardStops.push_back(pendingPassenger->Origin());
             }
         }
@@ -223,7 +190,7 @@ class Elevator : public IElevator {
         if(board || depart) {
             std::cout << "An elevator is currently servicing floor " << current << std::endl;
             std::cout << "Doors opening..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(doorDelay)); // Simulate door opening time
+            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
             doorState = DOORS_OPEN;
         }
         
@@ -232,17 +199,17 @@ class Elevator : public IElevator {
             heading = STOPPED;
             std::cout << "Elevator has come to a halt." << std::endl;
         } else if(doorState == DOORS_OPEN) {
-            std::this_thread::sleep_for(std::chrono::seconds(doorDelay)); // Simulate door closing time
+            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
             doorState = DOORS_CLOSED;
             std::cout << "Doors closed." << std::endl;
         }
 
         if(heading == GOING_UP) {
-            std::this_thread::sleep_for(std::chrono::seconds(moveDelay)); // Simulate time taken to move one floor
+            std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
             ++current;
         }
         if(heading == GOING_DOWN) {
-            std::this_thread::sleep_for(std::chrono::seconds(moveDelay)); // Simulate time taken to move one floor
+            std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay)); // Simulate time taken to move one floor
             --current;
         }
 
@@ -281,3 +248,39 @@ class Elevator : public IElevator {
         return os;
     };
 };
+
+double Divergence(const Elevator &elevator, const IPassenger &passenger) {
+    // std::cout << "Check ";
+    // passenger.print(std::cout);
+
+    if(elevator.heading == STOPPED) {
+        if(elevator.current == passenger.Origin() && elevator.doorState == DOORS_OPEN && 
+            ( elevator.state == IDLE || elevator.heading == passenger.Heading() )
+        ) {
+            return 0;
+        }
+
+        if(elevator.state == IDLE) {
+            return std::abs(elevator.current - passenger.Origin());
+        }
+    }
+
+    if(elevator.heading == passenger.Heading()) {
+        if(PassedOrigin(elevator, passenger)) {
+            return 2 * std::abs(elevator.current - elevator.FarthestToGo()) + std::abs(elevator.current - passenger.Origin());
+        } else {
+            return std::abs(elevator.current - passenger.Origin());
+        }
+    }
+
+    if(elevator.heading != passenger.Heading()) {
+        double f = elevator.FarthestToGo();
+        return std::abs(f - elevator.current) + std::abs(f - passenger.Origin());
+    }
+
+    throw std::invalid_argument("Invalid heading for elevator.");
+}
+
+bool PassedOrigin(const Elevator &elevator, const IPassenger &passenger) {
+    return elevator.heading == GOING_DOWN && passenger.Origin() > elevator.current || elevator.heading == GOING_UP && passenger.Origin() < elevator.current;
+}
