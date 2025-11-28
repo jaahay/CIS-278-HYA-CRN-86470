@@ -1,5 +1,7 @@
 #include "Bank.cpp"
 
+static const int CHECK_INTERVAL_MS = int(3);
+
 int main() {
 
     bool running = true;
@@ -19,8 +21,7 @@ int main() {
 
         std::thread monitorThread([&bank]() {
             while (true) {
-                std::this_thread::sleep_for(std::chrono::seconds(10));
-                std::cout << std::endl << "Elevator bank status:" << std::endl;
+                std::this_thread::sleep_for(std::chrono::seconds(CHECK_INTERVAL_MS));
                 bank.print(std::cout);
                 std::cout << std::endl;
             }
