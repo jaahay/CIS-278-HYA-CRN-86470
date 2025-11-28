@@ -121,7 +121,8 @@ class Elevator : public IElevator {
             std::cout << std::endl;
             Move(*this);
         }
-        return pendingPassengers;
+
+        throw std::invalid_argument("Invalid heading for elevator.");
     }
     
     const std::ostream& print(std::ostream& os) const override {
