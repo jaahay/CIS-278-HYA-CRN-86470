@@ -46,15 +46,15 @@ class Bank : public IBank {
     }
     
     const std::ostream& print(std::ostream& os) const override {
-        os << "Elevator bank status: " << std::endl;
+        os << "Elevator bank status: ";
         if(
             std::any_of(
                 elevators.begin(), elevators.end(), [](const IElevator* elevator) { return !elevator->IsIdle(); }
             )
         ) {
-            os << "\tactive. Active elevators:" << std::endl;
+            os << "active. Active elevators:" << std::endl;
         } else {
-            os << "\tinactive." << std::endl;
+            os << "inactive." << std::endl;
         }
         for(const auto& e : elevators) {
             if(!e->IsIdle()) {
