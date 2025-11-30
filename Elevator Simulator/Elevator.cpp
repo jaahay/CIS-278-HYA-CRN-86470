@@ -111,7 +111,14 @@ class Elevator : public IElevator {
         throw std::invalid_argument("Invalid heading for elevator.");
     }
 
-    const std::list<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
+    const std::future<std::list<const IPassenger *>> ReceivePassenger(const IPassenger &passenger) override {
+        return std::async(
+            std::launch::async,
+            &Elevator::_ReceivePassenger, this, std::ref(passenger)
+        );
+    }
+
+    std::list<const IPassenger *> _ReceivePassenger(const IPassenger &passenger) {
         if(pendingPassengers.end() == std::find(pendingPassengers.begin(), pendingPassengers.end(), &passenger)) {
             std::cout << "Passenger request ";
             passenger.print(std::cout);
