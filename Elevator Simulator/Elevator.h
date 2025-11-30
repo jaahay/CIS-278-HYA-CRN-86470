@@ -42,10 +42,24 @@ public:
         return os;
     }
 };
+class DoorsOpening : public DoorState {
+public:
+    std::ostream& print(std::ostream& os) const override {
+        os << "Doors are opening.";
+        return os;
+    }
+};
 class DoorsOpen : public DoorState {
 public:
     std::ostream& print(std::ostream& os) const override {
         os << "Doors are open.";
+        return os;
+    }
+};
+class DoorsClosing : public DoorState {
+public:
+    std::ostream& print(std::ostream& os) const override {
+        os << "Doors are closing.";
         return os;
     }
 };
