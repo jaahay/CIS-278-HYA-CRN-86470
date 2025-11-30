@@ -51,7 +51,7 @@ int main() {
             }
 
             Passenger* passenger = new Passenger(embark, disembark);
-            auto elevator = bank.ReceivePassenger(*passenger);
+            auto& elevator = bank.ReceivePassenger(*passenger);
             std::cout << "Next!! ";
         }
         std::cout << "ok!" << std::endl;

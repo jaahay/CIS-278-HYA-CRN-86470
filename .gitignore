@@ -45,3 +45,5 @@
 
 # More IDE files
 .vs/
+
+build/
