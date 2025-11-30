@@ -71,19 +71,14 @@ class Elevator : public IElevator {
     */
     friend const void Move(Elevator &);
 
-    const std::list<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
-        if(pendingPassengers.end() == std::find(pendingPassengers.begin(), pendingPassengers.end(), &passenger)) {
-            std::cout << "Passenger request ";
-            passenger.print(std::cout);
-            std::cout << " received." << std::endl;
-            pendingPassengers.insert(pendingPassengers.end(), &passenger);
-            print(std::cout);
-            std::cout << std::endl;
-            Move(*this);
-        }
-        return pendingPassengers;
-    }
-
+    /**
+     * Calculate how inconvenient it would be to pick up a passenger. Cases:
+     * 1. Same floor, doors opened and either stopped or same direction (0-distance)
+     * 2. Stopped; no direction (distance between current floor and passenger's origin)
+     * 3. Heading in same direction and away floor (twice distance between current and farthest + distance between current and passenger's origin)
+     * 4. Heading in same direction on approach floor (distance between current and passenger's origin)
+     * 5. Heading in opposite direction ( distance between farthest and current + distance between farthest and passenger's origin)
+     */
     const double Divergence(const IPassenger &passenger) const override {
         // std::cout << "Check ";
         // passenger.print(std::cout);
@@ -115,6 +110,19 @@ class Elevator : public IElevator {
 
         throw std::invalid_argument("Invalid heading for elevator.");
     }
+
+    const std::list<const IPassenger *> ReceivePassenger(const IPassenger &passenger) override {
+        if(pendingPassengers.end() == std::find(pendingPassengers.begin(), pendingPassengers.end(), &passenger)) {
+            std::cout << "Passenger request ";
+            passenger.print(std::cout);
+            std::cout << " received." << std::endl;
+            pendingPassengers.insert(pendingPassengers.end(), &passenger);
+            print(std::cout);
+            std::cout << std::endl;
+            Move(*this);
+        }
+        return pendingPassengers;
+    }
     
     const std::ostream& print(std::ostream& os) const override {
         os << "Currently at floor " << current << ". ";
@@ -126,7 +134,7 @@ class Elevator : public IElevator {
 
         if(!boardedPassengers.empty()) {
             os << std::endl << "\t" << boardedPassengers.size() << " boarded passenger(s): ";
-            for(auto& boardedPassenger = boardedPassengers.begin(); boardedPassenger != std::prev(boardedPassengers.end());) {
+            for(auto boardedPassenger = boardedPassengers.begin(); boardedPassenger != std::prev(boardedPassengers.end());) {
                 (*boardedPassenger)->print(os);
                 os << ", ";
                 ++boardedPassenger;
@@ -196,7 +204,7 @@ const bool FurtherToGo(const Elevator &elevator) {
 const bool Board(Elevator &elevator) {
     bool board = false;
     if(!elevator.pendingPassengers.empty()) {
-        for(auto& passenger = elevator.pendingPassengers.begin(); passenger != elevator.pendingPassengers.end();) {
+        for(auto passenger = elevator.pendingPassengers.begin(); passenger != elevator.pendingPassengers.end();) {
             if(elevator.current == (*passenger)->Origin() && (elevator.heading == STOPPED || elevator.heading == (*passenger)->Heading())) {
                 std::cout << "Passenger ";
                 (*passenger)->print(std::cout);
@@ -215,7 +223,7 @@ const bool Board(Elevator &elevator) {
 const bool Leave(Elevator &elevator) {
     bool leave = false;
     if(!elevator.boardedPassengers.empty()) {
-        for(auto& boardedPassenger = elevator.boardedPassengers.begin(); boardedPassenger != elevator.boardedPassengers.end();) {
+        for(auto boardedPassenger = elevator.boardedPassengers.begin(); boardedPassenger != elevator.boardedPassengers.end();) {
             if(elevator.current == (*boardedPassenger)->Destination()) {
                 std::cout << std::endl << "Passenger ";
                 (*boardedPassenger)->print(std::cout);
