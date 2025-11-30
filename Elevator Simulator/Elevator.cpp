@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
-#include <thread>
 #include <vector>
 
 #include "Elevator.h"
@@ -15,9 +14,11 @@ class Elevator : public IElevator {
         int moveDelay;
         int current;
 
-        const State* state;
-        const DoorState* doorState;
-        const IHeading* heading;
+        std::mutex active;
+
+        const State *state;
+        const DoorState *doorState;
+        const IHeading *heading;
         std::list<const IPassenger *> pendingPassengers;
         std::list<const IPassenger *> boardedPassengers;
 
@@ -49,7 +50,15 @@ class Elevator : public IElevator {
     Elevator& operator=(Elevator&&) = delete;
 
     const bool IsIdle() const override { return state == IDLE; }
-    const int CurrentFloor() const override { return current; }
+    const std::future<bool> Wait() override {
+        return std::async(
+            std::launch::deferred,
+            [&]() {
+                const std::lock_guard<std::mutex> lock(active);
+                return true;
+            }
+        );
+    }
     
     friend const bool PassedOrigin(const Elevator &, const IPassenger &);
     friend const bool PassedDestination(const Elevator &, const IPassenger &);
@@ -287,9 +296,10 @@ const void MoveLoop(Elevator &elevator) {
  * not thread safe.
  */
 const void Move(Elevator &elevator) {
-    if(elevator.state == ACTIVE) { return; }
+    // if(elevator.state == ACTIVE) { return; }
     std::thread t([&]() {
-        elevator.state = ACTIVE;
+        const std::lock_guard<std::mutex> lock(elevator.active);
+        // elevator.state = ACTIVE;
         while(!elevator.pendingPassengers.empty() || !elevator.boardedPassengers.empty()) {
             MoveLoop(elevator);
         }

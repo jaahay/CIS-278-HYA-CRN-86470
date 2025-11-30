@@ -20,7 +20,6 @@ class TestPassenger : public Passenger {
 void test_elevator_initial_state() {
     TestElevator elevator;
     assert(elevator.IsIdle());
-    assert(elevator.CurrentFloor() == 1);
     std::cout << "Test initial state passed." << std::endl;
 }
 
@@ -55,7 +54,7 @@ void test_receive_passenger() {
     auto *p = passengers.front();
     assert(passenger == *p);
 
-    
+
 
     std::cout << "Test receive passenger passed." << std::endl;
     // assert()
