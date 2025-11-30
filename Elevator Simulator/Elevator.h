@@ -73,18 +73,11 @@ class IElevator {
     public:
     virtual const bool IsIdle() const = 0;
     virtual const int CurrentFloor() const = 0;
-    virtual const std::list<const IPassenger *> ReceivePassenger(const IPassenger &) = 0;
-
-    /**
-     * Calculate how inconvenient it would be to pick up a passenger. Cases:
-     * 1. Same floor, doors opened and either stopped or same direction (0-distance)
-     * 2. Stopped; no direction (distance between current floor and passenger's origin)
-     * 3. Heading in same direction and away floor (twice distance between current and farthest + distance between current and passenger's origin)
-     * 4. Heading in same direction on approach floor (distance between current and passenger's origin)
-     * 5. Heading in opposite direction ( distance between farthest and current + distance between farthest and passenger's origin)
-     */
     virtual const double Divergence(const IPassenger &) const = 0;
+    virtual const std::list<const IPassenger *> ReceivePassenger(const IPassenger &) = 0;
     virtual const std::ostream& print(std::ostream&) const = 0;
+
+    auto operator<=>(const IElevator &) const = default;
 };
 
 const std::ostream& operator<<(std::ostream& os, const IElevator& elevator) { return elevator.print(os); }

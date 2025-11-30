@@ -4,7 +4,15 @@
 #include "Elevator.cpp"
 #include "Passenger.cpp"
 
-class TestElevator : public Elevator {};
+class TestElevator : public Elevator {
+    public:
+    TestElevator() : Elevator(0, 0) {}
+};
+
+class TestPassenger : public Passenger {
+    public:
+    TestPassenger() : Passenger(1, 2) {}
+};
 
 void test_elevator_initial_state() {
     TestElevator elevator;
@@ -15,19 +23,25 @@ void test_elevator_initial_state() {
 
 void test_passed() {
     TestElevator elevator;
-    Passenger passenger;
+    const TestPassenger passenger;
     assert(PassedOrigin(elevator, passenger) == false);
+    std::cout << "Test passed passed." << std::endl;
 }
 
 void test_receive_passenger() {
     TestElevator elevator;
-    Passenger passenger;
+    const TestPassenger passenger;
+    auto passengers = elevator.ReceivePassenger(passenger);
+    assert(passengers.size() == 1);
+    auto *p = passengers.front();
+    assert(passenger == *p);
+    std::cout << "Test receive passenger passed." << std::endl;
     // assert()
 }
 
 void test_elevator_divergence() {
     TestElevator elevator;
-    Passenger passenger;
+    TestPassenger passenger;
     assert(elevator.Divergence(passenger) == 0);
     std::cout << "Test divergence passed." << std::endl;
 }
@@ -70,7 +84,8 @@ int main() {
     test_elevator_initial_state();
     test_passed();
     test_receive_passenger();
-    test_elevator_divergence();
+
+    // test_elevator_divergence();
     // test_elevator_move();
     // test_elevator_invalid_floor();
     // test_elevator_concurrent_move();

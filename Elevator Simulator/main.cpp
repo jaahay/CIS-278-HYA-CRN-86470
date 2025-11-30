@@ -1,6 +1,6 @@
 #include "Bank.cpp"
 
-static const int CHECK_INTERVAL_MS = int(3);
+static const int MONITOR_BANK_INTERVAL_MS = int(3000);
 
 int main() {
 
@@ -21,7 +21,7 @@ int main() {
 
         std::thread monitorThread([&bank]() {
             while (true) {
-                std::this_thread::sleep_for(std::chrono::seconds(CHECK_INTERVAL_MS));
+                std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_BANK_INTERVAL_MS));
                 bank.print(std::cout);
                 std::cout << std::endl;
             }
@@ -50,22 +50,8 @@ int main() {
                 std::cout << "Please disembark from a valid floor between 1 and " << numFloors << ".";
             }
 
-            // std::thread receivePassenger([&bank, &embark, &disembark]() {
-                Passenger* passenger = new Passenger(embark, disembark);
-                // const IPassenger* p = &passenger;
-                // std::cout << std::endl << "Searching for an idle elevator to service ";
-                // passenger.print(std::cout);
-                // std::cout << "..." << std::endl;
-                auto elevator = &(bank.ReceivePassenger(*passenger));
-                // std::cout << it << std::endl;
-                // auto f = bank.ReceivePassenger(passenger);
-                // auto elevator = f.get();
-                // std::cout << "Elevator selected to service ";
-                // passenger.print(std::cout);
-                // std::cout << "." << std::endl;
-                // std::cout << "It'll cost approx " << elevator->Divergence(passenger) << "." << std::endl;
-            // });
-            // receivePassenger.detach();
+            Passenger* passenger = new Passenger(embark, disembark);
+            auto elevator = &(bank.ReceivePassenger(*passenger));
             std::cout << "Next!! ";
         }
         std::cout << "ok!" << std::endl;
