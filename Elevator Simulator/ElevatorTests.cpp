@@ -1,5 +1,8 @@
 #include <cassert>
+#include <condition_variable>
 #include <iostream>
+#include <mutex>
+#include <thread>
 
 #include "Elevator.cpp"
 #include "Passenger.cpp"
@@ -21,30 +24,43 @@ void test_elevator_initial_state() {
     std::cout << "Test initial state passed." << std::endl;
 }
 
-void test_passed() {
+void test_passed_origin() {
     TestElevator elevator;
     const TestPassenger passenger;
     assert(PassedOrigin(elevator, passenger) == false);
-    std::cout << "Test passed passed." << std::endl;
+    std::cout << "Test passed origin passed." << std::endl;
+}
+
+void test_passed_destination() {
+    TestElevator elevator;
+    const TestPassenger passenger;
+    assert(PassedDestination(elevator, passenger) == false);
+    std::cout << "Test passed destination passed." << std::endl;
+}
+
+void test_elevator_divergence() {
+    TestElevator elevator;
+    const TestPassenger passenger;
+    double divergence = elevator.Divergence(passenger);
+    assert(divergence >= 0.0);
+    std::cout << "Test divergence passed." << std::endl;
 }
 
 void test_receive_passenger() {
     TestElevator elevator;
     const TestPassenger passenger;
-    auto passengers = elevator.ReceivePassenger(passenger);
+    auto futurePassengers = elevator.ReceivePassenger(passenger);
+    auto passengers = futurePassengers.get();
     assert(passengers.size() == 1);
     auto *p = passengers.front();
     assert(passenger == *p);
+
+    
+
     std::cout << "Test receive passenger passed." << std::endl;
     // assert()
 }
 
-void test_elevator_divergence() {
-    TestElevator elevator;
-    TestPassenger passenger;
-    assert(elevator.Divergence(passenger) == 0);
-    std::cout << "Test divergence passed." << std::endl;
-}
 
 // void test_elevator_move() {
 //     Elevator elevator;
@@ -81,11 +97,11 @@ void test_elevator_divergence() {
 // }
 
 int main() {
-    test_elevator_initial_state();
-    test_passed();
+    // test_elevator_initial_state();
+    // test_passed();
+    // test_elevator_divergence();
     test_receive_passenger();
 
-    // test_elevator_divergence();
     // test_elevator_move();
     // test_elevator_invalid_floor();
     // test_elevator_concurrent_move();

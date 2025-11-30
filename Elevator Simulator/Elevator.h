@@ -2,8 +2,10 @@
 #define ELEVATOR_H
 
 #include <algorithm>
+#include <future>
 #include <iostream>
 #include <list>
+#include <thread>
 
 #include "Passenger.h"
 
@@ -74,7 +76,7 @@ class IElevator {
     virtual const bool IsIdle() const = 0;
     virtual const int CurrentFloor() const = 0;
     virtual const double Divergence(const IPassenger &) const = 0;
-    virtual const std::list<const IPassenger *> ReceivePassenger(const IPassenger &) = 0;
+    virtual const std::future<std::list<const IPassenger *>> ReceivePassenger(const IPassenger &) = 0;
     virtual const std::ostream& print(std::ostream&) const = 0;
 
     auto operator<=>(const IElevator &) const = default;
