@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 
-#include "include/Elevator.h"
+#include "Elevator.h"
 
 static const int DOOR_DELAY_MS = int(5000);
 static const int MOVE_DELAY_MS = int(1000);

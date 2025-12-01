@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-#include "../include/Bank.h"
+#include "Bank.h"
 
 #include "Elevator.cpp"
 #include "Passenger.cpp"

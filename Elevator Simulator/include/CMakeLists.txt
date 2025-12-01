@@ -1,8 +1,5 @@
-set(HEADER
-    Bank.h
-    Elevator.h
-    Panel.h
-    Passenger.h
-    )
-add_library(header INTERFACE ${HEADER})
-target_include_directories(header INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(include INTERFACE)
+target_include_directories(include INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+)
