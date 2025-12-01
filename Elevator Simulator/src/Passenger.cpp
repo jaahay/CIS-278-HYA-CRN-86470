@@ -1,6 +1,6 @@
-#include "Passenger.h"
-
 #include <stdexcept>
+
+#include "include/Passenger.h"
 
 class Passenger : public IPassenger {
     private:
