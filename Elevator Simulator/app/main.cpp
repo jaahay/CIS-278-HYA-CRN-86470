@@ -19,8 +19,8 @@ int main() {
         }
         Bank bank(elevators, numFloors);
 
-        std::thread monitorThread([&bank]() {
-            while (true) {
+        std::thread monitorThread([&bank, running]() {
+            while (running) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_BANK_INTERVAL_MS));
                 bank.print(std::cout);
                 std::cout << std::endl;
@@ -34,7 +34,6 @@ int main() {
             int embark, disembark;
             std::cout << "Board:" << std::endl;
             std::cin >> embark;
-            // std::cin >> embark >> disembark;
             std::cout << "Destination:" << std::endl;
             std::cin >> disembark;
             if (embark == 0 || disembark == 0) {
