@@ -1,4 +1,4 @@
-#include "src/Bank.cpp"
+#include "Bank.cpp"
 
 static const int MONITOR_BANK_INTERVAL_MS = int(3000);
 
