@@ -1,5 +1,8 @@
-add_library(include INTERFACE)
+cmake_minimum_required(VERSION 3.10.0)
+set(CMAKE_CXX_STANDARD 20)
+set(INCLUDE Bank.h)
+add_library(include INTERFACE ${INCLUDE})
 target_include_directories(include INTERFACE
-    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
