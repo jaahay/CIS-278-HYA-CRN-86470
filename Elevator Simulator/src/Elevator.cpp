@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 
-#include "../include/Elevator.h"
+#include "Elevator.h"
 
 static const int DOOR_DELAY_MS = int(5000);
 static const int MOVE_DELAY_MS = int(1000);
@@ -264,6 +264,7 @@ const void MoveLoop(Elevator &elevator) {
 
     if(board || depart) {
         std::cout << "An elevator is currently servicing floor " << elevator.current << std::endl;
+        elevator.print(std::cout);
         elevator.doorState = DOORS_OPENING;
         std::cout << "Doors opening..." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(elevator.doorDelay)); // Simulate door opening time
@@ -296,10 +297,10 @@ const void MoveLoop(Elevator &elevator) {
  * not thread safe.
  */
 const void Move(Elevator &elevator) {
-    // if(elevator.state == ACTIVE) { return; }
+    if(elevator.state == ACTIVE) { return; }
     std::thread t([&]() {
         const std::lock_guard<std::mutex> lock(elevator.active);
-        // elevator.state = ACTIVE;
+         elevator.state = ACTIVE;
         while(!elevator.pendingPassengers.empty() || !elevator.boardedPassengers.empty()) {
             MoveLoop(elevator);
         }

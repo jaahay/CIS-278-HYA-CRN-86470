@@ -1,4 +1,4 @@
-#include "../src/Bank.cpp"
+#include "Bank.cpp"
 
 static const int MONITOR_BANK_INTERVAL_MS = int(3000);
 
@@ -29,7 +29,7 @@ int main() {
         monitorThread.detach();
 
         bool calling = true;
-        while (true)
+        while (calling)
         {
             int embark, disembark;
             std::cout << "Board:" << std::endl;
@@ -51,9 +51,9 @@ int main() {
 
             Passenger* passenger = new Passenger(embark, disembark);
             auto& elevator = bank.ReceivePassenger(*passenger);
-            std::cout << "Next!! ";
+            std::cout << "Next!!" << std::endl;
         }
-        std::cout << "ok!" << std::endl;
+        running = false;
         char continueChoice;
         std::cout << "Do you want to configure another bank? (y/n): " << std::endl;
         std::cin >> continueChoice;
@@ -61,6 +61,7 @@ int main() {
             running = false;
             std::cout << "Exiting Elevator Simulator. Goodbye!" << std::endl;
         }
+        else { running = true; }
     }
     
     return 0;

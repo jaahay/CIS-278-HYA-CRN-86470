@@ -7,7 +7,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/app)
 
 add_executable(ElevatorSimulator ${PROJECT_SOURCE_DIR}/app/main.cpp)
-target_link_libraries(ElevatorSimulator PUBLIC app src include)
+target_link_libraries(ElevatorSimulator PUBLIC app src)
+
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
