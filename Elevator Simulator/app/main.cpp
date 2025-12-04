@@ -1,5 +1,7 @@
 #include "Bank.cpp"
 
+static const int MONITOR_BANK_INTERVAL_MS = int(3000);
+
 int main() {
 
     bool running = true;
@@ -17,10 +19,9 @@ int main() {
         }
         Bank bank(elevators, numFloors);
 
-        std::thread monitorThread([&bank]() {
-            while (true) {
-                std::this_thread::sleep_for(std::chrono::seconds(10));
-                std::cout << std::endl << "Elevator bank status:" << std::endl;
+        std::thread monitorThread([&bank, running]() {
+            while (running) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_BANK_INTERVAL_MS));
                 bank.print(std::cout);
                 std::cout << std::endl;
             }
@@ -28,12 +29,11 @@ int main() {
         monitorThread.detach();
 
         bool calling = true;
-        while (true)
+        while (calling)
         {
             int embark, disembark;
             std::cout << "Board:" << std::endl;
             std::cin >> embark;
-            // std::cin >> embark >> disembark;
             std::cout << "Destination:" << std::endl;
             std::cin >> disembark;
             if (embark == 0 || disembark == 0) {
@@ -49,25 +49,11 @@ int main() {
                 std::cout << "Please disembark from a valid floor between 1 and " << numFloors << ".";
             }
 
-            // std::thread receivePassenger([&bank, &embark, &disembark]() {
-                Passenger* passenger = new Passenger(embark, disembark);
-                // const IPassenger* p = &passenger;
-                // std::cout << std::endl << "Searching for an idle elevator to service ";
-                // passenger.print(std::cout);
-                // std::cout << "..." << std::endl;
-                auto elevator = &(bank.ReceivePassenger(*passenger));
-                // std::cout << it << std::endl;
-                // auto f = bank.ReceivePassenger(passenger);
-                // auto elevator = f.get();
-                // std::cout << "Elevator selected to service ";
-                // passenger.print(std::cout);
-                // std::cout << "." << std::endl;
-                // std::cout << "It'll cost approx " << elevator->Divergence(passenger) << "." << std::endl;
-            // });
-            // receivePassenger.detach();
-            std::cout << "Next!! ";
+            Passenger* passenger = new Passenger(embark, disembark);
+            auto& elevator = bank.ReceivePassenger(*passenger);
+            std::cout << "Next!!" << std::endl;
         }
-        std::cout << "ok!" << std::endl;
+        running = false;
         char continueChoice;
         std::cout << "Do you want to configure another bank? (y/n): " << std::endl;
         std::cin >> continueChoice;
@@ -75,6 +61,7 @@ int main() {
             running = false;
             std::cout << "Exiting Elevator Simulator. Goodbye!" << std::endl;
         }
+        else { running = true; }
     }
     
     return 0;

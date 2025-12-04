@@ -5,7 +5,7 @@
 
 class IHeading {
 public: 
-    bool operator==(const IHeading& other) const { return this == &other; };
+    auto operator<=>(const IHeading &) const = default;
     virtual std::ostream& print(std::ostream&) const = 0;
 };
 
@@ -30,9 +30,9 @@ public:
         return os;
     }
 };
-static const GoingUp* GOING_UP = new GoingUp();
-static const GoingDown* GOING_DOWN = new GoingDown();
-static const Stopped* STOPPED = new Stopped();
+static const IHeading* GOING_UP = new GoingUp();
+static const IHeading* GOING_DOWN = new GoingDown();
+static const IHeading* STOPPED = new Stopped();
 
 class IPassenger {
     public:
@@ -40,6 +40,8 @@ class IPassenger {
     virtual const int Destination() const = 0;
     virtual const IHeading* Heading() const = 0;
     virtual const std::ostream& print(std::ostream&) const = 0;
+
+    auto operator<=>(const IPassenger &) const = default;
  };
 
  #endif // PASSENGER_H
