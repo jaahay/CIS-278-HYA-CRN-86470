@@ -6,11 +6,8 @@
 
 class InsertionSort {
     public:
-        std::string filename;
-        int comparisons;
-        int swaps;
-
-    InsertionSort(std::string filename): filename(filename) {}
+        int comparisons = 0;
+        int swaps = 0;
 
     // Read size numbers from cin into a new array and return the array.
     int* ReadNums(int size) {
