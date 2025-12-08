@@ -3,8 +3,16 @@
 
 #include <iostream>
 
+#include "App.hpp"
+
 int main()
 {
+    std::map<std::string, Student> mmap{};
+    Student steve;
+    auto stu = new Student;
+    // mmap.insert({"hi", *stu});
+    // std::cout << mmap.at("hi").GetFullName();
+
     std::cout << "Hello World!\n";
 }
 
