@@ -18,6 +18,9 @@ public:
 	Course& operator=(const Course&) = default;
 	Course(Course&&) = default;
 	Course& operator=(Course&&) = default;
+	auto operator<=>(const Course&) const = default;
+	bool operator==(const Course&) const = default;
+
 	const std::string& GetUid() const;
 	const std::string& GetCourseTitle() const;
 	const std::string& GetInstructorName() const;

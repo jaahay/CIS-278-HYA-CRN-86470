@@ -16,6 +16,8 @@ public:
 	Student& operator=(const Student&) = default;
 	Student(Student&&) = default;
 	Student& operator=(Student&&) = default;
+	auto operator<=>(const Student&) const = default;
+	bool operator==(const Student&) const = default;
 
 	const std::string& GetUid() const;
 	const std::string& GetFullName() const;

@@ -6,7 +6,12 @@
 
 namespace Enrollment
 {
-	CourseStudent Enroll(Course&, Student&);
+	Course NewCourse(const std::string, const std::string);
+	Student NewStudent(const std::string);
+	CourseStudent AddStudentToCourse(const Course &, const Student &);
+
+	/*Course& AddCourse(Course&);
+	Student& AddStudent(const Student&);*/
 } // namespace Enrollment
 
 #endif // !ENROLLMENT_HPP
