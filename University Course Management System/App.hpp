@@ -21,12 +21,12 @@ public:
 	App& operator=(const App& other) = default;
 	App(App&& other) noexcept = default;
 	App& operator=(App&& other) noexcept = default;
-	const Course AddCourse(const std::string, const std::string);
-	const std::set<Course> ListCourses(std::string const) const;
-	const Student AddStudent(const std::string);
-	const std::set<Student> ListStudents(std::string const) const;
-	const CourseStudent Enroll(const std::string, const std::string);
-	const CourseStudent Drop(const std::string, const std::string);
+	const Course AddCourse(std::string, std::string);
+	const std::set<Course> ListCourses(std::string) const;
+	const Student AddStudent(std::string);
+	const std::set<Student> ListStudents(std::string) const;
+	const CourseStudent Enroll(std::string, std::string);
+	const CourseStudent Drop(std::string, std::string);
 
 protected:
 	const std::set<Course> ListCourses(Student const &) const;

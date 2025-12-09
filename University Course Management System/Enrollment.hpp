@@ -6,8 +6,8 @@
 
 namespace Enrollment
 {
-	Course NewCourse(const std::string, const std::string);
-	Student NewStudent(const std::string);
+	Course NewCourse(std::string, std::string);
+	Student NewStudent(std::string);
 	CourseStudent AddStudentToCourse(const Course &, const Student &);
 
 	/*Course& AddCourse(Course&);

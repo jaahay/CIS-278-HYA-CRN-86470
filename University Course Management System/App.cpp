@@ -1,36 +1,36 @@
 #include "App.hpp"
 #include "Enrollment.hpp"
 
-const Course App::AddCourse(const std::string title, const std::string instructor)
+const Course App::AddCourse(std::string title, std::string instructor)
 {
     auto course = Enrollment::NewCourse(title, instructor);
     courses.insert(std::make_pair(course.GetUid(), course));
     return course;
 }
-const std::set<Course> App::ListCourses(std::string const studentId) const
+const std::set<Course> App::ListCourses(std::string studentId) const
 {
     auto& student = students.find(studentId)->second;
     return ListCourses(student);
 }
-const Student App::AddStudent(const std::string name)
+const Student App::AddStudent(std::string name)
 {
     auto student = Enrollment::NewStudent(name);
     students.insert(std::make_pair(student.GetUid(), student));
     return student;
 }
-const std::set<Student> App::ListStudents(std::string const courseId) const
+const std::set<Student> App::ListStudents(std::string courseId) const
 {
     auto& course = courses.find(courseId)->second;
     return ListStudents(course);
 }
-const CourseStudent App::Enroll(const std::string courseId, const std::string studentId)
+const CourseStudent App::Enroll(std::string courseId, std::string studentId)
 {
     auto& course = courses.find(courseId)->second;
     auto& student = students.find(studentId)->second;
     auto courseStudent = Enrollment::AddStudentToCourse(course, student);
     return courseStudent;
 }
-const CourseStudent App::Drop(const std::string courseId, const std::string studentId)
+const CourseStudent App::Drop(std::string courseId, std::string studentId)
 {
     auto& course = courses.find(courseId)->second;
     auto& student = students.find(studentId)->second;

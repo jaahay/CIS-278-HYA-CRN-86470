@@ -2,7 +2,7 @@
 
 #include "Utils.hpp"
 
-const std::string Utils::GenerateNanosecondString()
+std::string Utils::GenerateNanosecondString()
 {
     auto since_epoch = std::chrono::system_clock::now().time_since_epoch();
     auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(since_epoch);
