@@ -5,6 +5,7 @@
 #include <list>
 #include <set>
 #include <map>
+#include <optional>
 #include <string>
 #include "CourseStudent.hpp"
 class App
@@ -12,8 +13,10 @@ class App
 private:
 	std::map <std::string, Course const> courses;
 	std::map <std::string, Student const> students;
-	std::map <Course const, std::set<CourseStudent*>> courseStudents;
-	std::map <Student const, std::set<CourseStudent*>> studentCourses;
+	std::map <Course const, std::set<CourseStudent>> courseStudentMap;
+	std::map <Student const, std::set<CourseStudent>> studentCourseMap;
+	std::map <Course const, std::list<CourseStudent>> courseWaitlistMap;
+	std::map <Student const, std::set<CourseStudent>> studentWaitlistMap;
 public:
 	App() = default;
 	~App() = default;
@@ -22,16 +25,21 @@ public:
 	App(App&& other) noexcept = default;
 	App& operator=(App&& other) noexcept = default;
 	const Course AddCourse(std::string, std::string);
-	const std::set<Course> ListCourses(std::string) const;
+	const std::optional<std::set<Course>> ListCourses(std::string) const;
 	const Student AddStudent(std::string);
-	const std::set<Student> ListStudents(std::string) const;
-	const CourseStudent Enroll(std::string, std::string);
-	const CourseStudent Drop(std::string, std::string);
-
+	const std::optional<std::set<Student>> ListStudents(std::string) const;
+	const std::optional<CourseStudent> Enroll(std::string, std::string);
+	const std::optional<CourseStudent> Drop(std::string, std::string);
+	const std::optional<CourseStudent> Waitlist(std::string, std::string);
+	const std::optional<std::list<Student>> ClassWaitlist(std::string);
 protected:
 	const std::set<Course> ListCourses(Student const &) const;
 	const std::set<Student> ListStudents(Course const &) const;
+	const CourseStudent Enroll(Course const &, Student const &);
+	const CourseStudent Drop(Course const &, Student const &);
+	const CourseStudent Waitlist(Course const &, Student const &);
+	const std::list<Student> CourseWaitlist(Course const &) const;
+	const std::set<Course> StudentWaitlist(Student const &) const;
 }; // class App
 
 #endif // !APP_HPP
-
