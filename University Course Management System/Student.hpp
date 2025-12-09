@@ -16,11 +16,11 @@ public:
 	// Student& operator=(const Student&) = default;
 	Student(Student&&) = default;
 	// Student& operator=(Student&&) = default;
-	// auto operator<=>(const Student&) const = default;
+	auto operator<=>(const Student&) const = default;
 	bool operator==(const Student&) const = default;
 
-	std::string& GetUid() const;
-	std::string& GetFullName() const;
+	std::string GetUid() const;
+	std::string GetFullName() const;
 }; // class Student
 
 #endif // !STUDENT_HPP

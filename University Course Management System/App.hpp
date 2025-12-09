@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 #include <optional>
+#include <queue>
 #include <string>
 #include "CourseStudent.hpp"
 class App
@@ -15,7 +16,7 @@ private:
 	std::map <std::string, Student const> students;
 	std::map <Course const, std::set<CourseStudent>> courseStudentMap;
 	std::map <Student const, std::set<CourseStudent>> studentCourseMap;
-	std::map <Course const, std::list<CourseStudent>> courseWaitlistMap;
+	std::map <Course const, std::queue<CourseStudent>> courseWaitlistMap;
 	std::map <Student const, std::set<CourseStudent>> studentWaitlistMap;
 public:
 	App() = default;

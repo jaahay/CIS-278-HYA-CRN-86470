@@ -20,11 +20,7 @@ const CourseStudent Enrollment::Waitlist(CourseStudent &courseStudent)
 {
 	return courseStudent.Waitlist();
 }
-const CourseStudent Enrollment::Accept(CourseStudent &courseStudent)
+const CourseStudent Enrollment::Accept(CourseStudent& courseStudent)
 {
 	return courseStudent.Enroll();
 }
-
-//Course& Enrollment::AddCourse(const Course& course) {
-	//return course;
-//}
