@@ -36,7 +36,7 @@ const std::optional<CourseStudent> App::Enroll(std::string courseId, std::string
     auto student = students.find(studentId);
     if(student == students.end()) { return std::nullopt; }
     
-    return Enroll(course->second, student->second);
+    return Enrollment::Enroll(course->second, student->second);
 }
 const std::optional<CourseStudent> App::Drop(std::string courseId, std::string studentId)
 {
@@ -96,7 +96,7 @@ const CourseStudent App::Enroll(Course const &course, Student const &student)
             return courseStudent;
         }
     }
-    auto courseStudent = Enrollment::AddStudentToCourse(course, student);
+    auto courseStudent = Enrollment::Enroll(course, student);
     courseStudentMap.at(course).insert(courseStudent);
     studentCourseMap.at(student).insert(courseStudent);
     return courseStudent;
