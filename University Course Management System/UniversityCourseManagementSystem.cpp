@@ -7,9 +7,7 @@
 
 int main()
 {
-    std::map<std::string, Student> mmap{};
-    Student steve;
-    auto stu = new Student;
+    auto app = new App();
     // mmap.insert({"hi", *stu});
     // std::cout << mmap.at("hi").GetFullName();
 

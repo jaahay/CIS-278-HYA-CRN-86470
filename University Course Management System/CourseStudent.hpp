@@ -51,20 +51,20 @@ static const EnrollmentState* INTERESTED_IN = new InterestedIn();
 class CourseStudent
 {
 private:
-	const Course& course;
-	const Student& student;
+	Course const &course;
+	Student const &student;
 	const EnrollmentState* enrollment;
 
 public:
 	CourseStudent() = default;
-	CourseStudent(const Course&, const Student&);
+	CourseStudent(Course const &, Student const &);
 	~CourseStudent() = default;
 	CourseStudent(const CourseStudent& other) = default;
 	CourseStudent& operator=(const CourseStudent& other) = default;
 	CourseStudent(CourseStudent&& other) noexcept = default;
 	CourseStudent& operator=(CourseStudent&& other) noexcept = default;
-	const Course& GetCourse() const;
-	const Student& GetStudent() const;
+	Course const GetCourse() const;
+	Student const GetStudent() const;
 	const EnrollmentState* GetEnrollment() const;
 	const CourseStudent& Enroll();
 	const CourseStudent& Drop();

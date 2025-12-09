@@ -1,13 +1,13 @@
 // CourseStudent.cpp
 #include "CourseStudent.hpp"
 
-CourseStudent::CourseStudent(const Course& course, const Student& student)
+CourseStudent::CourseStudent(Course const &course, Student const &student)
 	: course(course), student(student), enrollment(INTERESTED_IN) {}
-const Course& CourseStudent::GetCourse() const
+Course const CourseStudent::GetCourse() const
 {
 	return course;
 }
-const Student& CourseStudent::GetStudent() const
+Student const CourseStudent::GetStudent() const
 {
 	return student;
 }
