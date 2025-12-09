@@ -6,7 +6,7 @@ const Course App::AddCourse(std::string title, std::string instructor)
     const auto& course = Enrollment::NewCourse(title, instructor);
     courses.insert(std::make_pair(course.GetUid(), course));
     courseStudentMap.insert({course, std::set<CourseStudent>()});
-    courseWaitlistMap.insert({course, std::list<CourseStudent>()});
+    courseWaitlistMap.insert({course, std::queue<CourseStudent>()});
     return course;
 }
 const std::optional<std::set<Course>> App::ListCourses(std::string studentId) const
@@ -42,21 +42,21 @@ const std::optional<CourseStudent> App::Drop(std::string courseId, std::string s
 {
     auto optional = Enroll(courseId, studentId);
     if(optional == std::nullopt) { return std::nullopt; }
-    auto courseStudent = optional.value();
+    auto& courseStudent = optional.value();
     return Enrollment::Drop(courseStudent);
 }
 const std::optional<CourseStudent> App::Waitlist(std::string courseId, std::string studentId)
 {
     auto optional = Enroll(courseId, studentId);
     if(optional == std::nullopt) { return std::nullopt; }
-    auto courseStudent = optional.value();
+    auto& courseStudent = optional.value();
     return Enrollment::Waitlist(courseStudent);
 }
 const std::optional<CourseStudent> App::Accept(std::string courseId, std::string studentId)
 {
     auto optional = Enroll(courseId, studentId);
     if(optional == std::nullopt) { return std::nullopt; }
-    auto courseStudent = optional.value();
+    auto& courseStudent = optional.value();
     return Enrollment::Accept(courseStudent);
 }
 const std::optional<std::list<Student>> App::CourseWaitlist(std::string courseId) const {
@@ -71,18 +71,18 @@ const std::optional<std::set<Course>> App::StudentWaitlist(std::string studentId
 }
 const std::set<Course> App::ListCourses(Student const &student) const
 {
-    auto studentCourses = studentCourseMap.at(student);
+    auto& studentCourses = studentCourseMap.at(student);
     std::set<Course> courses;
-    for (auto studentCourse : studentCourses) {
+    for (auto& studentCourse : studentCourses) {
         courses.insert(studentCourse.GetCourse());
     }
     return courses;
 }
 const std::set<Student> App::ListStudents(Course const &course) const
 {
-    auto courseStudents = courseStudentMap.at(course);
+    auto& courseStudents = courseStudentMap.at(course);
     std::set<Student> students;
-    for (auto courseStudent : courseStudents) {
+    for (auto& courseStudent : courseStudents) {
         students.insert(courseStudent.GetStudent());
     }
     return students;
@@ -90,7 +90,7 @@ const std::set<Student> App::ListStudents(Course const &course) const
 const CourseStudent App::Enroll(Course const &course, Student const &student)
 {
     auto courseStudents = courseStudentMap.find(course);
-    for(auto courseStudent : courseStudents->second)
+    for(auto& courseStudent : courseStudents->second)
     {
         if(courseStudent.GetStudent() == student) {
             return courseStudent;
@@ -115,21 +115,18 @@ const CourseStudent App::Waitlist(Course const &course, Student const &student)
 }
 const std::list<Student> App::CourseWaitlist(Course const &course) const
 {
-    auto waitlistedStudents = courseWaitlistMap.at(course);
+    auto& waitlistedStudents = courseWaitlistMap.at(course);
+    std::queue<CourseStudent> cp = waitlistedStudents;
     auto students = new std::list<Student>();
-    for(auto courseStudent : waitlistedStudents)
-    {
-        Student student = courseStudent.GetStudent();
-        students->push_back(student);
-    }
+    while (!cp.empty()) { students->push_back(cp.front().GetStudent()); cp.pop(); }
     return *students;
 }
 
 const std::set<Course> App::StudentWaitlist(Student const &student) const
 {
-    auto studentWaitlists = studentWaitlistMap.at(student);
+    auto& studentWaitlists = studentWaitlistMap.at(student);
     auto courses = new std::set<Course>();
-    for(auto courseStudent : studentWaitlists)
+    for(auto& courseStudent : studentWaitlists)
     {
         Course course = courseStudent.GetCourse();
         courses->insert(course);

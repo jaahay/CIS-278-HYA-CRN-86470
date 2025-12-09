@@ -59,6 +59,9 @@ public:
 	// CourseStudent& operator=(const CourseStudent& other) = default;
 	CourseStudent(CourseStudent&& other) noexcept = default;
 	// CourseStudent& operator=(CourseStudent&& other) noexcept = default;
+	auto operator<=>(const CourseStudent&) const = default;
+	bool operator==(const CourseStudent&) const = default;
+
 	Course const GetCourse() const;
 	Student const GetStudent() const;
 	const EnrollmentState* GetEnrollment() const;
