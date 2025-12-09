@@ -62,6 +62,8 @@ public:
 	auto operator<=>(const CourseStudent&) const = default;
 	bool operator==(const CourseStudent&) const = default;
 
+	friend std::ostream& operator<<(std::ostream&, const CourseStudent&);
+
 	Course const GetCourse() const;
 	Student const GetStudent() const;
 	const EnrollmentState* GetEnrollment() const;
@@ -69,5 +71,6 @@ public:
 	const CourseStudent& Drop();
 	const CourseStudent& Waitlist();
 };
+
 
 #endif // !COURSESTUDENT_HPP
