@@ -1,10 +1,10 @@
 #include "Enrollment.hpp"
 
-Course Enrollment::NewCourse(const std::string title, const std::string name)
+Course Enrollment::NewCourse(std::string title, std::string name)
 {
 	return Course(title, name);
 }
-Student Enrollment::NewStudent(const std::string name)
+Student Enrollment::NewStudent(std::string name)
 {
 	return Student(name);
 }

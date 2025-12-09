@@ -5,7 +5,7 @@
 
 namespace Utils
 {
-	const std::string GenerateNanosecondString();
+	std::string GenerateNanosecondString();
 };
 
 #endif // !UTILS_HPP

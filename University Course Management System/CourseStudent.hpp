@@ -8,7 +8,7 @@
 
 class EnrollmentState {
 public:
-	bool operator==(const EnrollmentState& other) const { return this == &other; };
+	bool operator==(const EnrollmentState& other) const = default;
 	virtual std::ostream& print(std::ostream&) const = 0;
 };
 
@@ -19,7 +19,6 @@ public:
 		return os;
 	}
 };
-static const EnrollmentState* ENROLLED = new Enrolled();
 
 class Dropped : public EnrollmentState {
 public:
@@ -28,7 +27,6 @@ public:
 		return os;
 	}
 };
-static const EnrollmentState* DROPPED = new Dropped();
 
 class Waitlisted : public EnrollmentState {
 public:
@@ -37,7 +35,6 @@ public:
 		return os;
 	}
 };
-static const EnrollmentState* WAITLISTED = new Waitlisted();
 
 class InterestedIn : public EnrollmentState {
 public:
@@ -46,23 +43,22 @@ public:
 		return os;
 	}
 };
-static const EnrollmentState* INTERESTED_IN = new InterestedIn();
 
 class CourseStudent
 {
 private:
-	Course const &course;
-	Student const &student;
+	Course const course;
+	Student const student;
 	const EnrollmentState* enrollment;
 
 public:
-	CourseStudent() = default;
+	// CourseStudent() = default;
 	CourseStudent(Course const &, Student const &);
 	~CourseStudent() = default;
 	CourseStudent(const CourseStudent& other) = default;
-	CourseStudent& operator=(const CourseStudent& other) = default;
+	// CourseStudent& operator=(const CourseStudent& other) = default;
 	CourseStudent(CourseStudent&& other) noexcept = default;
-	CourseStudent& operator=(CourseStudent&& other) noexcept = default;
+	// CourseStudent& operator=(CourseStudent&& other) noexcept = default;
 	Course const GetCourse() const;
 	Student const GetStudent() const;
 	const EnrollmentState* GetEnrollment() const;
