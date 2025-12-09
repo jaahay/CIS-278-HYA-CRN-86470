@@ -31,7 +31,8 @@ public:
 	const std::optional<CourseStudent> Enroll(std::string, std::string);
 	const std::optional<CourseStudent> Drop(std::string, std::string);
 	const std::optional<CourseStudent> Waitlist(std::string, std::string);
-	const std::optional<std::list<Student>> ClassWaitlist(std::string);
+	const std::optional<std::list<Student>> CourseWaitlist(std::string) const;
+	const std::optional<std::set<Course>> StudentWaitlist(std::string) const;
 protected:
 	const std::set<Course> ListCourses(Student const &) const;
 	const std::set<Student> ListStudents(Course const &) const;

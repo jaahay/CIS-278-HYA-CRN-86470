@@ -43,19 +43,31 @@ const std::optional<CourseStudent> App::Drop(std::string courseId, std::string s
     auto optional = Enroll(courseId, studentId);
     if(optional == std::nullopt) { return std::nullopt; }
     auto courseStudent = optional.value();
-    courseStudent.Drop();
-    return courseStudent;
+    return Enrollment::Drop(courseStudent);
 }
 const std::optional<CourseStudent> App::Waitlist(std::string courseId, std::string studentId)
 {
     auto optional = Enroll(courseId, studentId);
     if(optional == std::nullopt) { return std::nullopt; }
     auto courseStudent = optional.value();
-    courseStudent.Waitlist();
-    return courseStudent;
+    return Enrollment::Waitlist(courseStudent);
 }
-const std::optional<std::list<Student>> ClassWaitlist(std::string studentId) {
-    return std::nullopt;
+const std::optional<CourseStudent> App::Accept(std::string courseId, std::string studentId)
+{
+    auto optional = Enroll(courseId, studentId);
+    if(optional == std::nullopt) { return std::nullopt; }
+    auto courseStudent = optional.value();
+    return Enrollment::Accept(courseStudent);
+}
+const std::optional<std::list<Student>> App::CourseWaitlist(std::string courseId) const {
+    const auto& course = courses.find(courseId);
+    if(course == courses.end()) { return std::nullopt; }
+    return CourseWaitlist(course->second); 
+}
+const std::optional<std::set<Course>> App::StudentWaitlist(std::string studentId) const {
+    const auto& student = students.find(studentId);
+    if(student == students.end()) { return std::nullopt; }
+    return StudentWaitlist(student->second);
 }
 const std::set<Course> App::ListCourses(Student const &student) const
 {
@@ -84,11 +96,10 @@ const CourseStudent App::Enroll(Course const &course, Student const &student)
             return courseStudent;
         }
     }
-    CourseStudent courseStudent(course, student);
+    auto courseStudent = Enrollment::AddStudentToCourse(course, student);
     courseStudentMap.at(course).insert(courseStudent);
     studentCourseMap.at(student).insert(courseStudent);
     return courseStudent;
-   
 }
 const CourseStudent App::Drop(Course const &course, Student const &student) 
 {
