@@ -8,6 +8,14 @@ Course::Course() :
 Course::Course(std::string courseTitle, std::string instructorName) :
 	uid(Utils::GenerateNanosecondString()), courseTitle(courseTitle), instructorName(instructorName) {}
 
+std::ostream& operator<<(std::ostream& os, const Course& course)
+{
+	os << "Course: " << course.uid << std::endl;
+	os << "Title: " << course.courseTitle << std::endl;
+	os << "Instructor:" << course.instructorName << std::endl;
+	return os;
+}
+
 std::string Course::GetUid() const { return uid; }
 std::string Course::GetCourseTitle() const { return courseTitle; }
 std::string Course::GetInstructorName() const { return instructorName; }

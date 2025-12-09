@@ -2,6 +2,7 @@
 #ifndef STUDENT_HPP
 #define STUDENT_HPP
 #include <string>
+#include <iostream>
 
 class Student
 {
@@ -18,6 +19,8 @@ public:
 	// Student& operator=(Student&&) = default;
 	auto operator<=>(const Student&) const = default;
 	bool operator==(const Student&) const = default;
+
+	friend std::ostream& operator<<(std::ostream&, const Student&);
 
 	std::string GetUid() const;
 	std::string GetFullName() const;

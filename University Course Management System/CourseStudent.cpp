@@ -12,6 +12,15 @@ Course const CourseStudent::GetCourse() const
 {
 	return course;
 }
+
+std::ostream& operator<<(std::ostream& os, const CourseStudent& courseStudent) 
+{
+	os << "Student: " << courseStudent.student.GetFullName() << std::endl;
+	os << "Course: " << courseStudent.course.GetCourseTitle() << std::endl;
+	os << "Enrollment: " << courseStudent.enrollment << std::endl;
+	return os;
+}
+
 Student const CourseStudent::GetStudent() const
 {
 	return student;

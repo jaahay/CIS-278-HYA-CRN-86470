@@ -26,10 +26,12 @@ public:
 	App(App&& other) noexcept = default;
 	App& operator=(App&& other) noexcept = default;
 	const Course AddCourse(std::string, std::string);
-	const std::optional<std::set<Course>> ListCourses(std::string) const;
+	const std::set<Course> ListCourses() const;
 	const Student AddStudent(std::string);
-	const std::optional<std::set<Student>> ListStudents(std::string) const;
+	const std::set<Student> ListStudents() const;
 	const std::optional<CourseStudent> Enroll(std::string, std::string);
+	const std::optional<std::set<Course>> ListCourses(std::string) const;
+	const std::optional<std::set<Student>> ListStudents(std::string) const;
 	const std::optional<CourseStudent> Drop(std::string, std::string);
 	const std::optional<CourseStudent> Waitlist(std::string, std::string);
 	const std::optional<CourseStudent> Accept(std::string, std::string);

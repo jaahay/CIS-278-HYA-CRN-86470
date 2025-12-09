@@ -9,11 +9,13 @@ const Course App::AddCourse(std::string title, std::string instructor)
     courseWaitlistMap.insert({course, std::queue<CourseStudent>()});
     return course;
 }
-const std::optional<std::set<Course>> App::ListCourses(std::string studentId) const
+const std::set<Course> App::ListCourses() const
 {
-    const auto& student = students.find(studentId);
-    if(student == students.end()) { return std::nullopt; }
-    return ListCourses(student->second);
+    std::set<Course> courseSet;
+    for (auto &course : courses) {
+        courseSet.insert(course.second);
+    }
+    return courseSet;
 }
 const Student App::AddStudent(std::string name)
 {
@@ -23,11 +25,13 @@ const Student App::AddStudent(std::string name)
     studentWaitlistMap.insert({student, std::set<CourseStudent>()});
     return student;
 }
-const std::optional<std::set<Student>> App::ListStudents(std::string courseId) const
+const std::set<Student> App::ListStudents() const
 {
-    const auto& course = courses.find(courseId);
-    if(course == courses.end()) { return std::nullopt; }
-    return ListStudents(course->second);
+    std::set<Student> studentSet;
+    for (auto& student : students) {
+        studentSet.insert(student.second);
+    }
+    return studentSet;
 }
 const std::optional<CourseStudent> App::Enroll(std::string courseId, std::string studentId)
 {
@@ -37,6 +41,18 @@ const std::optional<CourseStudent> App::Enroll(std::string courseId, std::string
     if(student == students.end()) { return std::nullopt; }
     
     return Enrollment::Enroll(course->second, student->second);
+}
+const std::optional<std::set<Course>> App::ListCourses(std::string studentId) const
+{
+    const auto& student = students.find(studentId);
+    if(student == students.end()) { return std::nullopt; }
+    return ListCourses(student->second);
+}
+const std::optional<std::set<Student>> App::ListStudents(std::string courseId) const
+{
+    const auto& course = courses.find(courseId);
+    if(course == courses.end()) { return std::nullopt; }
+    return ListStudents(course->second);
 }
 const std::optional<CourseStudent> App::Drop(std::string courseId, std::string studentId)
 {
