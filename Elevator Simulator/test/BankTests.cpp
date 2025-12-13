@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "Bank.cpp"
+#include "Bank.h"
 
 void test_bank_call_elevator() {
     Bank bank(10, 2); // 10 floors, 2 elevators

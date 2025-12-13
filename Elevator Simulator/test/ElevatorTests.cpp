@@ -4,8 +4,7 @@
 #include <mutex>
 #include <thread>
 
-#include "Elevator.cpp"
-#include "Passenger.cpp"
+#include "Elevator.h"
 
 class TestElevator : public Elevator {
     public:

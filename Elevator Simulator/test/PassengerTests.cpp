@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "Passenger.cpp"
+#include "Passenger.h"
 
 void test_passenger_initial_state() {
     Passenger passenger(1, 2);
