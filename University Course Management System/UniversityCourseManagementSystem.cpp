@@ -16,25 +16,31 @@ int main()
         auto app = new App();
         if (prompt) {
             std::cout << "Please enter one of the following, and, replace arguments appropriately:" << std::endl;
-            std::cout << "\tAdd course _title_ _instructor_" << std::endl;
-            std::cout << "\tList courses" << std::endl;
-            std::cout << "\tAdd student _name_" << std::endl;
-            std::cout << "\tList Students" << std::endl;
-            std::cout << "\tEnroll _courseid_ _studentid_" << std::endl;
-            std::cout << "\tList student courses" << std::endl;
-            std::cout << "\tList course students" << std::endl;
-            std::cout << "\tDrop _courseid_ _studentid_" << std::endl;
-            std::cout << "\tWaitlist _courseid_ _studentid_" << std::endl;
-            std::cout << "\tAccept _courseid_ _studentid_" << std::endl;
-            std::cout << "\tGet course waitlist _courseid_" << std::endl;
-            std::cout << "\tGet student waitlist _studentid_" << std::endl;
+            std::cout << "\tAdd" << std::endl;
+            std::cout << "\tList" << std::endl;
+            std::cout << "\tEnroll" << std::endl;
+            std::cout << "\tGet" << std::endl;
             prompt = false;
         }
+        /*std::cout << "\tAdd course _title_ _instructor_" << std::endl;
+        std::cout << "\tList courses" << std::endl;
+        std::cout << "\tAdd student _name_" << std::endl;
+        std::cout << "\tList Students" << std::endl;
+        std::cout << "\tEnroll _courseid_ _studentid_" << std::endl;
+        std::cout << "\tList student courses" << std::endl;
+        std::cout << "\tList course students" << std::endl;
+        std::cout << "\tDrop _courseid_ _studentid_" << std::endl;
+        std::cout << "\tWaitlist _courseid_ _studentid_" << std::endl;
+        std::cout << "\tAccept _courseid_ _studentid_" << std::endl;
+        std::cout << "\tGet course waitlist _courseid_" << std::endl;
+        std::cout << "\tGet student waitlist _studentid_" << std::endl;*/
         std::string command;
         std::cin >> command;
         std::transform(command.begin(), command.end(), command.begin(), std::tolower);
-        std::stringstream ss(command);
-        std::string token;
+        
+        if (command == "get") {
+
+        }
         getline(ss, token, ' ');
         if (token == "add") {
             getline(ss, token, ' ');

@@ -6,11 +6,12 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/app)
 add_executable(ElevatorSimulator ${PROJECT_SOURCE_DIR}/app/main.cpp)
 target_compile_features(ElevatorSimulator PRIVATE cxx_std_20)
+target_link_libraries(ElevatorSimulator PRIVATE include src app)
 target_include_directories(ElevatorSimulator PRIVATE 
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/src
 	${PROJECT_SOURCE_DIR}/app
-)
+$)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
