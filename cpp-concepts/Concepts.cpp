@@ -1,13 +1,7 @@
 #include "Concepts.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "./FunctionArg.h"
 #include "./FunctionLocal.h"
 
-int main() {
-	FnArgMain();
-	FnLocalMain();
-=======
 #include <iostream>
 
 static void FnLocalVariable() {
@@ -73,14 +67,5 @@ int main() {
 	FnLocalVariable();
 	FnLocalPointer();
 	FnLocalReference();
->>>>>>> 1956557 (initial concepts)
-=======
-#include "./FunctionArg.h"
-#include "./FunctionLocal.h"
-
-int main() {
-	FnArgMain();
-	FnLocalMain();
->>>>>>> 617df17 (checkpoint)
 	return 0;
 }
