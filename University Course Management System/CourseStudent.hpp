@@ -8,41 +8,12 @@
 
 class EnrollmentState {
 public:
-	bool operator==(const EnrollmentState& other) const = default;
-	virtual std::ostream& print(std::ostream&) const = 0;
+	auto operator<=>(const EnrollmentState&) const = default;
 };
-
-class Enrolled : public EnrollmentState {
-public:
-	std::ostream& print(std::ostream& os) const override {
-		os << "enrolled";
-		return os;
-	}
-};
-
-class Dropped : public EnrollmentState {
-public:
-	std::ostream& print(std::ostream& os) const override {
-		os << "dropped";
-		return os;
-	}
-};
-
-class Waitlisted : public EnrollmentState {
-public:
-	std::ostream& print(std::ostream& os) const override {
-		os << "waitlisted";
-		return os;
-	}
-};
-
-class InterestedIn : public EnrollmentState {
-public:
-	std::ostream& print(std::ostream& os) const override {
-		os << "interested in";
-		return os;
-	}
-};
+extern EnrollmentState* ENROLLED;
+extern EnrollmentState* DROPPED;
+extern EnrollmentState* WAITLISTED;
+extern EnrollmentState* INTERESTED_IN;
 
 class CourseStudent
 {
