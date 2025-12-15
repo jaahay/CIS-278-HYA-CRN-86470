@@ -482,3 +482,5 @@ FodyWeavers.xsd
 **/*.slnx
 **/*.vcxproj
 **/*.vcxproj.filters
+.DS_STORE
+**/*.zip
