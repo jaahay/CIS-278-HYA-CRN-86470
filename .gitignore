@@ -478,3 +478,7 @@ FodyWeavers.xsd
 *.msp
 
 # -- END https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
+
+**/*.slnx
+**/*.vcxproj
+**/*.vcxproj.filters
