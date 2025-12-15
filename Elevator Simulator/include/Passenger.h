@@ -2,46 +2,46 @@
 #define PASSENGER_H
 
 #include <iostream>
+#include "Heading.h"
 
-class IHeading {
-public: 
-    auto operator<=>(const IHeading &) const = default;
-    virtual std::ostream& print(std::ostream&) const = 0;
-};
-
-class GoingUp : public IHeading {
+class Passenger {
+private:
+    int origin;
+    int destination;
 public:
-    std::ostream& print(std::ostream& os) const override {
-        os << "Going up.";
-        return os;
+    const int Origin() const {
+        return origin;
     }
-};
-class GoingDown : public IHeading {
-public:
-    std::ostream& print(std::ostream& os) const override {
-        os << "Going down.";
-        return os;
+    const int Destination() const {
+        return destination;
     }
-};
-class Stopped : public IHeading {
-public:
-    std::ostream& print(std::ostream& os) const override {
-        os << "Stopped.";
-        return os;
-    }
-};
-static const IHeading* GOING_UP = new GoingUp();
-static const IHeading* GOING_DOWN = new GoingDown();
-static const IHeading* STOPPED = new Stopped();
+    const Heading* Heading() const {
+        if (origin > destination) {
+            return GOING_DOWN;
+        }
+        return GOING_UP;
+    };
 
-class IPassenger {
-    public:
-    virtual const int Origin() const = 0;
-    virtual const int Destination() const = 0;
-    virtual const IHeading* Heading() const = 0;
-    virtual const std::ostream& print(std::ostream&) const = 0;
+    friend std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {
+        os << passenger.origin << "->" << passenger.destination;
+        return os;
+    };
 
-    auto operator<=>(const IPassenger &) const = default;
+    Passenger(int origin = 1, int destination = 1)
+        : origin(origin), destination(destination) {
+        if (origin == destination) {
+            throw std::invalid_argument("Embark and disembark from two different floors, please.");
+        }
+    }
+    ~Passenger() = default;
+    Passenger(const Passenger& other) :
+        origin(other.origin), destination(other.destination) {
+    }
+    Passenger& operator=(const Passenger&) = delete;
+    Passenger(Passenger&& other) noexcept :
+        origin(other.origin), destination(other.destination) {
+    }
+    Passenger& operator=(Passenger&&) = delete;
+    auto operator<=>(const Passenger &) const = default;
  };
-
  #endif // PASSENGER_H

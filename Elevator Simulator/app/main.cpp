@@ -1,4 +1,4 @@
-#include "Bank.cpp"
+#include "Bank.h"
 
 static const int MONITOR_BANK_INTERVAL_MS = int(3000);
 
@@ -13,7 +13,7 @@ int main() {
         std::cin >> numFloors;
         std::cout << "Enter number of elevators: ";
         std::cin >> numElevators;
-        std::vector<IElevator *> elevators(numElevators);
+        std::vector<Elevator *> elevators(numElevators);
         for(int i = 0; i < numElevators; ++i) {
             elevators.at(i) = new Elevator();
         }
@@ -22,7 +22,7 @@ int main() {
         std::thread monitorThread([&bank, running]() {
             while (running) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_BANK_INTERVAL_MS));
-                bank.print(std::cout);
+                std::cout << bank;
                 std::cout << std::endl;
             }
         });
