@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.10.0)
 set(CMAKE_CXX_STANDARD 20)
 project(ElevatorSimulator VERSION 0.1.0 LANGUAGES CXX)
 add_executable(ElevatorSimulator)
+target_compile_features(ElevatorSimulator PRIVATE cxx_std_20)
 set(
-	HEADERS 
+	INCLUDE 
 	./include/ActiveState.h
 	./include/Bank.h
 	./include/DoorState.h
@@ -19,7 +20,7 @@ target_sources(
 		TYPE HEADERS
 		BASE_DIRS "include/"
 		FILES
-			${HEADERS}
+			${INCLUDE}
 )
 set(
 	SRC 
@@ -34,17 +35,6 @@ set(
 target_sources(
 	ElevatorSimulator
 	PRIVATE
-		#BASE_DIRS "src/"
 		./app/main.cpp
 		${SRC}
 )
-
-#add_subdirectory(include)
-#add_subdirectory(src)
-#add_subdirectory(app)
-#add_subdirectory(test)
-#target_compile_features(ElevatorSimulator PRIVATE cxx_std_20)
-#target_link_libraries(ElevatorSimulator PRIVATE include src)
-#set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-#set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-#include(CPack)

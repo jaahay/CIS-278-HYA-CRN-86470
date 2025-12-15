@@ -34,8 +34,3 @@ target_sources(
 		UniversityCourseManagementSystem.cpp
 		${SRC}
 )
-#add_library(Lib
-#	Utils.hpp Student.hpp Course.hpp CourseStudent.hpp Enrollment.hpp App.hpp
-#	Utils.cpp Student.cpp Course.cpp CourseStudent.cpp Enrollment.cpp App.cpp
-#)
-#target_link_libraries(UniversityCourseManagementSystem PRIVATE Lib)
