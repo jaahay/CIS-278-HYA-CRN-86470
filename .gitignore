@@ -484,3 +484,8 @@ FodyWeavers.xsd
 **/*.vcxproj.filters
 .DS_STORE
 **/*.zip
+
+**/CMakeFiles/
+**/*.cmake
+**/CMakeCache.txt
+**/DartConfiguration.tcl

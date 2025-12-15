@@ -2,7 +2,9 @@
 set(CMAKE_CXX_STANDARD 20)
 set(
 	TEST
-	BankTests.cpp ElevatorTests.cpp PassengerTests.cpp
+	BankTests.cpp
+	ElevatorTests.cpp
+	PassengerTests.cpp
 )
 add_executable(test ${TEST})
 target_compile_features(test PRIVATE cxx_std_20)
