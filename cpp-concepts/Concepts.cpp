@@ -1,6 +1,6 @@
 #include "Concepts.h"
-#include "./FunctionArg.h"
-#include "./FunctionLocal.h"
+#include "FunctionArg.h"
+#include "FunctionLocal.h"
 
 int main() {
 	FnArgMain();
