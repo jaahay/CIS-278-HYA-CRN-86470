@@ -37,7 +37,6 @@ bool Elevator::Idle() const
 {
     return *state == IDLE;
 }
-;
 
 const std::future<std::list<const Passenger*>> Elevator::ReceivePassenger(const Passenger& passenger) {
     return std::async(

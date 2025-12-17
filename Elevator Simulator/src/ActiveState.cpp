@@ -5,8 +5,8 @@ std::ostream& operator<<(std::ostream& os, const ActiveState& state) {
 std::ostream& Idle::operator<<(std::ostream& os) const {
     return os << "Elevator is idle.";
 }
-const extern Idle IDLE = Idle();
+extern const Idle IDLE = Idle::IDLE;
 std::ostream& Active::operator<<(std::ostream& os) const {
     return os << "Elevator is active.";
 }
-const extern Active ACTIVE = Active();
+extern const Active ACTIVE = Active::ACTIVE;

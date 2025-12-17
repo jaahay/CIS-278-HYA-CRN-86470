@@ -12,18 +12,18 @@ public:
 class DoorsOpening : public DoorState {
     virtual std::ostream& operator<<(std::ostream& os) const;
 };
-const extern DoorsOpening DOORS_OPENING;
+extern const DoorsOpening DOORS_OPENING;
 class DoorsOpen : public DoorState {
     virtual std::ostream& operator<<(std::ostream& os) const;
 };
-const extern DoorsOpen DOORS_OPEN;
+extern const DoorsOpen DOORS_OPEN;
 class DoorsClosing : public DoorState {
     virtual std::ostream& operator<<(std::ostream& os) const;
 };
-const extern DoorsClosing DOORS_CLOSING;
+extern const DoorsClosing DOORS_CLOSING;
 class DoorsClosed : public DoorState {
     virtual std::ostream& operator<<(std::ostream& os) const;
 };
-const extern DoorsClosed DOORS_CLOSED;
+extern const DoorsClosed DOORS_CLOSED;
 
 #endif // DOORSTATE_H

@@ -1,24 +1,24 @@
 // CourseStudent.cpp
 #include "CourseStudent.hpp"
 
-const extern Enrolled ENROLLED = Enrolled();
+extern const Enrolled ENROLLED = Enrolled();
 std::ostream& operator<<(std::ostream& os, const Enrolled&) {
 	os << "enrolled";
 	return os;
 }
 
-const extern Dropped DROPPED = Dropped();
+extern const Dropped DROPPED = Dropped();
 std::ostream& operator<<(std::ostream& os, const Dropped&) {
 	os << "dropped";
 	return os;
 }
-const extern Waitlisted WAITLISTED = Waitlisted();
+extern const Waitlisted WAITLISTED = Waitlisted();
 std::ostream& operator<<(std::ostream& os, const Waitlisted&) {
 	os << "waitlisted";
 	return os;
 }
 
-const extern InterestedIn INTERESTED_IN = InterestedIn();
+extern const InterestedIn INTERESTED_IN = InterestedIn();
 std::ostream& operator<<(std::ostream& os, const InterestedIn&) {
 	os << "interested in";
 	return os;

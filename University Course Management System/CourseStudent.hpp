@@ -13,19 +13,19 @@ public:
 };
 
 class Enrolled : public EnrollmentState { };
-const extern Enrolled ENROLLED;
+extern const Enrolled ENROLLED;
 std::ostream& operator<<(std::ostream&, const Enrolled&);
 
 class Dropped : public EnrollmentState { };
-const extern Dropped DROPPED;
+extern const Dropped DROPPED;
 std::ostream& operator<<(std::ostream&, const Dropped&);
 
 class Waitlisted : public EnrollmentState { };
-const extern Waitlisted WAITLISTED;
+extern const Waitlisted WAITLISTED;
 std::ostream& operator<<(std::ostream&, const Waitlisted&);
 
 class InterestedIn : public EnrollmentState { };
-const extern InterestedIn INTERESTED_IN;
+extern const InterestedIn INTERESTED_IN;
 std::ostream& operator<<(std::ostream&, const InterestedIn&);
 class CourseStudent
 {

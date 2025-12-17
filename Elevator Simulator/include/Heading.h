@@ -7,17 +7,21 @@ public:
     bool operator==(const Heading&) const = default;
     virtual std::ostream& operator<<(std::ostream&) const = 0;
     friend std::ostream& operator<<(std::ostream&, const Heading&);
+//private:
+    //Heading();
 };
 class GoingUp : public Heading {
     virtual std::ostream& operator<<(std::ostream&) const;
+//private:
+//    GoingUp();
 };
-const extern GoingUp GOING_UP;
+extern const GoingUp GOING_UP;
 class GoingDown : public Heading {
     virtual std::ostream& operator<<(std::ostream&) const;
 };
-const extern GoingDown GOING_DOWN;
+extern const GoingDown GOING_DOWN;
 class Stopped : public Heading {
     virtual std::ostream& operator<<(std::ostream&) const;
 };
-const extern Stopped STOPPED;
+extern const Stopped STOPPED;
 #endif // !HEADING_H
