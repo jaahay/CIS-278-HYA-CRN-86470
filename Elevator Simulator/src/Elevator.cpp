@@ -7,12 +7,12 @@ const double Elevator::Divergence(const Passenger& passenger) const {
 
     if (heading == STOPPED) {
         if (current == passenger.Origin() && doorState == DOORS_OPEN &&
-            (state == IDLE || heading == passenger.Heading())
+            (*state == IDLE || heading == passenger.Heading())
             ) {
             return 0;
         }
 
-        if (state == IDLE) {
+        if (*state == IDLE) {
             return std::abs(current - passenger.Origin());
         }
     }
@@ -160,7 +160,7 @@ const void Elevator::MoveLoop(Elevator& elevator) {
     }
 
     if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
-        elevator.state = IDLE;
+        elevator.state = &IDLE;
         std::cout << "Elevator has come to a halt." << std::endl;
     }
     else if (elevator.doorState == DOORS_OPEN) {
@@ -187,10 +187,10 @@ const void Elevator::MoveLoop(Elevator& elevator) {
  * not thread safe.
  */
 const void Elevator::Move(Elevator& elevator) {
-    if (elevator.state == ACTIVE) { return; }
+    if (*(elevator.state) == ACTIVE) { return; }
     std::thread t([&]() {
         const std::lock_guard<std::mutex> lock(elevator.active);
-        elevator.state = ACTIVE;
+        elevator.state = &ACTIVE;
         while (!elevator.pendingPassengers.empty() || !elevator.boardedPassengers.empty()) {
             MoveLoop(elevator);
         }

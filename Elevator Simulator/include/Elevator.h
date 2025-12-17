@@ -10,7 +10,7 @@
 
 class Elevator {
 public:
-    const bool IsIdle() const { return state == IDLE; }
+    const bool IsIdle() const { return *state == IDLE; }
     /**
     * Calculate how inconvenient it would be to pick up a passenger. Cases:
     * 1. Same floor, doors opened and either stopped or same direction (0-distance)
@@ -48,7 +48,7 @@ public:
 
     Elevator(int doorDelayMs = 5000, int moveDelayMs = 1000, int current = 1) :
         doorDelay(doorDelayMs), moveDelay(moveDelayMs), current(current),
-        state(IDLE), doorState(DOORS_OPEN), heading(STOPPED),
+        state(&IDLE), doorState(DOORS_OPEN), heading(STOPPED),
         pendingPassengers(), boardedPassengers() {
     }
 

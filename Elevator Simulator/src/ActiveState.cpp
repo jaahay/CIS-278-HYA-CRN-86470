@@ -1,18 +1,13 @@
 #include "ActiveState.h"
-
-class Idle : public ActiveState {
-};
-extern std::ostream& operator<<(std::ostream& os, const Idle &) {
-    os << "Elevator is idle.";
-    return os;
+extern std::ostream& operator<<(std::ostream& os, const ActiveState& state) {
+    return state << os;
 }
-ActiveState* IDLE = new Idle();
-
-class Active : public ActiveState {
-public:
-};
-extern std::ostream& operator<<(std::ostream &os, const Active &) {
-    os << "Elevator is active.";
-    return os;
+std::ostream& Idle::operator<<(std::ostream& os) const {
+    return os << "Elevator is idle.";
 }
-ActiveState* ACTIVE = new Active();
+
+const extern Idle IDLE = Idle();
+std::ostream& Active::operator<<(std::ostream& os) const {
+    return os << "Elevator is active.";
+}
+const extern Active ACTIVE = Active();

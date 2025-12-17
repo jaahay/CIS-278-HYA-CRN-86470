@@ -1,38 +1,28 @@
 // CourseStudent.cpp
 #include "CourseStudent.hpp"
 
-
-class Enrolled : public EnrollmentState {
-};
-extern std::ostream& operator<<(std::ostream& os, const Enrolled&) {
+const extern Enrolled ENROLLED = Enrolled();
+std::ostream& operator<<(std::ostream& os, const Enrolled&) {
 	os << "enrolled";
 	return os;
 }
-EnrollmentState* ENROLLED = new Enrolled();
 
-class Dropped : public EnrollmentState {
-};
-extern std::ostream& operator<<(std::ostream& os, const Dropped&) {
+const extern Dropped DROPPED = Dropped();
+std::ostream& operator<<(std::ostream& os, const Dropped&) {
 	os << "dropped";
 	return os;
 }
-EnrollmentState* DROPPED = new Dropped();
-
-class Waitlisted : public EnrollmentState {
-};
-extern std::ostream& operator<<(std::ostream& os, const Waitlisted&) {
+const extern Waitlisted WAITLISTED = Waitlisted();
+std::ostream& operator<<(std::ostream& os, const Waitlisted&) {
 	os << "waitlisted";
 	return os;
 }
-EnrollmentState* WAITLISTED = new Waitlisted();
 
-class InterestedIn : public EnrollmentState {
-};
-extern std::ostream& operator<<(std::ostream& os, const InterestedIn&) {
+const extern InterestedIn INTERESTED_IN = InterestedIn();
+std::ostream& operator<<(std::ostream& os, const InterestedIn&) {
 	os << "interested in";
 	return os;
 }
-EnrollmentState* INTERESTED_IN = new InterestedIn();
 
 CourseStudent::CourseStudent(Course const &course, Student const &student)
 	: course(course), student(student), enrollment(INTERESTED_IN) {}
@@ -45,7 +35,8 @@ std::ostream& operator<<(std::ostream& os, const CourseStudent& courseStudent)
 {
 	os << "Student: " << courseStudent.student.GetFullName() << std::endl;
 	os << "Course: " << courseStudent.course.GetCourseTitle() << std::endl;
-	os << "Enrollment: " << courseStudent.enrollment << std::endl;
+	auto e = courseStudent.enrollment;
+	os << "Enrollment: " << e << std::endl;
 	return os;
 }
 
@@ -53,7 +44,7 @@ Student const CourseStudent::GetStudent() const
 {
 	return student;
 }
-const EnrollmentState* CourseStudent::GetEnrollment() const
+const EnrollmentState CourseStudent::GetEnrollment() const
 {
 	return enrollment;
 }
