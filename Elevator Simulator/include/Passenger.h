@@ -17,9 +17,9 @@ public:
     }
     const Heading* Heading() const {
         if (origin > destination) {
-            return GOING_DOWN;
+            return &GOING_DOWN;
         }
-        return GOING_UP;
+        return &GOING_UP;
     };
 
     friend std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {

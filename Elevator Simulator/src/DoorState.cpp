@@ -1,29 +1,20 @@
 #include "DoorState.h"
-
-class DoorsOpening : public DoorState {
+std::ostream& operator<<(std::ostream& os, const DoorState& state) {
+    return state << os;
+}
+std::ostream& DoorsOpening::operator<<(std::ostream& os) const {
+    return os << "Doors are opening.";
 };
-extern std::ostream& operator<<(std::ostream& os, const DoorsOpening&) {
-    os << "Doors are opening.";
-    return os;
+const extern DoorsOpening DOORS_OPENING = DoorsOpening();
+std::ostream& DoorsOpen::operator<<(std::ostream& os) const {
+    return os << "Doors are open.";
 };
-class DoorsOpen : public DoorState {
+const extern DoorsOpen DOORS_OPEN = DoorsOpen();
+std::ostream& DoorsClosing::operator<<(std::ostream& os) const {
+    return os << "Doors are closing.";
 };
-extern std::ostream& operator<<(std::ostream& os, const DoorsOpen&) {
-    os << "Doors are open.";
-    return os;
+const extern DoorsClosing DOORS_CLOSING = DoorsClosing();
+std::ostream& DoorsClosed::operator<<(std::ostream& os) const {
+    return os << "Doors are closed.";
 };
-class DoorsClosing : public DoorState {
-};
-extern std::ostream& operator<<(std::ostream& os, const DoorsClosing&) {
-    os << "Doors are closing.";
-    return os;
-};
-class DoorsClosed : public DoorState {};
-extern std::ostream& operator<<(std::ostream& os, const DoorsClosed&) {
-    os << "Doors are closed.";
-    return os;
-};
-DoorState* DOORS_OPENING = new DoorsOpening();
-DoorState* DOORS_OPEN = new DoorsOpen();
-DoorState* DOORS_CLOSING = new DoorsClosing();
-DoorState* DOORS_CLOSED = new DoorsClosed();
+const extern DoorsClosed DOORS_CLOSED = DoorsClosed();

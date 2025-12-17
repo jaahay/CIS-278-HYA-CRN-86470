@@ -48,7 +48,7 @@ public:
 
     Elevator(int doorDelayMs = 5000, int moveDelayMs = 1000, int current = 1) :
         doorDelay(doorDelayMs), moveDelay(moveDelayMs), current(current),
-        state(&IDLE), doorState(DOORS_OPEN), heading(STOPPED),
+        state(&IDLE), doorState(&DOORS_OPEN), heading(&STOPPED),
         pendingPassengers(), boardedPassengers() {
     }
 
@@ -105,6 +105,22 @@ protected:
       *  ... elevator spread when no passengers no requests ...
      */
     const void Move(Elevator&);
+
+private:
+    bool DoorsOpen() const;
+    void OpenDoors();
+    void CloseDoors();
+    bool Idle() const;
+
+    bool GoingDown() const;
+    bool GoingUp() const;
+    bool Stopped() const;
+    const Heading*& GoDown();
+    const Heading*& GoUp();
+    const Heading*& Stop();
+
+    bool Active() const;
+    const ActiveState*& Activate();
 };
 
 #endif // ELEVATOR_H

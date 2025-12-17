@@ -1,23 +1,18 @@
 #include "Heading.h"
-
-class GoingUp : public Heading {
+std::ostream& operator<<(std::ostream& os, const Heading& heading) {
+    return heading << os;
+}
+std::ostream& GoingUp::operator<<(std::ostream& os) const {
+    return os << "Going up.";
 };
-extern std::ostream& operator<<(std::ostream& os, const GoingUp&) {
-    os << "Going up.";
-    return os;
-};
-class GoingDown : public Heading {
-};
-extern std::ostream& operator<<(std::ostream& os, const GoingDown&) {
+const extern GoingUp GOING_UP = GoingUp();
+std::ostream& GoingDown::operator<<(std::ostream& os) const {
     os << "Going down.";
     return os;
 };
-class Stopped : public Heading {
-};
-extern std::ostream& operator<<(std::ostream& os, const Stopped&) {
+const extern GoingDown GOING_DOWN = GoingDown();
+std::ostream& Stopped::operator<<(std::ostream& os) const {
     os << "Stopped.";
     return os;
 };
-Heading* GOING_UP = new GoingUp();
-Heading* GOING_DOWN = new GoingDown();
-Heading* STOPPED = new Stopped();
+const extern Stopped STOPPED = Stopped();

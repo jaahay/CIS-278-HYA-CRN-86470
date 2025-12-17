@@ -5,14 +5,14 @@ const double Elevator::Divergence(const Passenger& passenger) const {
     // std::cout << "Check ";
     // passenger.print(std::cout);
 
-    if (heading == STOPPED) {
-        if (current == passenger.Origin() && doorState == DOORS_OPEN &&
-            (*state == IDLE || heading == passenger.Heading())
+    if (Stopped()) {
+        if (current == passenger.Origin() && DoorsOpen() &&
+            (Idle() || heading == passenger.Heading())
             ) {
             return 0;
         }
 
-        if (*state == IDLE) {
+        if (Idle()) {
             return std::abs(current - passenger.Origin());
         }
     }
@@ -32,7 +32,12 @@ const double Elevator::Divergence(const Passenger& passenger) const {
     }
 
     throw std::invalid_argument("Invalid heading for elevator.");
-};
+}
+bool Elevator::Idle() const
+{
+    return *state == IDLE;
+}
+;
 
 const std::future<std::list<const Passenger*>> Elevator::ReceivePassenger(const Passenger& passenger) {
     return std::async(
@@ -61,13 +66,25 @@ const std::future<bool> Elevator::Wait() {
 };
 
 const bool Elevator::PassedOrigin(const Elevator& elevator, const Passenger& passenger) const {
-    if (elevator.heading == STOPPED) { return false; }
-    return elevator.heading == GOING_DOWN && passenger.Origin() > elevator.current || elevator.heading == GOING_UP && passenger.Origin() < elevator.current;
-};
+    if (elevator.Stopped()) { return false; }
+    return elevator.GoingDown() && passenger.Origin() > elevator.current || elevator.GoingUp() && passenger.Origin() < elevator.current;
+}
+bool Elevator::GoingDown() const
+{
+    return heading == &GOING_DOWN;
+}
+bool Elevator::GoingUp() const
+{
+    return heading == &GOING_UP;
+}
+bool Elevator::Stopped() const
+{
+    return heading == &STOPPED;
+}
 
 const bool Elevator::PassedDestination(const Elevator& elevator, const Passenger& passenger) const {
-    if (elevator.heading == STOPPED) { return false; }
-    return elevator.heading == GOING_DOWN && passenger.Destination() > elevator.current || elevator.heading == GOING_UP && passenger.Destination() < elevator.current;
+    if (elevator.Stopped()) { return false; }
+    return elevator.GoingDown()  && passenger.Destination() > elevator.current || elevator.GoingUp() && passenger.Destination() < elevator.current;
 };
 
 const double Elevator::FarthestToGo(const Elevator& elevator) const {
@@ -82,7 +99,7 @@ const double Elevator::FarthestToGo(const Elevator& elevator) const {
             forwardStops.push_back(boardedPassenger->Destination());
         }
     }
-    if (elevator.heading == GOING_UP) {
+    if (elevator.GoingUp()) {
         return *std::max_element(forwardStops.begin(), forwardStops.end());
     }
     else {
@@ -92,17 +109,17 @@ const double Elevator::FarthestToGo(const Elevator& elevator) const {
 };
 
 const bool Elevator::FurtherToGo(const Elevator& elevator) const {
-    if (elevator.heading == STOPPED) { return false; }
+    if (elevator.Stopped()) { return false; }
     if (elevator.boardedPassengers.empty()) {
         for (const auto& pendingPassenger : elevator.pendingPassengers) {
             if (elevator.heading != pendingPassenger->Heading()) { continue; }
-            if (elevator.heading == GOING_UP && pendingPassenger->Origin() > elevator.current) { return true; }
-            if (elevator.heading == GOING_DOWN && pendingPassenger->Origin() < elevator.current) { return true; }
+            if (elevator.GoingUp()  && pendingPassenger->Origin() > elevator.current) { return true; }
+            if (elevator.GoingDown()  && pendingPassenger->Origin() < elevator.current) { return true; }
         }
     }
     for (const auto& boardedPassenger : elevator.boardedPassengers) {
-        if (elevator.heading == GOING_UP && boardedPassenger->Destination() > elevator.current) { return true; }
-        if (elevator.heading == GOING_DOWN && boardedPassenger->Destination() < elevator.current) { return true; }
+        if (elevator.GoingUp()  && boardedPassenger->Destination() > elevator.current) { return true; }
+        if (elevator.GoingDown()  && boardedPassenger->Destination() < elevator.current) { return true; }
     }
     return false;
 };
@@ -111,7 +128,7 @@ const bool Elevator::Board(Elevator& elevator) {
     bool board = false;
     if (!elevator.pendingPassengers.empty()) {
         for (auto passenger = elevator.pendingPassengers.begin(); passenger != elevator.pendingPassengers.end();) {
-            if (elevator.current == (*passenger)->Origin() && (elevator.heading == STOPPED || elevator.heading == (*passenger)->Heading())) {
+            if (elevator.current == (*passenger)->Origin() && (elevator.Stopped() || elevator.heading == (*passenger)->Heading())) {
                 std::cout << "Passenger " << *passenger << " is boarding. " << std::endl;
                 elevator.boardedPassengers.push_back(*passenger);
                 passenger = elevator.pendingPassengers.erase(passenger);
@@ -142,55 +159,101 @@ const bool Elevator::Leave(Elevator& elevator) {
     return leave;
 };
 
+const Heading*& Elevator::Stop()
+{
+    heading = &STOPPED;
+    state = &IDLE;
+    std::cout << "Elevator has come to a halt." << std::endl;
+    return heading = &STOPPED;
+}
+
+void Elevator::OpenDoors()
+{
+    doorState = &DOORS_OPENING;
+    std::cout << "Doors opening..." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
+    doorState = &DOORS_OPEN;
+}
+
+bool Elevator::DoorsOpen() const
+{
+    return *doorState == DOORS_OPEN;
+}
+
+void Elevator::CloseDoors()
+{
+    doorState = &DOORS_CLOSING;
+    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
+    doorState = &DOORS_CLOSED;
+    std::cout << "Doors closed." << std::endl;
+}
+
+const Heading*& Elevator::GoDown()
+{
+    return heading = &GOING_DOWN;
+}
+
+const Heading*& Elevator::GoUp()
+{
+    return heading = &GOING_UP;
+}
+
 const void Elevator::MoveLoop(Elevator& elevator) {
     bool board = Board(elevator);
     bool depart = Leave(elevator);
 
-    if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
-        elevator.heading = STOPPED;
-    }
+    /*if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
+        elevator.Stop();
+    }*/
 
     if (board || depart) {
         std::cout << "An elevator is currently servicing floor " << elevator.current << std::endl;
         std::cout << elevator << std::endl;
-        elevator.doorState = DOORS_OPENING;
-        std::cout << "Doors opening..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(elevator.doorDelay)); // Simulate door opening time
-        elevator.doorState = DOORS_OPEN;
+        elevator.OpenDoors();    
     }
 
     if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
-        elevator.state = &IDLE;
-        std::cout << "Elevator has come to a halt." << std::endl;
+        elevator.Stop();
     }
-    else if (elevator.doorState == DOORS_OPEN) {
-        elevator.doorState = DOORS_CLOSING;
-        std::this_thread::sleep_for(std::chrono::milliseconds(elevator.doorDelay)); // Simulate door closing time
-        elevator.doorState = DOORS_CLOSED;
-        std::cout << "Doors closed." << std::endl;
+    else if (elevator.DoorsOpen()) {
+        elevator.CloseDoors();
     }
     else if (!FurtherToGo(elevator)) {
-        elevator.heading = elevator.heading == GOING_UP ? GOING_DOWN : GOING_UP;
+        if (elevator.GoingUp()) {
+            elevator.GoDown();
+        }
+        else {
+            elevator.GoUp();
+        }
     }
 
-    if (elevator.heading == GOING_UP) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(elevator.moveDelay)); // Simulate time taken to move one floor
+    std::this_thread::sleep_for(std::chrono::milliseconds(elevator.moveDelay)); // Simulate time taken to move one floor
+    if (elevator.GoingUp()) {
         ++elevator.current;
     }
-    if (elevator.heading == GOING_DOWN) {
+    if (elevator.GoingDown()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(elevator.moveDelay)); // Simulate time taken to move one floor
-        --elevator.current;
     }
 };
+
+bool Elevator::Active() const
+{
+    return *state == ACTIVE;
+}
+
+const ActiveState*& Elevator::Activate()
+{
+    return state = &ACTIVE;
+}
 
 /**
  * not thread safe.
  */
 const void Elevator::Move(Elevator& elevator) {
-    if (*(elevator.state) == ACTIVE) { return; }
+    if (elevator.Active()) { return; }
     std::thread t([&]() {
         const std::lock_guard<std::mutex> lock(elevator.active);
-        elevator.state = &ACTIVE;
+        elevator.Activate();
         while (!elevator.pendingPassengers.empty() || !elevator.boardedPassengers.empty()) {
             MoveLoop(elevator);
         }
