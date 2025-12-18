@@ -108,19 +108,19 @@ protected:
 
 private:
     bool DoorsOpen() const;
-    void OpenDoors();
-    void CloseDoors();
+    Elevator& OpenDoors();
+    Elevator& CloseDoors();
     bool Idle() const;
 
     bool GoingDown() const;
     bool GoingUp() const;
     bool Stopped() const;
-    const Heading*& GoDown();
-    const Heading*& GoUp();
-    const Heading*& Stop();
+    Elevator& GoDown();
+    Elevator& GoUp();
+    Elevator& Stop();
 
     bool Active() const;
-    const ActiveState*& Activate();
+    Elevator& Activate();
 };
 
 #endif // ELEVATOR_H

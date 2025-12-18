@@ -158,20 +158,22 @@ const bool Elevator::Leave(Elevator& elevator) {
     return leave;
 };
 
-const Heading*& Elevator::Stop()
+Elevator& Elevator::Stop()
 {
     heading = &STOPPED;
     state = &IDLE;
     std::cout << "Elevator has come to a halt." << std::endl;
-    return heading = &STOPPED;
+    heading = &STOPPED;
+    return *this;
 }
 
-void Elevator::OpenDoors()
+Elevator& Elevator::OpenDoors()
 {
     doorState = &DOORS_OPENING;
     std::cout << "Doors opening..." << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
     doorState = &DOORS_OPEN;
+    return *this;
 }
 
 bool Elevator::DoorsOpen() const
@@ -179,22 +181,25 @@ bool Elevator::DoorsOpen() const
     return *doorState == DOORS_OPEN;
 }
 
-void Elevator::CloseDoors()
+Elevator& Elevator::CloseDoors()
 {
     doorState = &DOORS_CLOSING;
     std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
     doorState = &DOORS_CLOSED;
     std::cout << "Doors closed." << std::endl;
+    return *this;
 }
 
-const Heading*& Elevator::GoDown()
+Elevator& Elevator::GoDown()
 {
-    return heading = &GOING_DOWN;
+    heading = &GOING_DOWN;
+    return *this;
 }
 
-const Heading*& Elevator::GoUp()
+Elevator& Elevator::GoUp()
 {
-    return heading = &GOING_UP;
+    heading = &GOING_UP;
+    return *this;
 }
 
 const void Elevator::MoveLoop(Elevator& elevator) {
@@ -240,9 +245,10 @@ bool Elevator::Active() const
     return *state == ACTIVE;
 }
 
-const ActiveState*& Elevator::Activate()
+Elevator& Elevator::Activate()
 {
-    return state = &ACTIVE;
+    state = &ACTIVE;
+    return *this;
 }
 
 /**

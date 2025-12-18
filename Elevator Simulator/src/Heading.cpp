@@ -2,18 +2,17 @@
 std::ostream& operator<<(std::ostream& os, const Heading& heading) {
     return heading << os;
 }
-//GoingUp::GoingUp() {};
 std::ostream& GoingUp::operator<<(std::ostream& os) const {
     return os << "Going up.";
 };
-extern const GoingUp GOING_UP = GoingUp();
+extern const GoingUp GOING_UP = GoingUp::GOING_UP;
 std::ostream& GoingDown::operator<<(std::ostream& os) const {
     os << "Going down.";
     return os;
 };
-extern const GoingDown GOING_DOWN = GoingDown();
+extern const GoingDown GOING_DOWN = GoingDown::GOING_DOWN;
 std::ostream& Stopped::operator<<(std::ostream& os) const {
     os << "Stopped.";
     return os;
 };
-extern const Stopped STOPPED = Stopped();
+extern const Stopped STOPPED = Stopped::STOPPED;
