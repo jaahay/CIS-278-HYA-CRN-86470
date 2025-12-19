@@ -9,38 +9,18 @@ private:
     int origin;
     int destination;
 public:
-    const int Origin() const {
-        return origin;
-    }
-    const int Destination() const {
-        return destination;
-    }
-    const Heading* Heading() const {
-        if (origin > destination) {
-            return &GOING_DOWN;
-        }
-        return &GOING_UP;
-    };
+    const int Origin() const;
+    const int Destination() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {
-        os << passenger.origin << "->" << passenger.destination;
-        return os;
-    };
+    const bool GoingMyWay(const Heading& heading) const;
 
-    Passenger(int origin = 1, int destination = 1)
-        : origin(origin), destination(destination) {
-        if (origin == destination) {
-            throw std::invalid_argument("Embark and disembark from two different floors, please.");
-        }
-    }
+    friend std::ostream& operator<<(std::ostream&, const Passenger&);
+
+    Passenger(int origin, int destination);
     ~Passenger() = default;
-    Passenger(const Passenger& other) :
-        origin(other.origin), destination(other.destination) {
-    }
+    Passenger(const Passenger& other) = default;
     Passenger& operator=(const Passenger&) = delete;
-    Passenger(Passenger&& other) noexcept :
-        origin(other.origin), destination(other.destination) {
-    }
+    Passenger(Passenger&& other) noexcept = default;
     Passenger& operator=(Passenger&&) = delete;
     auto operator<=>(const Passenger &) const = default;
  };

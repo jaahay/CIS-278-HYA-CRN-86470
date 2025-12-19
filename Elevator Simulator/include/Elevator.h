@@ -4,13 +4,18 @@
 #include <future>
 #include <iostream>
 #include <list>
-#include "Passenger.h"
 #include "ActiveState.h"
 #include "DoorState.h"
+#include "ElevatorConcepts.h"
+#include "Passenger.h"
 
+//template<class E, class P> class Elevator;
+
+template<class E, class Passenger>
+requires ElevatorConcept<E, Passenger>
 class Elevator {
 public:
-    const bool IsIdle() const { return *state == IDLE; }
+    constexpr bool IsIdle() const;
     /**
     * Calculate how inconvenient it would be to pick up a passenger. Cases:
     * 1. Same floor, doors opened and either stopped or same direction (0-distance)
@@ -19,108 +24,79 @@ public:
     * 4. Heading in same direction on approach floor (distance between current and passenger's origin)
     * 5. Heading in opposite direction ( distance between farthest and current + distance between farthest and passenger's origin)
     */
-    const double Divergence(const Passenger &) const;
-    const std::future<std::list<const Passenger *>> ReceivePassenger(const Passenger &);
-    const std::future<bool> Wait();
-    friend std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
-        os << "Currently at floor " << elevator.current << ". ";
-        os << elevator.state << " " << elevator.doorState << " " << elevator.heading << ".";
+    constexpr double Divergence(const Passenger &) const;
+    constexpr std::future<std::list<const Passenger *>> ReceivePassenger(const Passenger &) const;
+    constexpr std::future<bool> Wait() const;
+    friend std::ostream& operator<<(std::ostream&, const E&);
 
-        if (!elevator.boardedPassengers.empty()) {
-            os << std::endl << "\t" << elevator.boardedPassengers.size() << " boarded passenger(s): ";
-            for (auto boardedPassenger = elevator.boardedPassengers.begin(); boardedPassenger != std::prev(elevator.boardedPassengers.end());) {
-                os << *boardedPassenger << ", ";
-                ++boardedPassenger;
-            }
-            os << elevator.boardedPassengers.back();
-        }
-
-        if (!elevator.pendingPassengers.empty()) {
-            os << std::endl << "\t" << elevator.pendingPassengers.size() << " awaiting passenger(s): ";
-            for (auto pendingPassenger = elevator.pendingPassengers.begin(); pendingPassenger != std::prev(elevator.pendingPassengers.end());) {
-                os << *pendingPassenger << ", ";
-                ++pendingPassenger;
-            }
-            os << elevator.pendingPassengers.back();
-        }
-        return os;
-    };
-
-    Elevator(int doorDelayMs = 5000, int moveDelayMs = 1000, int current = 1) :
-        doorDelay(doorDelayMs), moveDelay(moveDelayMs), current(current),
-        state(&IDLE), doorState(&DOORS_OPEN), heading(&STOPPED),
-        pendingPassengers(), boardedPassengers() {
-    }
-
+    explicit Elevator(int doorDelay = 5000, int moveDelayMs = 1000, int current = 1);
     ~Elevator() = default;
 
-    Elevator(const Elevator& other) :
-        doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current),
-        state(other.state), doorState(other.doorState), heading(other.heading),
-        pendingPassengers(other.pendingPassengers), boardedPassengers(other.boardedPassengers) {
-    }
-
+    Elevator(const Elevator&) = delete;
     Elevator& operator=(const Elevator&) = delete;
-
-    Elevator(Elevator&& other) noexcept :
-        doorDelay(other.doorDelay), moveDelay(other.moveDelay), current(other.current),
-        state(other.state), doorState(other.doorState), heading(other.heading),
-        pendingPassengers(other.pendingPassengers), boardedPassengers(other.boardedPassengers) {
-    }
-
-    Elevator& operator=(Elevator&&) = delete;
+    Elevator(Elevator&&) noexcept = default;
+    Elevator& operator=(Elevator&&) noexcept = default;
     auto operator<=>(const Elevator &) const = default;
 
 protected:
 
-    int doorDelay;
-    int moveDelay;
-    int current;
+    const int doorDelayMs;
+    const int moveDelayMs;
+    const int current;
 
     std::mutex active;
 
-    const ActiveState* state;
-    const DoorState* doorState;
-    const Heading* heading;
-    std::list<const Passenger*> pendingPassengers;
-    std::list<const Passenger*> boardedPassengers;
+    const std::unique_ptr<ActiveState> state;
+    const std::unique_ptr<DoorState> doorState;
+    const std::unique_ptr<Heading> heading;
+    const std::list<const P*> pendingPassengers;
+    const std::list<const P*> boardedPassengers;
 
-
-    const bool PassedOrigin(const Elevator&, const Passenger&) const;
-    const bool PassedDestination(const Elevator&, const Passenger&) const;
+    constexpr bool PassedOrigin(const P&) const;
+    constexpr bool PassedDestination(const P&) const;
 
     /**
      * The farthest we must go at our current heading before we can change direction
      * Filter all pending passengers that we have not passed -> their Origin
      * Filter all boarded passengers ahead -> their Destination
      */
-    const double FarthestToGo(const Elevator&) const;
-    const bool FurtherToGo(const Elevator&) const;
-    const bool Board(Elevator&);
-    const bool Leave(Elevator&);
-    const void MoveLoop(Elevator&);
+    constexpr double FarthestToGo() const;
+    constexpr bool FurtherToGo() const;
+    constexpr bool Board() const;
+    constexpr bool Leave() const;
+    constexpr void MoveLoop() const;
 
     /**
       *  ... weight limit...
       *  ... elevator spread when no passengers no requests ...
      */
-    const void Move(Elevator&);
+    constexpr void Move() const;
 
 private:
-    bool DoorsOpen() const;
-    Elevator& OpenDoors();
-    Elevator& CloseDoors();
-    bool Idle() const;
+    constexpr explicit Elevator(
+        const int doorDelayMs,
+        const int moveDelayMs,
+        const int current,
+        const std::unique_ptr<ActiveState>,
+        const std::unique_ptr<DoorState>,
+        const std::unique_ptr<Heading>,
+        const std::list<const P*> pendingPassengers,
+        const std::list<const P*> boardedPassengers);
 
-    bool GoingDown() const;
-    bool GoingUp() const;
-    bool Stopped() const;
-    Elevator& GoDown();
-    Elevator& GoUp();
-    Elevator& Stop();
+    constexpr bool DoorsOpen() const;
+    constexpr E& OpenDoors() const;
+    constexpr E& CloseDoors() const;
+    constexpr E& Idle() const;
 
-    bool Active() const;
-    Elevator& Activate();
+    constexpr bool GoingDown() const;
+    constexpr bool GoingUp() const;
+    constexpr bool Stopped() const;
+    constexpr E& GoDown() const;
+    constexpr E& GoUp() const;
+    constexpr E& Stop() const;
+
+    constexpr bool Active() const;
+    constexpr E& Activate() const;
 };
 
 #endif // ELEVATOR_H

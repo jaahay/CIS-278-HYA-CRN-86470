@@ -9,6 +9,7 @@ set(
 	./include/Bank.h
 	./include/DoorState.h
 	./include/Elevator.h
+	./include/ElevatorConcepts.h
 	./include/Heading.h
 	./include/Panel.h
 	./include/Passenger.h
@@ -28,9 +29,10 @@ set(
 	./src/Bank.cpp
 	./src/DoorState.cpp
 	./src/Elevator.cpp
+	./src/ElevatorConcepts.cpp
 	./src/Heading.cpp
 	./src/Panel.cpp
-	
+	./src/Passenger.cpp	
 )
 target_sources(
 	ElevatorSimulator

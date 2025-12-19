@@ -1,13 +1,44 @@
 #include <algorithm>
 #include "Elevator.h"
 
-const double Elevator::Divergence(const Passenger& passenger) const {
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::IsIdle() const { return *state == IDLE; }
+
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+Elevator<E, P>::Elevator(int doorDelayMs, int moveDelayMs, int current) :
+    doorDelayMs(doorDelayMs), moveDelayMs(moveDelayMs), current(current),
+    state(std::make_unique<ActiveState>(IDLE)),
+    doorState(std::make_unique<DoorState>(DOORS_OPEN)),
+    heading(std::make_unique<Heading>(STOPPED)),
+    pendingPassengers(), boardedPassengers() {
+}
+
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr Elevator<E, P>::Elevator(
+    const int doorDelayMs,
+    const int moveDelayMs,
+    const int current,
+    const std::unique_ptr<ActiveState> state,
+    const std::unique_ptr<DoorState> doorState,
+    const std::unique_ptr<Heading> heading,
+    const std::list<const P*> pendingPassengers,
+    const std::list<const P*> boardedPassengers) :
+    doorDelayMs(doorDelayMs), moveDelayMs(moveDelayMs), current(current),
+    state(state), doorState(doorState), heading(heading),
+    pendingPassengers(pendingPassengers), boardedPassengers(boardedPassengers) {
+}
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr double Elevator<E, P>::Divergence(const P& passenger) const {
     // std::cout << "Check ";
     // passenger.print(std::cout);
 
     if (Stopped()) {
         if (current == passenger.Origin() && DoorsOpen() &&
-            (Idle() || heading == passenger.Heading())
+            (Idle() || passenger.GoingMyWay(*heading))
             ) {
             return 0;
         }
@@ -17,28 +48,31 @@ const double Elevator::Divergence(const Passenger& passenger) const {
         }
     }
 
-    if (heading == passenger.Heading()) {
-        if (PassedOrigin(*this, passenger)) {
-            return 2 * std::abs(current - FarthestToGo(*this)) + std::abs(current - passenger.Origin());
+    if (passenger.GoingMyWay(*heading)) {
+        if (PassedOrigin(passenger)) {
+            return 2 * std::abs(current - FarthestToGo()) + std::abs(current - passenger.Origin());
         }
         else {
             return std::abs(current - passenger.Origin());
         }
     }
 
-    if (heading != passenger.Heading()) {
-        double f = FarthestToGo(*this);
+    if (!passenger.GoingMyWay(*heading)) {
+        double f = FarthestToGo();
         return std::abs(f - current) + std::abs(f - passenger.Origin());
     }
 
     throw std::invalid_argument("Invalid heading for elevator.");
 }
-bool Elevator::Idle() const
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::Idle() const
 {
     return *state == IDLE;
 }
-
-const std::future<std::list<const Passenger*>> Elevator::ReceivePassenger(const Passenger& passenger) {
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr std::future<std::list<const P*>> Elevator<E, P>::ReceivePassenger(const P& passenger) const {
     return std::async(
         std::launch::async,
         [this](const Passenger &passenger) {
@@ -46,7 +80,7 @@ const std::future<std::list<const Passenger*>> Elevator::ReceivePassenger(const 
                 std::cout << "Passenger request " << passenger << " received." << std::endl;
                 pendingPassengers.insert(pendingPassengers.end(), &passenger);
                 std::cout << passenger << std::endl;
-                Move(*this);
+                Move();
             }
             return pendingPassengers;
         },
@@ -54,7 +88,9 @@ const std::future<std::list<const Passenger*>> Elevator::ReceivePassenger(const 
     );
 };
 
-const std::future<bool> Elevator::Wait() {
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr std::future<bool> Elevator<E, P>::Wait() const {
     return std::async(
         std::launch::deferred,
         [&]() {
@@ -64,41 +100,51 @@ const std::future<bool> Elevator::Wait() {
     );
 };
 
-const bool Elevator::PassedOrigin(const Elevator& elevator, const Passenger& passenger) const {
-    if (elevator.Stopped()) { return false; }
-    return elevator.GoingDown() && passenger.Origin() > elevator.current || elevator.GoingUp() && passenger.Origin() < elevator.current;
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::PassedOrigin(const P& passenger) const {
+    if (Stopped()) { return false; }
+    return GoingDown() && passenger.Origin() > current || GoingUp() && passenger.Origin() < current;
 }
-bool Elevator::GoingDown() const
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::GoingDown() const
 {
-    return heading == &GOING_DOWN;
+    return *heading == GOING_DOWN;
 }
-bool Elevator::GoingUp() const
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::GoingUp() const
 {
-    return heading == &GOING_UP;
+    return *heading == GOING_UP;
 }
-bool Elevator::Stopped() const
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::Stopped() const
 {
-    return heading == &STOPPED;
+    return *heading == STOPPED;
 }
-
-const bool Elevator::PassedDestination(const Elevator& elevator, const Passenger& passenger) const {
-    if (elevator.Stopped()) { return false; }
-    return elevator.GoingDown()  && passenger.Destination() > elevator.current || elevator.GoingUp() && passenger.Destination() < elevator.current;
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::PassedDestination(const P& passenger) const {
+    if (Stopped()) { return false; }
+    return GoingDown()  && passenger.Destination() > current || GoingUp() && passenger.Destination() < current;
 };
-
-const double Elevator::FarthestToGo(const Elevator& elevator) const {
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr double Elevator<E, P>::FarthestToGo() const {
     std::list<double> forwardStops;
-    for (const auto& pendingPassenger : elevator.pendingPassengers) {
-        if (!PassedOrigin(elevator, *pendingPassenger)) {
+    for (const auto& pendingPassenger : pendingPassengers) {
+        if (!PassedOrigin(*pendingPassenger)) {
             forwardStops.push_back(pendingPassenger->Origin());
         }
     }
-    for (const auto& boardedPassenger : elevator.boardedPassengers) {
-        if (!PassedDestination(elevator, *boardedPassenger)) {
+    for (const auto& boardedPassenger : boardedPassengers) {
+        if (!PassedDestination(*boardedPassenger)) {
             forwardStops.push_back(boardedPassenger->Destination());
         }
     }
-    if (elevator.GoingUp()) {
+    if (GoingUp()) {
         return *std::max_element(forwardStops.begin(), forwardStops.end());
     }
     else {
@@ -106,31 +152,33 @@ const double Elevator::FarthestToGo(const Elevator& elevator) const {
     }
     return 0;
 };
-
-const bool Elevator::FurtherToGo(const Elevator& elevator) const {
-    if (elevator.Stopped()) { return false; }
-    if (elevator.boardedPassengers.empty()) {
-        for (const auto& pendingPassenger : elevator.pendingPassengers) {
-            if (elevator.heading != pendingPassenger->Heading()) { continue; }
-            if (elevator.GoingUp()  && pendingPassenger->Origin() > elevator.current) { return true; }
-            if (elevator.GoingDown()  && pendingPassenger->Origin() < elevator.current) { return true; }
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::FurtherToGo() const {
+    if (Stopped()) { return false; }
+    if (boardedPassengers.empty()) {
+        for (const auto& pendingPassenger : pendingPassengers) {
+            if (!pendingPassenger->GoingMyWay(*heading)) { continue; }
+            if (GoingUp()  && pendingPassenger->Origin() > current) { return true; }
+            if (GoingDown()  && pendingPassenger->Origin() < current) { return true; }
         }
     }
-    for (const auto& boardedPassenger : elevator.boardedPassengers) {
-        if (elevator.GoingUp()  && boardedPassenger->Destination() > elevator.current) { return true; }
-        if (elevator.GoingDown()  && boardedPassenger->Destination() < elevator.current) { return true; }
+    for (const auto& boardedPassenger : boardedPassengers) {
+        if (GoingUp()  && boardedPassenger->Destination() > current) { return true; }
+        if (GoingDown()  && boardedPassenger->Destination() < current) { return true; }
     }
     return false;
 };
-
-const bool Elevator::Board(Elevator& elevator) {
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::Board() const {
     bool board = false;
-    if (!elevator.pendingPassengers.empty()) {
-        for (auto passenger = elevator.pendingPassengers.begin(); passenger != elevator.pendingPassengers.end();) {
-            if (elevator.current == (*passenger)->Origin() && (elevator.Stopped() || elevator.heading == (*passenger)->Heading())) {
+    if (!pendingPassengers.empty()) {
+        for (auto passenger = pendingPassengers.begin(); passenger != pendingPassengers.end();) {
+            if (current == (*passenger)->Origin() && (Stopped() || (*passenger)->GoingMyWay(*(heading)))) {
                 std::cout << "Passenger " << *passenger << " is boarding. " << std::endl;
-                elevator.boardedPassengers.push_back(*passenger);
-                passenger = elevator.pendingPassengers.erase(passenger);
+                boardedPassengers.push_back(*passenger);
+                passenger = pendingPassengers.erase(passenger);
                 board = true;
             }
             else {
@@ -140,14 +188,15 @@ const bool Elevator::Board(Elevator& elevator) {
     }
     return board;
 };
-
-const bool Elevator::Leave(Elevator& elevator) {
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::Leave() const {
     bool leave = false;
-    if (!elevator.boardedPassengers.empty()) {
-        for (auto boardedPassenger = elevator.boardedPassengers.begin(); boardedPassenger != elevator.boardedPassengers.end();) {
-            if (elevator.current == (*boardedPassenger)->Destination()) {
+    if (!boardedPassengers.empty()) {
+        for (auto boardedPassenger = boardedPassengers.begin(); boardedPassenger != boardedPassengers.end();) {
+            if (current == (*boardedPassenger)->Destination()) {
                 std::cout << std::endl << "Passenger " << *boardedPassenger << " is leaving." << std::endl;
-                boardedPassenger = elevator.boardedPassengers.erase(boardedPassenger);
+                boardedPassenger = boardedPassengers.erase(boardedPassenger);
                 leave = true;
             }
             else {
@@ -157,95 +206,106 @@ const bool Elevator::Leave(Elevator& elevator) {
     }
     return leave;
 };
-
-Elevator& Elevator::Stop()
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::Stop() const
 {
-    heading = &STOPPED;
-    state = &IDLE;
+
+    heading = std::make_unique<ActiveState>(STOPPED);
+    state = std::make_unique<ActiveState>(IDLE);
     std::cout << "Elevator has come to a halt." << std::endl;
-    heading = &STOPPED;
+    heading = STOPPED;
     return *this;
 }
-
-Elevator& Elevator::OpenDoors()
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::OpenDoors() const
 {
-    doorState = &DOORS_OPENING;
+    doorState = DOORS_OPENING;
     std::cout << "Doors opening..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door opening time
-    doorState = &DOORS_OPEN;
+    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
+    doorState = DOORS_OPEN;
     return *this;
 }
-
-bool Elevator::DoorsOpen() const
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::DoorsOpen() const
 {
     return *doorState == DOORS_OPEN;
 }
-
-Elevator& Elevator::CloseDoors()
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::CloseDoors() const
 {
     doorState = &DOORS_CLOSING;
-    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelay)); // Simulate door closing time
+    std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
     doorState = &DOORS_CLOSED;
     std::cout << "Doors closed." << std::endl;
     return *this;
 }
-
-Elevator& Elevator::GoDown()
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::GoDown() const
 {
-    heading = &GOING_DOWN;
+    heading.reset(&GOING_DOWN);
     return *this;
 }
-
-Elevator& Elevator::GoUp()
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::GoUp() const
 {
-    heading = &GOING_UP;
+    heading = std::make_unique<Heading>(GOING_UP);
     return *this;
 }
-
-const void Elevator::MoveLoop(Elevator& elevator) {
-    bool board = Board(elevator);
-    bool depart = Leave(elevator);
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr void Elevator<E, P>::MoveLoop() const {
+    bool board = Board();
+    bool depart = Leave();
 
     /*if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
         elevator.Stop();
     }*/
 
     if (board || depart) {
-        std::cout << "An elevator is currently servicing floor " << elevator.current << std::endl;
-        std::cout << elevator << std::endl;
-        elevator.OpenDoors();    
+        std::cout << "An elevator is currently servicing floor " << current << std::endl;
+        std::cout << this << std::endl;
+        OpenDoors();    
     }
 
-    if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
-        elevator.Stop();
+    if (pendingPassengers.empty() && boardedPassengers.empty()) {
+        Stop();
     }
-    else if (elevator.DoorsOpen()) {
-        elevator.CloseDoors();
+    else if (DoorsOpen()) {
+        CloseDoors();
     }
-    else if (!FurtherToGo(elevator)) {
-        if (elevator.GoingUp()) {
-            elevator.GoDown();
+    else if (!FurtherToGo()) {
+        if (GoingUp()) {
+            GoDown();
         }
         else {
-            elevator.GoUp();
+            GoUp();
         }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(elevator.moveDelay)); // Simulate time taken to move one floor
-    if (elevator.GoingUp()) {
-        ++elevator.current;
+    std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
+    if (GoingUp()) {
+        ++current;
     }
-    if (elevator.GoingDown()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(elevator.moveDelay)); // Simulate time taken to move one floor
+    if (GoingDown()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
+        --current;
     }
 };
-
-bool Elevator::Active() const
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr bool Elevator<E, P>::Active() const
 {
     return *state == ACTIVE;
 }
-
-Elevator& Elevator::Activate()
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr E& Elevator<E, P>::Activate() const
 {
     state = &ACTIVE;
     return *this;
@@ -254,14 +314,41 @@ Elevator& Elevator::Activate()
 /**
  * not thread safe.
  */
-const void Elevator::Move(Elevator& elevator) {
-    if (elevator.Active()) { return; }
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+constexpr void Elevator<E, P>::Move() const {
+    if (Active()) { return; }
     std::thread t([&]() {
-        const std::lock_guard<std::mutex> lock(elevator.active);
-        elevator.Activate();
-        while (!elevator.pendingPassengers.empty() || !elevator.boardedPassengers.empty()) {
-            MoveLoop(elevator);
+        const std::lock_guard<std::mutex> lock(active);
+        Activate();
+        while (!pendingPassengers.empty() || !boardedPassengers.empty()) {
+            MoveLoop();
         }
         });
     t.detach();
+};
+template<typename E, typename P>
+    requires ElevatorConcept<E, P>
+std::ostream& operator<<(std::ostream& os, const E& elevator) {
+    os << "Currently at floor " << elevator.current << ". ";
+    os << elevator.state << " " << elevator.doorState << " " << elevator.heading << ".";
+
+    if (!elevator.boardedPassengers.empty()) {
+        os << std::endl << "\t" << elevator.boardedPassengers.size() << " boarded passenger(s): ";
+        for (auto boardedPassenger = elevator.boardedPassengers.begin(); boardedPassenger != std::prev(elevator.boardedPassengers.end());) {
+            os << *boardedPassenger << ", ";
+            ++boardedPassenger;
+        }
+        os << elevator.boardedPassengers.back();
+    }
+
+    if (!elevator.pendingPassengers.empty()) {
+        os << std::endl << "\t" << elevator.pendingPassengers.size() << " awaiting passenger(s): ";
+        for (auto pendingPassenger = elevator.pendingPassengers.begin(); pendingPassenger != std::prev(elevator.pendingPassengers.end());) {
+            os << *pendingPassenger << ", ";
+            ++pendingPassenger;
+        }
+        os << elevator.pendingPassengers.back();
+    }
+    return os;
 };

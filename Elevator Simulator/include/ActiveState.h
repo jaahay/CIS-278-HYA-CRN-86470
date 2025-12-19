@@ -11,7 +11,7 @@ protected:
     ActiveState() = default;
 };
 class Idle : public ActiveState {
-    virtual std::ostream& operator<<(std::ostream& os) const;
+    std::ostream& operator<<(std::ostream&) const;
 public:
     static const Idle IDLE;
 private:
@@ -19,7 +19,7 @@ private:
 };
 extern const Idle IDLE;
 class Active : public ActiveState {
-    virtual std::ostream& operator<<(std::ostream& os) const;
+    std::ostream& operator<<(std::ostream&) const;
 public:
     static const Active ACTIVE;
 private:

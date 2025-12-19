@@ -3,13 +3,15 @@
 
 #include "Elevator.h"
 
+template<class Elevator, class Passenger>
 class Bank {
 protected:
     int floorCount;
+
     std::vector<Elevator*> elevators;
 public:
     Elevator& ReceivePassenger(const Passenger&) const;
-    const int ClosestIdx(const Bank&, const Passenger&) const;
+    const int ClosestIdx(const Passenger&) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Bank& bank) {
         os << "Elevator bank status: ";
