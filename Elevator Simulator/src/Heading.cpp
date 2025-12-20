@@ -1,5 +1,6 @@
 #include "Heading.h"
-std::ostream& operator<<(std::ostream& os, const Heading& heading) {
+template<typename Friend>
+std::ostream& operator<<(std::ostream& os, const Heading<Friend>& heading) {
     return heading << os;
 }
 std::ostream& GoingUp::operator<<(std::ostream& os) const {

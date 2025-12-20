@@ -46,7 +46,7 @@ protected:
 
     std::mutex active;
 
-    const std::unique_ptr<ActiveState> state;
+    const std::unique_ptr<ActiveState<ActiveState>> state;
     const std::unique_ptr<DoorState> doorState;
     const std::unique_ptr<Heading> heading;
     const std::list<const P*> pendingPassengers;

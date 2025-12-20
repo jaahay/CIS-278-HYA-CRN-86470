@@ -1,19 +1,16 @@
 #ifndef PASSENGER_H
 #define PASSENGER_H
-
 #include <iostream>
 #include "Heading.h"
-
 class Passenger {
 private:
-    int origin;
-    int destination;
+    const int origin;
+    const int destination;
 public:
-    const int Origin() const;
-    const int Destination() const;
-
-    const bool GoingMyWay(const Heading& heading) const;
-
+    constexpr int Origin() const;
+    constexpr int Destination() const;
+    template<typename HeadingType>
+    constexpr bool GoingMyWay(const Heading<HeadingType>&) const;
     friend std::ostream& operator<<(std::ostream&, const Passenger&);
 
     Passenger(int origin, int destination);

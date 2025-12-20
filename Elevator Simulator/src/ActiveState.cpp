@@ -1,5 +1,6 @@
 #include "ActiveState.h"
-std::ostream& operator<<(std::ostream& os, const ActiveState& state) {
+template<typename Friend>
+std::ostream& operator<<(std::ostream& os, const ActiveState<Friend>& state) {
     return state << os;
 }
 std::ostream& Idle::operator<<(std::ostream& os) const {

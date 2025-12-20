@@ -1,5 +1,6 @@
 #include "DoorState.h"
-std::ostream& operator<<(std::ostream& os, const DoorState& state) {
+template<typename Friend>
+std::ostream& operator<<(std::ostream& os, const DoorState<Friend>& state) {
     return state << os;
 }
 std::ostream& DoorsOpening::operator<<(std::ostream& os) const {

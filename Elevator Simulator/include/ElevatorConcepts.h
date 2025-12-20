@@ -18,17 +18,20 @@ concept ElevatorConceptPublic = requires(E elevator, const P passenger) {
 	{ elevator.Wait() } -> std::convertible_to<std::future<bool>>;
 };
 
-template <typename E, typename P>
+template <
+    typename E, typename P,
+    typename ActiveStateType, typename DoorStateType, typename HeadingType
+>
 concept ElevatorConceptConstProtected = requires(const E elevator, const P passenger) {
-	{ elevator.state } -> std::convertible_to<ActiveState>;
-	{ elevator.doorState } -> std::convertible_to<DoorState>;
-	{ elevator.heading } -> std::convertible_to<Heading>;
-	{ elevator.pendingPassenger } -> std::convertible_to < std::list<P>>;
-	{ elevator.boardedPassengers } -> std::convertible_to < std::list<P>>;
-	{ elevator.PassedOrigin(passenger) }->std::convertible_to <bool>;
-	{ elevator.PassedDestination(passenger) }->std::convertible_to <bool>;
-	{ elevator.FarthestToGo() }->std::convertible_to <double>;
-	{ elevator.FurtherToGo() }->std::convertible_to <bool>;
+    { elevator.state } -> std::convertible_to<ActiveStateType>;
+    { elevator.doorState } -> std::convertible_to<DoorStateType>;
+    { elevator.heading } -> std::convertible_to<HeadingType>;
+    { elevator.pendingPassenger } -> std::convertible_to<std::list<P>>;
+    { elevator.boardedPassengers } -> std::convertible_to<std::list<P>>;
+    { elevator.PassedOrigin(passenger) } -> std::convertible_to<bool>;
+    { elevator.PassedDestination(passenger) } -> std::convertible_to<bool>;
+    { elevator.FarthestToGo() } -> std::convertible_to<double>;
+    { elevator.FurtherToGo() } -> std::convertible_to<bool>;
 };
 
 template <typename E>
@@ -56,11 +59,14 @@ concept ElevatorConceptConstPrivate = requires(const E elevator, const P passeng
 };
 
 
-template <typename E, typename P>
+template <
+	typename E, typename P,
+	typename ActiveStateType, typename DoorStateType, typename HeadingType
+>
 concept ElevatorConcept =
 ElevatorConceptConstPublic<E, P> &&
 ElevatorConceptPublic<E, P> &&
-ElevatorConceptConstProtected<E, P> &&
+ElevatorConceptConstProtected<E, P, ActiveStateType, DoorStateType, HeadingType> &&
 ElevatorConceptProtected<E> &&
 ElevatorConceptConstPrivate<E, P>;
 
