@@ -8,7 +8,7 @@ public:
     bool operator==(const DoorState&) const = default;
     virtual std::ostream& operator<<(std::ostream& os) const = 0;
     template<typename Friend>
-    friend std::ostream& operator<<(std::ostream&, const Friend&);
+    friend std::ostream& operator<<(std::ostream&, const DoorState<Friend>&);
 };
 class DoorsOpening : public DoorState<DoorsOpening> {
     virtual std::ostream& operator<<(std::ostream& os) const;

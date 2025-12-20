@@ -1,35 +1,11 @@
 #include <algorithm>
 #include "Elevator.h"
 
+
 template<typename E, typename P>
     requires ElevatorConcept<E, P>
 constexpr bool Elevator<E, P>::IsIdle() const { return *state == IDLE; }
 
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-Elevator<E, P>::Elevator(int doorDelayMs, int moveDelayMs, int current) :
-    doorDelayMs(doorDelayMs), moveDelayMs(moveDelayMs), current(current),
-    state(std::make_unique<ActiveState>(IDLE)),
-    doorState(std::make_unique<DoorState>(DOORS_OPEN)),
-    heading(std::make_unique<Heading>(STOPPED)),
-    pendingPassengers(), boardedPassengers() {
-}
-
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr Elevator<E, P>::Elevator(
-    const int doorDelayMs,
-    const int moveDelayMs,
-    const int current,
-    const std::unique_ptr<ActiveState> state,
-    const std::unique_ptr<DoorState> doorState,
-    const std::unique_ptr<Heading> heading,
-    const std::list<const P*> pendingPassengers,
-    const std::list<const P*> boardedPassengers) :
-    doorDelayMs(doorDelayMs), moveDelayMs(moveDelayMs), current(current),
-    state(state), doorState(doorState), heading(heading),
-    pendingPassengers(pendingPassengers), boardedPassengers(boardedPassengers) {
-}
 template<typename E, typename P>
     requires ElevatorConcept<E, P>
 constexpr double Elevator<E, P>::Divergence(const P& passenger) const {
