@@ -5,50 +5,28 @@
 #include <list>
 #include "Passenger.h"
 #include "ElevatorConcepts.h"
-template<
+
+template <
     typename PassengerType,
     typename ActiveStateType,
     typename DoorStateType,
     typename HeadingType
 >
-requires ElevatorConcept<
-    Elevator<PassengerType, ActiveStateType, DoorStateType, HeadingType>,
-        PassengerType
->
+    requires ElevatorConcept<
+        Elevator<PassengerType, ActiveStateType, DoorStateType, HeadingType>,
+            PassengerType
+    >
 class Elevator {
 
 public:
     using _ActiveStateType = ActiveStateType;
     using _DoorStateType = DoorStateType;
     using _HeadingType = HeadingType;
-    Elevator(
+    constexpr Elevator<PassengerType, ActiveStateType, DoorStateType, HeadingType>(
         int doorDelayMs,
         int moveDelayMs,
-        int current) :
-        doorDelayMs(doorDelayMs), moveDelayMs(moveDelayMs), current(current),
-        state(std::make_unique<ActiveStateType>(IDLE)),
-        doorState(std::make_unique<DoorStateType>(DOORS_OPEN)),
-        heading(std::make_unique<HeadingType>(STOPPED)),
-        pendingPassengers(), boardedPassengers() {
-    } = default;
-
-    constexpr Elevator<E, P>(
-        const int doorDelayMs,
-        const int moveDelayMs,
-        const int current,
-        const std::unique_ptr<ActiveStateType> state = std::make_unique<ActiveStateType>(IDLE),
-        const std::unique_ptr<DoorStateType> doorState = std::make_unique<DoorStateType>(DOORS_OPEN),
-        const std::unique_ptr<HeadingType> heading = std::make_unique<HeadingType>(STOPPED),
-        const std::list<const PassengerType*> pendingPassengers,
-        const std::list<const PassengerType*> boardedPassengers) :
-        doorDelayMs(doorDelayMs),
-        moveDelayMs(moveDelayMs),
-        current(current),
-        state(state), doorState(doorState),
-        heading(heading),
-        pendingPassengers(pendingPassengers),
-        boardedPassengers(boardedPassengers) {
-    } = default;
+        int current
+    );
 
     ~Elevator() = default;
 
@@ -71,9 +49,6 @@ public:
     constexpr std::future<bool> Wait() const;
     friend std::ostream& operator<<(std::ostream&, const Elevator&);
 protected:
-    using ActiveStateType = ActiveStateType;
-    using DoorStateType = DoorStateType;
-    using HeadingType = HeadingType;
 
     const int doorDelayMs;
     const int moveDelayMs;
@@ -81,9 +56,9 @@ protected:
 
     std::mutex active;
 
-    const std::unique_ptr<ActiveStateType> state;
-    const std::unique_ptr<DoorStateType> doorState;
-    const std::unique_ptr<HeadingType> heading;
+    const std::unique_ptr<const ActiveStateType> state;
+    const std::unique_ptr<const DoorStateType> doorState;
+    const std::unique_ptr<const HeadingType> heading;
     const std::list<const Passenger*> pendingPassengers;
     const std::list<const Passenger*> boardedPassengers;
 
@@ -107,10 +82,7 @@ protected:
      */
     constexpr void Move() const;
 
-private: 
-    using ActiveStateType = ActiveStateType;
-    using DoorStateType = DoorStateType;
-    using HeadingType = HeadingType;
+private:
     constexpr explicit Elevator(
         const int doorDelayMs,
         const int moveDelayMs,
@@ -122,18 +94,18 @@ private:
         const std::list<const PassengerType*> boardedPassengers);
 
     constexpr bool DoorsOpen() const;
-    constexpr ElevatorType& OpenDoors() const;
-    constexpr ElevatorType& CloseDoors() const;
-    constexpr ElevatorType& Idle() const;
+    constexpr Elevator& OpenDoors() const;
+    constexpr Elevator& CloseDoors() const;
+    constexpr Elevator& Idle() const;
 
     constexpr bool GoingDown() const;
     constexpr bool GoingUp() const;
     constexpr bool Stopped() const;
-    constexpr ElevatorType& GoDown() const;
-    constexpr ElevatorType& GoUp() const;
-    constexpr ElevatorType& Stop() const;
+    constexpr Elevator& GoDown() const;
+    constexpr Elevator& GoUp() const;
+    constexpr Elevator& Stop() const;
 
     constexpr bool Active() const;
-    constexpr ElevatorType& Activate() const;
+    constexpr Elevator& Activate() const;
 };
 #endif // ELEVATOR_H
