@@ -1,4 +1,4 @@
-#include "Passenger.h"
+#include "elevator/Passenger.h"
 constexpr int Passenger::Origin() const {
     return origin;
 }

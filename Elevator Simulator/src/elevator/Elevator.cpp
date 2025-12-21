@@ -1,14 +1,41 @@
-#include <algorithm>
-#include "Elevator.h"
+#include "elevator/Elevator.h"
 
+constexpr Elevator::Elevator(
+    int doorDelayMs,
+    int moveDelayMs,
+    int current
+) :
+    doorDelayMs(doorDelayMs),
+    moveDelayMs(moveDelayMs),
+    current(current),
+    opsState(IDLE),
+    doorState(DOORS_OPEN),
+    heading(STOPPED),
+    pendingPassengers(),
+    boardedPassengers() {
+};
+constexpr Elevator::Elevator(
+    const int doorDelayMs,
+    const int moveDelayMs,
+    const int current,
+    const std::unique_ptr<OpsStateType> opsState,
+    const std::unique_ptr<DoorStateType> doorState,
+    const std::unique_ptr<HeadingType> heading,
+    const std::list<const PassengerType*> pendingPassengers,
+    const std::list<const PassengerType*> boardedPassengers
+)
+    : doorDelayMs(doorDelayMs)
+    , moveDelayMs(moveDelayMs)
+    , current(current)
+    , opsState(std::move(opsState))
+    , doorState(std::move(doorState))
+    , heading(std::move(heading))
+    , pendingPassengers(std::move(pendingPassengers))
+    , boardedPassengers(std::move(boardedPassengers))
+{
+};
 
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::IsIdle() const { return *state == IDLE; }
-
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr double Elevator<E, P>::Divergence(const P& passenger) const {
+constexpr double Elevator::Divergence(const PassengerType& passenger) const {
     // std::cout << "Check ";
     // passenger.print(std::cout);
 
@@ -40,15 +67,18 @@ constexpr double Elevator<E, P>::Divergence(const P& passenger) const {
 
     throw std::invalid_argument("Invalid heading for elevator.");
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::Idle() const
+
+constexpr Elevator& Elevator::Idle() const
 {
-    return *state == IDLE;
+    return *opsState == IDLE;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr std::future<std::list<const P*>> Elevator<E, P>::ReceivePassenger(const P& passenger) const {
+template <
+    typename PassengerType,
+    typename OpsStateType,
+    typename DoorStateType,
+    typename HeadingType
+>
+constexpr std::future<std::list<const PassengerType*>> Elevator::ReceivePassenger(const PassengerType& passenger) const {
     return std::async(
         std::launch::async,
         [this](const Passenger &passenger) {
@@ -64,9 +94,8 @@ constexpr std::future<std::list<const P*>> Elevator<E, P>::ReceivePassenger(cons
     );
 };
 
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr std::future<bool> Elevator<E, P>::Wait() const {
+
+constexpr std::future<bool> Elevator::Wait() const {
     return std::async(
         std::launch::deferred,
         [&]() {
@@ -76,39 +105,33 @@ constexpr std::future<bool> Elevator<E, P>::Wait() const {
     );
 };
 
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::PassedOrigin(const P& passenger) const {
+
+constexpr bool Elevator::PassedOrigin(const PassengerType& passenger) const {
     if (Stopped()) { return false; }
     return GoingDown() && passenger.Origin() > current || GoingUp() && passenger.Origin() < current;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::GoingDown() const
+
+constexpr bool Elevator::GoingDown() const
 {
     return *heading == GOING_DOWN;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::GoingUp() const
+
+constexpr bool Elevator::GoingUp() const
 {
     return *heading == GOING_UP;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::Stopped() const
+
+constexpr bool Elevator::Stopped() const
 {
     return *heading == STOPPED;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::PassedDestination(const P& passenger) const {
+
+constexpr bool Elevator::PassedDestination(const PassengerType& passenger) const {
     if (Stopped()) { return false; }
     return GoingDown()  && passenger.Destination() > current || GoingUp() && passenger.Destination() < current;
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr double Elevator<E, P>::FarthestToGo() const {
+
+constexpr double Elevator::FarthestToGo() const {
     std::list<double> forwardStops;
     for (const auto& pendingPassenger : pendingPassengers) {
         if (!PassedOrigin(*pendingPassenger)) {
@@ -128,9 +151,9 @@ constexpr double Elevator<E, P>::FarthestToGo() const {
     }
     return 0;
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::FurtherToGo() const {
+
+
+constexpr bool Elevator::FurtherToGo() const {
     if (Stopped()) { return false; }
     if (boardedPassengers.empty()) {
         for (const auto& pendingPassenger : pendingPassengers) {
@@ -145,9 +168,9 @@ constexpr bool Elevator<E, P>::FurtherToGo() const {
     }
     return false;
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::Board() const {
+
+
+constexpr bool Elevator::Board() const {
     bool board = false;
     if (!pendingPassengers.empty()) {
         for (auto passenger = pendingPassengers.begin(); passenger != pendingPassengers.end();) {
@@ -164,9 +187,9 @@ constexpr bool Elevator<E, P>::Board() const {
     }
     return board;
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::Leave() const {
+
+
+constexpr bool Elevator::Leave() const {
     bool leave = false;
     if (!boardedPassengers.empty()) {
         for (auto boardedPassenger = boardedPassengers.begin(); boardedPassenger != boardedPassengers.end();) {
@@ -182,20 +205,18 @@ constexpr bool Elevator<E, P>::Leave() const {
     }
     return leave;
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::Stop() const
+
+constexpr Elevator& Elevator::Stop() const
 {
 
-    heading = std::make_unique<ActiveState>(STOPPED);
-    state = std::make_unique<ActiveState>(IDLE);
+    heading = std::make_unique<OpsState>(STOPPED);
+    opsState = std::make_unique<OpsState>(IDLE);
     std::cout << "Elevator has come to a halt." << std::endl;
     heading = STOPPED;
     return *this;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::OpenDoors() const
+
+constexpr Elevator& Elevator::OpenDoors() const
 {
     doorState = DOORS_OPENING;
     std::cout << "Doors opening..." << std::endl;
@@ -203,15 +224,13 @@ constexpr E& Elevator<E, P>::OpenDoors() const
     doorState = DOORS_OPEN;
     return *this;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::DoorsOpen() const
+
+constexpr bool Elevator::DoorsOpen() const
 {
     return *doorState == DOORS_OPEN;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::CloseDoors() const
+
+constexpr Elevator& Elevator::CloseDoors() const
 {
     doorState = &DOORS_CLOSING;
     std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
@@ -219,23 +238,20 @@ constexpr E& Elevator<E, P>::CloseDoors() const
     std::cout << "Doors closed." << std::endl;
     return *this;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::GoDown() const
+
+constexpr Elevator& Elevator::GoDown() const
 {
     heading.reset(&GOING_DOWN);
     return *this;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::GoUp() const
+
+constexpr Elevator& Elevator::GoUp() const
 {
     heading = std::make_unique<Heading>(GOING_UP);
     return *this;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr void Elevator<E, P>::MoveLoop() const {
+
+constexpr void Elevator::MoveLoop() const {
     bool board = Board();
     bool depart = Leave();
 
@@ -273,26 +289,22 @@ constexpr void Elevator<E, P>::MoveLoop() const {
         --current;
     }
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr bool Elevator<E, P>::Active() const
+
+constexpr bool Elevator::Active() const
 {
-    return *state == ACTIVE;
+    return *opsState == ACTIVE;
 }
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr E& Elevator<E, P>::Activate() const
+
+constexpr Elevator& Elevator::Activate() const
 {
-    state = &ACTIVE;
+    opsState = &ACTIVE;
     return *this;
 }
 
 /**
  * not thread safe.
  */
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-constexpr void Elevator<E, P>::Move() const {
+constexpr void Elevator::Move() const {
     if (Active()) { return; }
     std::thread t([&]() {
         const std::lock_guard<std::mutex> lock(active);
@@ -303,11 +315,10 @@ constexpr void Elevator<E, P>::Move() const {
         });
     t.detach();
 };
-template<typename E, typename P>
-    requires ElevatorConcept<E, P>
-std::ostream& operator<<(std::ostream& os, const E& elevator) {
+
+std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
     os << "Currently at floor " << elevator.current << ". ";
-    os << elevator.state << " " << elevator.doorState << " " << elevator.heading << ".";
+    os << elevator.opsState << " " << elevator.doorState << " " << elevator.heading << ".";
 
     if (!elevator.boardedPassengers.empty()) {
         os << std::endl << "\t" << elevator.boardedPassengers.size() << " boarded passenger(s): ";

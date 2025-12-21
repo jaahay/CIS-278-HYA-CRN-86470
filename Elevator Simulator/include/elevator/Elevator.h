@@ -3,26 +3,12 @@
 #include <future>
 #include <iostream>
 #include <list>
+#include "ElevatorStates.h"
 #include "Passenger.h"
-#include "ElevatorConcepts.h"
 
-template <
-    typename PassengerType,
-    typename ActiveStateType,
-    typename DoorStateType,
-    typename HeadingType
->
-    requires ElevatorConcept<
-        Elevator<PassengerType, ActiveStateType, DoorStateType, HeadingType>,
-            PassengerType
-    >
 class Elevator {
-
 public:
-    using _ActiveStateType = ActiveStateType;
-    using _DoorStateType = DoorStateType;
-    using _HeadingType = HeadingType;
-    constexpr Elevator<PassengerType, ActiveStateType, DoorStateType, HeadingType>(
+    constexpr Elevator(
         int doorDelayMs,
         int moveDelayMs,
         int current
@@ -44,8 +30,8 @@ public:
     * 4. Heading in same direction on approach floor (distance between current and passenger's origin)
     * 5. Heading in opposite direction ( distance between farthest and current + distance between farthest and passenger's origin)
     */
-    constexpr double Divergence(const PassengerType &) const;
-    constexpr std::future<std::list<const PassengerType *>> ReceivePassenger(const PassengerType &) const;
+    constexpr double Divergence(const Passenger &) const;
+    constexpr std::future<std::list<const Passenger *>> ReceivePassenger(const Passenger &) const;
     constexpr std::future<bool> Wait() const;
     friend std::ostream& operator<<(std::ostream&, const Elevator&);
 protected:
@@ -56,14 +42,14 @@ protected:
 
     std::mutex active;
 
-    const std::unique_ptr<const ActiveStateType> state;
-    const std::unique_ptr<const DoorStateType> doorState;
-    const std::unique_ptr<const HeadingType> heading;
+    const OpsState& opsState;
+    const DoorState& doorState;
+    const Heading& heading;
     const std::list<const Passenger*> pendingPassengers;
     const std::list<const Passenger*> boardedPassengers;
 
-    constexpr bool PassedOrigin(const PassengerType&) const;
-    constexpr bool PassedDestination(const PassengerType&) const;
+    constexpr bool PassedOrigin(const Passenger&) const;
+    constexpr bool PassedDestination(const Passenger&) const;
 
     /**
      * The farthest we must go at our current heading before we can change direction
@@ -87,11 +73,9 @@ private:
         const int doorDelayMs,
         const int moveDelayMs,
         const int current,
-        const std::unique_ptr<ActiveStateType>,
-        const std::unique_ptr<DoorStateType>,
-        const std::unique_ptr<HeadingType>,
-        const std::list<const PassengerType*> pendingPassengers,
-        const std::list<const PassengerType*> boardedPassengers);
+        const OpsState& opsState,
+        const std::list<const Passenger*> pendingPassengers,
+        const std::list<const Passenger*> boardedPassengers);
 
     constexpr bool DoorsOpen() const;
     constexpr Elevator& OpenDoors() const;
