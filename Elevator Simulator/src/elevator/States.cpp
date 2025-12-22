@@ -3,7 +3,7 @@
 #include "detail/OperationActive.h"
 
 namespace elevator {
-	const OperationActive& OperationActive_Instance() {
+	const OperationActive& ACTIVE() {
 		return detail::OperationActive::instance();
 	}
 }
