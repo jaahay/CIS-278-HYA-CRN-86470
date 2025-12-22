@@ -1,11 +1,11 @@
-// include/elevator/detail/BaseState.h
-#ifndef BASE_STATE_H
-#define BASE_STATE_H
+// include/core/BaseState.h
+#ifndef CORE_BASE_STATE_H
+#define CORE_BASE_STATE_H
 
 #include <iostream>
 #include <compare>
 
-namespace elevator::detail {
+namespace core {
 
     struct BaseState {
         virtual ~BaseState() = default;
@@ -28,6 +28,6 @@ namespace elevator::detail {
         }
     };
 
-} // namespace elevator::detail
+} // namespace core
 
-#endif // BASE_STATE_H
+#endif // CORE_BASE_STATE_H

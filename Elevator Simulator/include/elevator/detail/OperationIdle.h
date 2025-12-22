@@ -29,6 +29,6 @@ namespace elevator::detail {
             return instance;
         }
     };
-}
+} // namespace elevator::detail
 
 #endif // ELEVATOR_DETAIL_OPERATION_IDLE_H

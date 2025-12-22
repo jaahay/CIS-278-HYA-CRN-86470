@@ -1,11 +1,11 @@
-// include/elevator/OperationState.h
+// include/elevator/detail/OperationState.h
 #ifndef OPERATION_STATE_H
 #define OPERATION_STATE_H
-#include "BaseState.h"
+#include "core/BaseState.h"
 
 namespace elevator::detail {
 
-    struct OperationState : BaseState {
+    struct OperationState : core::BaseState {
     public:
         constexpr OperationState() = default;
 

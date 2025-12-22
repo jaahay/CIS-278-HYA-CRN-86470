@@ -1,11 +1,11 @@
-// include/elevator/detail/TemplateState.h
-#ifndef ELEVATOR_DETAIL_TEMPLATE_STATE_H
-#define ELEVATOR_DETAIL_TEMPLATE_STATE_H
+// include/core/TemplateState.h
+#ifndef CORE_TEMPLATE_STATE_H
+#define CORE_TEMPLATE_STATE_H
 #include <string_view>
 #include <compare>
 #include <iostream>
 
-namespace elevator::detail {
+namespace core {
 
     template <typename Derived, typename DomainBase>
     struct TemplateState : virtual DomainBase {
@@ -45,6 +45,6 @@ namespace elevator::detail {
         }
     };
 
-} // namespace elevator::detail
+} // namespace core
 
-#endif // ELEVATOR_DETAIL_TEMPLATE_STATE_H
+#endif // CORE_TEMPLATE_STATE_H

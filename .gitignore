@@ -484,6 +484,8 @@ FodyWeavers.xsd
 **/*.vcxproj.filters
 .DS_STORE
 **/*.zip
+build/**/*
+out/**/*
 
 **/CMakeFiles/
 **/*.cmake
