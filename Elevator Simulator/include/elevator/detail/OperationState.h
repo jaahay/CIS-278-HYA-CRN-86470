@@ -1,29 +1,28 @@
-// include/elevator/detail/OperationState.h
 #ifndef ELEVATOR_DETAIL_OPERATION_STATE_H
 #define ELEVATOR_DETAIL_OPERATION_STATE_H
 
-#include "core/BaseState.h"
+#include "core/Core.h"
+#include <compare>
 
 namespace elevator::detail {
 
     struct OperationState : core::BaseState {
         virtual ~OperationState() = default;
-
-        bool equals(const BaseState& other) const override {
-            if (typeid(*this) != typeid(other)) return false;
-            return this == &other;
-        }
-
-        std::strong_ordering compare(const BaseState& other) const override {
-            if (typeid(*this) != typeid(other)) {
-                return std::string_view(typeid(*this).name()) <=> std::string_view(typeid(other).name());
-            }
-            if (this == &other) return std::strong_ordering::equal;
-            return this < &other ? std::strong_ordering::less : std::strong_ordering::greater;
-        }
-
         void print(std::ostream& os) const override = 0;
     };
+
+    // Non-member comparison operators for OperationState
+    inline bool operator==(const OperationState& lhs, const OperationState& rhs) {
+        return static_cast<const core::BaseState&>(lhs) == static_cast<const core::BaseState&>(rhs);
+    }
+
+    inline bool operator!=(const OperationState& lhs, const OperationState& rhs) {
+        return !(lhs == rhs);
+    }
+
+    inline std::strong_ordering operator<=>(const OperationState& lhs, const OperationState& rhs) {
+        return static_cast<const core::BaseState&>(lhs) <=> static_cast<const core::BaseState&>(rhs);
+    }
 
 } // namespace elevator::detail
 

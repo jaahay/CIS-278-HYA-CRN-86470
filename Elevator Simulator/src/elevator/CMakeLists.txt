@@ -1,3 +1,8 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 file(GLOB_RECURSE elevator_PUBLIC_HEADERS
     #RELATIVE ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/include/elevator/*.h
@@ -19,7 +24,7 @@ file(GLOB_RECURSE elevator_PRIVATE_HEADERS
 add_library(elevator STATIC
     #Elevator.cpp
     #Panel.cpp
-    #Passenger.cpp
+    Passenger.cpp
     States.cpp
     # Add other elevator .cpp files here
 )

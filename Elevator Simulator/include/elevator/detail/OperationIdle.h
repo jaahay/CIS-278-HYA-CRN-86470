@@ -1,8 +1,7 @@
-// include/elevator/detail/OperationIdle.h
+// elevator/detail/OperationIdle.h
 #ifndef ELEVATOR_DETAIL_OPERATION_IDLE_H
 #define ELEVATOR_DETAIL_OPERATION_IDLE_H
 
-#include "core/TemplateState.h"
 #include "OperationState.h"
 
 namespace elevator::detail {

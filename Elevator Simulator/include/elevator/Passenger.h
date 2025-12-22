@@ -1,7 +1,7 @@
 #ifndef PASSENGER_H
 #define PASSENGER_H
 #include <iostream>
-#include "Heading.h"
+#include "States.h"
 class Passenger {
 private:
     const int origin;
@@ -9,8 +9,7 @@ private:
 public:
     constexpr int Origin() const;
     constexpr int Destination() const;
-    template<typename HeadingType>
-    constexpr bool GoingMyWay(const Heading<HeadingType>&) const;
+    bool GoingMyWay(const elevator::Heading&) const;
     friend std::ostream& operator<<(std::ostream&, const Passenger&);
 
     Passenger(int origin, int destination);

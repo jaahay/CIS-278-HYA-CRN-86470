@@ -8,6 +8,7 @@
 #include "detail/GoingUp.h"
 #include "detail/OperationActive.h"
 #include "detail/OperationIdle.h"
+#include "detail/Stopped.h"
 
 namespace elevator {
 
@@ -33,6 +34,10 @@ namespace elevator {
 
 	const Heading& GOING_UP() {
 		return detail::GoingUp::instance();
+	}
+
+	const Heading& STOPPED() {
+		return detail::Stopped::instance();
 	}
 
 	const OperationState& ACTIVE() {

@@ -5,10 +5,9 @@ constexpr int Passenger::Origin() const {
 constexpr int Passenger::Destination() const {
     return destination;
 }
-template<typename HeadingType>
-constexpr bool Passenger::GoingMyWay(const Heading<HeadingType>& heading) const {
-    if (heading == GOING_UP && destination > origin) { return true;  }
-    if (heading == GOING_DOWN && destination < origin) { return true; }
+bool Passenger::GoingMyWay(const elevator::Heading& heading) const {
+    if (heading == elevator::GOING_UP() && destination > origin) { return true; }
+    if (heading == elevator::GOING_DOWN() && destination < origin) { return true; }
     return false;
 }
 std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {

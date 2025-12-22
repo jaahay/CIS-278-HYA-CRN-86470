@@ -1,8 +1,7 @@
-// include/elevator/detail/DoorsClosed.h
+// elevator/detail/DoorsClosed.h
 #ifndef ELEVATOR_DETAIL_DOORS_CLOSED_H
 #define ELEVATOR_DETAIL_DOORS_CLOSED_H
 
-#include "core/TemplateState.h"
 #include "DoorState.h"
 
 namespace elevator::detail {

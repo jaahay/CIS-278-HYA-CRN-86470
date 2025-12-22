@@ -1,8 +1,7 @@
-// include/elevator/detail/GoingDown.h
+// elevator/detail/GoingDown.h
 #ifndef ELEVATOR_DETAIL_GOING_DOWN_H
 #define ELEVATOR_DETAIL_GOING_DOWN_H
 
-#include "core/TemplateState.h"
 #include "Heading.h"
 
 namespace elevator::detail {

@@ -1,8 +1,7 @@
-// include/elevator/detail/DoorsOpening.h
+// elevator/detail/DoorsOpening.h
 #ifndef ELEVATOR_DETAIL_DOORS_OPENING_H
 #define ELEVATOR_DETAIL_DOORS_OPENING_H
 
-#include "core/TemplateState.h"
 #include "DoorState.h"
 
 namespace elevator::detail {
