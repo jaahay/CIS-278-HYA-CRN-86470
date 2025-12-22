@@ -6,13 +6,32 @@ namespace elevator {
     
     // Forward declare the implementation type in detail namespace
     namespace detail {
-        struct OperationState;
+        struct DoorsClosed;
+        struct DoorsClosing;
+        struct DoorsOpened;
+        struct DoorsOpening;
+        struct DoorState;
+        struct GoingDown;
+        struct GoingUp;
+        struct Heading;
         struct OperationActive;
+        struct OperationIdle;
+        struct OperationState;
     }
 
+    using DoorState = detail::DoorState;
+    const DoorState& DOORS_CLOSED();
+    const DoorState& DOORS_CLOSING();
+    const DoorState& DOORS_OPENED();
+    const DoorState& DOORS_OPENING();
+
+    using Heading = detail::Heading;
+    const Heading& GOING_DOWN();
+    const Heading& GOING_UP();
+
     using OperationState = detail::OperationState;
-    using OperationActive = detail::OperationActive;
-    const OperationActive& ACTIVE();
+    const OperationState& ACTIVE();
+    const OperationState& IDLE();
 
 
 

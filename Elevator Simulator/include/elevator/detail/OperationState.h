@@ -1,6 +1,6 @@
 // include/elevator/detail/OperationState.h
-#ifndef OPERATION_STATE_H
-#define OPERATION_STATE_H
+#ifndef ELEVATOR_DETAIL_OPERATION_STATE_H
+#define ELEVATOR_DETAIL_OPERATION_STATE_H
 
 #include "core/BaseState.h"
 
@@ -27,4 +27,4 @@ namespace elevator::detail {
 
 } // namespace elevator::detail
 
-#endif // OPERATION_STATE_H
+#endif // ELEVATOR_DETAIL_OPERATION_STATE_H
