@@ -16,6 +16,18 @@ namespace elevator::detail {
         GoingDown(GoingDown&&) = delete;
         GoingDown& operator=(GoingDown&&) = delete;
 
+        bool IsStopped() const override { return false; }
+        bool IsGoingUp() const override { return false; }
+        bool IsGoingDown() const override { return true; }
+
+        bool PassedOrigin(const Elevator& elevator, const Passenger& passenger) const override {
+            return passenger.Destination() > elevator.CurrentFloor();
+        }
+
+        bool PassedDestination(const Elevator& elevator, const Passenger& passenger) const override {
+            return passenger.Destination() > elevator.CurrentFloor();
+        }
+
         constexpr std::string_view name() const noexcept { return "Going Down"; }
 
         void print(std::ostream& os) const noexcept override {

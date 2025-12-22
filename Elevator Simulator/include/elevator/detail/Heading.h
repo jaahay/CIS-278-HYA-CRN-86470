@@ -3,11 +3,18 @@
 
 #include "core/Core.h"
 #include <compare>
+#include <Elevator.h>
 
 namespace elevator::detail {
 
     struct Heading : core::BaseState {
         virtual ~Heading() = default;
+        virtual bool IsStopped() const = 0;
+        virtual bool IsGoingUp() const = 0;
+        virtual bool IsGoingDown() const = 0;
+        virtual bool PassedOrigin(const Elevator&, const Passenger&) const = 0;
+        virtual bool PassedDestination(const Elevator&, const Passenger&) const = 0;
+        bool GoingMyWay(const Passenger& passenger) const { return passenger.GoingMyWay(this); }
         void print(std::ostream& os) const override = 0;
     };
 

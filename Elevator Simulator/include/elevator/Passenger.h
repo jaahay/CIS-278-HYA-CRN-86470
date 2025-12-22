@@ -9,7 +9,7 @@ private:
 public:
     constexpr int Origin() const;
     constexpr int Destination() const;
-    bool GoingMyWay(const elevator::Heading&) const;
+    constexpr bool GoingMyWay(const elevator::Heading*) const;
     friend std::ostream& operator<<(std::ostream&, const Passenger&);
 
     Passenger(int origin, int destination);

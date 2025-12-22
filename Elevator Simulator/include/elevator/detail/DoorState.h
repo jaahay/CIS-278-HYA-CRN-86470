@@ -8,6 +8,8 @@ namespace elevator::detail {
 
     struct DoorState : core::BaseState {
         virtual ~DoorState() = default;
+        virtual bool Opened() const = 0;
+        virtual bool Closed() const = 0;
         void print(std::ostream& os) const override = 0;
     };
 

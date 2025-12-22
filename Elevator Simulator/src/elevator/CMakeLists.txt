@@ -22,7 +22,9 @@ file(GLOB_RECURSE elevator_PRIVATE_HEADERS
 #)
 
 add_library(elevator STATIC
-    #Elevator.cpp
+    #Bank.cpp
+    Elevator.cpp
+    ElevatorController.cpp
     #Panel.cpp
     Passenger.cpp
     States.cpp

@@ -16,6 +16,9 @@ namespace elevator::detail {
         DoorsOpened(DoorsOpened&&) = delete;
         DoorsOpened& operator=(DoorsOpened&&) = delete;
 
+        constexpr bool Opened() const { return true; }
+        constexpr bool Closed() const { return false; }
+
         constexpr std::string_view name() const noexcept { return "Doors Opened"; }
 
         void print(std::ostream& os) const noexcept override {

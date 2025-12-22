@@ -16,6 +16,18 @@ namespace elevator::detail {
         Stopped(Stopped&&) = delete;
         Stopped& operator=(Stopped&&) = delete;
 
+        bool IsStopped() const override { return true; }
+        bool IsGoingUp() const override { return false; }
+        bool IsGoingDown() const override { return false; }
+
+        bool PassedOrigin(const Elevator&, const Passenger&) const override {
+            return false;
+        }
+
+        bool PassedDestination(const Elevator&, const Passenger&) const override {
+            return false;
+        }
+
         constexpr std::string_view name() const noexcept { return "Stopped"; }
 
         void print(std::ostream& os) const noexcept override {
