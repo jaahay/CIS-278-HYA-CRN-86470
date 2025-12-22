@@ -1,24 +1,25 @@
 // include/elevator/detail/TemplateState.h
 #ifndef ELEVATOR_DETAIL_TEMPLATE_STATE_H
 #define ELEVATOR_DETAIL_TEMPLATE_STATE_H
-
-#include "DomainStates.h"
-#include <type_traits>
 #include <string_view>
-#include <typeinfo>
+#include <compare>
+#include <iostream>
 
 namespace elevator::detail {
 
     template <typename Derived, typename DomainBase>
-    struct TemplateState : DomainBase {
-        constexpr TemplateState() = default;
+    struct TemplateState : virtual DomainBase {
+        TemplateState() = default;
 
-        bool equals(const BaseState& other) const override {
+        template<typename... Args>
+        TemplateState(Args&&... args) : DomainBase(std::forward<Args>(args)...) {}
+
+        bool equals(const TemplateState& other) const {
             if (typeid(*this) != typeid(other)) return false;
             return this == &other;
         }
 
-        std::strong_ordering compare(const BaseState& other) const override {
+        std::strong_ordering compare(const TemplateState& other) const {
             if (typeid(*this) != typeid(other)) {
                 return std::string_view(typeid(*this).name()) <=> std::string_view(typeid(other).name());
             }
@@ -39,7 +40,7 @@ namespace elevator::detail {
             return static_cast<const Derived*>(this)->name();
         }
 
-        void print(std::ostream& os) const override {
+        void print(std::ostream& os) const {
             static_cast<const Derived*>(this)->print(os);
         }
     };

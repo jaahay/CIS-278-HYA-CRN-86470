@@ -1,13 +1,18 @@
 // include/elevator/detail/OperationIdle.h
 #ifndef ELEVATOR_DETAIL_OPERATION_IDLE_H
 #define ELEVATOR_DETAIL_OPERATION_IDLE_H
+#include "OperationState.h"
 #include "TemplateState.h"
 namespace elevator::detail {
+
     struct OperationIdle : TemplateState<OperationIdle, OperationState> {
+
     private:
-        constexpr OperationIdle() = default;
+
+        OperationIdle() = default;
 
     public:
+
         OperationIdle(const OperationIdle&) = delete;
         OperationIdle& operator=(const OperationIdle&) = delete;
         OperationIdle(OperationIdle&&) = delete;

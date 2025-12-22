@@ -4,13 +4,10 @@
 
 #include <iostream>
 #include <compare>
-#include <typeinfo>
-#include <string_view>
 
 namespace elevator::detail {
 
     struct BaseState {
-        virtual BaseState() = default;
         virtual ~BaseState() = default;
 
         virtual void print(std::ostream& os) const = 0;

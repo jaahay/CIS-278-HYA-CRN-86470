@@ -1,12 +1,19 @@
 // include/elevator/detail/OperationActive.h
 #ifndef ELEVATOR_DETAIL_OPERATION_ACTIVE_H
 #define ELEVATOR_DETAIL_OPERATION_ACTIVE_H
+#include "OperationState.h"
 #include "TemplateState.h"
 namespace elevator::detail {
+
     struct OperationActive : TemplateState<OperationActive, OperationState> {
+
+    private:
+
+        OperationActive() = default;
+
     public:
-        constexpr OperationActive() = default;
-        static inline const OperationActive instance;
+
+        static inline const OperationActive instance{};
 
         // Delete copy/move to enforce singleton
         OperationActive(const OperationActive&) = delete;
@@ -20,8 +27,12 @@ namespace elevator::detail {
             os << name();
         }
 
+        //static const OperationActive& instance() {
+        //    static const OperationActive instance;
+        //    return instance;
+        //}
     };
-    //inline constexpr const OperationActive OperationActive::instance{};
+
 } // namespace elevator::detail
 
 #endif // ELEVATOR_DETAIL_OPERATION_ACTIVE_H

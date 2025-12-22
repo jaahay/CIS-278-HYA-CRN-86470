@@ -1,55 +1,43 @@
 // include/elevator/OperationState.h
 #ifndef OPERATION_STATE_H
 #define OPERATION_STATE_H
-#include "OperationActive.h"
 #include "BaseState.h"
-#include "OperationIdle.h"
 
-struct OperationState : BaseState {
+namespace elevator::detail {
 
-    // Three-way comparison operator
-    constexpr std::strong_ordering operator<=>(const Derived& other) const {
-        if (this == &other) return std::strong_ordering::equal;
-        return this < &other ? std::strong_ordering::less : std::strong_ordering::greater;
-    }
+    struct OperationState : BaseState {
+    public:
+        constexpr OperationState() = default;
 
-    // Equality operator
-    constexpr bool operator==(const Derived& other) const {
-        return (*this <=> other) == 0;
-    }
-
-    // Polymorphic equals using identity
-    bool equals(const BaseState& other) const override {
-        if (typeid(*this) != typeid(other)) return false;
-        return this == &other;  // identity comparison
-    }
-
-    // Polymorphic compare using identity
-    std::strong_ordering compare(const BaseState& other) const override {
-        if (typeid(*this) != typeid(other)) {
-            return std::string_view(typeid(*this).name()) <=> std::string_view(typeid(other).name());
+        // Three-way comparison operator
+        constexpr std::strong_ordering operator<=>(const BaseState& other) const {
+            if (this == &other) return std::strong_ordering::equal;
+            return this < &other ? std::strong_ordering::less : std::strong_ordering::greater;
         }
-        // Same type: compare addresses for ordering
-        if (this == &other) return std::strong_ordering::equal;
-        return this < &other ? std::strong_ordering::less : std::strong_ordering::greater;
-    }
 
-    // Helper to cast base ref to derived ref (requires all BaseState objects to be CRTP)
-    constexpr const Derived& asDerived() const {
-        return static_cast<const Derived&>(*this);
-    }
+        // Equality operator
+        constexpr bool operator==(const BaseState& other) const {
+            return (*this <=> other) == 0;
+        }
 
-    // Provide interface methods
-    constexpr std::string_view name() const {
-        return static_cast<const Derived*>(this)->name();
-    }
+        // Polymorphic equals using identity
+        bool equals(const BaseState& other) const override {
+            if (typeid(*this) != typeid(other)) return false;
+            return this == &other;
+        }
 
-    void print(std::ostream& os) const override {
-        static_cast<const Derived*>(this)->print(os);
-    }
-};
+        // Polymorphic compare using identity
+        std::strong_ordering compare(const BaseState& other) const override {
+            if (typeid(*this) != typeid(other)) {
+                return std::string_view(typeid(*this).name()) <=> std::string_view(typeid(other).name());
+            }
+            if (this == &other) return std::strong_ordering::equal;
+            return this < &other ? std::strong_ordering::less : std::strong_ordering::greater;
+        }
 
-static inline const IDLE = Idle::instance();
-static inline const ACTIVE = Active::instance();
+        void print(std::ostream& os) const override = 0;
+    };
+
+} // namespace elevator::detail
 
 #endif // !OPERATION_STATE_H
