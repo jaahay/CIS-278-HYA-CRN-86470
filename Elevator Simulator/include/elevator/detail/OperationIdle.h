@@ -2,7 +2,7 @@
 #ifndef ELEVATOR_DETAIL_OPERATION_IDLE_H
 #define ELEVATOR_DETAIL_OPERATION_IDLE_H
 
-#include "OperationState.h"
+#include "elevator/detail/DomainState.h"
 
 namespace elevator::detail {
 
@@ -15,6 +15,8 @@ namespace elevator::detail {
         OperationIdle& operator=(const OperationIdle&) = delete;
         OperationIdle(OperationIdle&&) = delete;
         OperationIdle& operator=(OperationIdle&&) = delete;
+
+        constexpr bool IsActive() const override { return false;  }
 
         constexpr std::string_view name() const noexcept { return "Idle"; }
 

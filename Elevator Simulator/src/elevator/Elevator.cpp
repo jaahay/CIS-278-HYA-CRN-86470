@@ -14,7 +14,8 @@ namespace elevator {
         doorState(&DOORS_OPENED()),
         heading(&STOPPED()),
         pendingPassengers(),
-        boardedPassengers() {
+        boardedPassengers(),
+        onStateChange({}) {
     }
 
     constexpr Elevator::Elevator(
@@ -25,7 +26,8 @@ namespace elevator {
         const DoorState* doorState,
         const Heading* heading,
         const std::list<const Passenger*>& pendingPassengers,
-        const std::list<const Passenger*>& boardedPassengers
+        const std::list<const Passenger*>& boardedPassengers,
+        const StateChangeCallback onStateChange
     )
         : doorDelayMs(doorDelayMs)
         , moveDelayMs(moveDelayMs)
@@ -35,6 +37,7 @@ namespace elevator {
         , heading(heading)
         , pendingPassengers(std::move(pendingPassengers))
         , boardedPassengers(std::move(boardedPassengers))
+        , onStateChange(onStateChange)
     { };
 
     constexpr int Elevator::CurrentFloor() const {
@@ -63,7 +66,7 @@ namespace elevator {
         }
 
         if (passenger.GoingMyWay(heading)) {
-            if (heading->PassedOrigin(*this, passenger)) {
+            if (PassedOrigin(passenger)) {
                 return 2 * std::abs(current - FarthestToGo()) + std::abs(current - passenger.Origin());
             }
             else {
@@ -103,10 +106,107 @@ namespace elevator {
     std::future<bool> Elevator::Wait() const {
         return std::async(std::launch::async, [this]() {
             std::unique_lock<std::mutex> lock(activeMutex);
-            activeCv.wait(lock, [this]() { return *operationState != ACTIVE(); }); // wait until not active
+            activeCv.wait(lock, [this]() { return operationState->IsActive(); }); // wait until not active
             activeCv.notify_all();
             return true;
             });
+    }
+
+    // Compose a new Elevator with an additional observer callback
+    Elevator Elevator::AddCallback(const StateChangeCallback& cb) const {
+        return Elevator(
+            doorDelayMs,
+            moveDelayMs,
+            current,
+            operationState,
+            doorState,
+            heading,
+            pendingPassengers,
+            boardedPassengers,
+            onStateChange.Compose(cb)
+        );
+    }
+
+    constexpr bool Elevator::PassedOrigin(const Passenger& passenger) const {
+        if (heading == &GOING_UP()) {
+            return passenger.Origin() < current;
+        }
+        if (heading == &GOING_DOWN()) {
+            return passenger.Origin() > current;
+        }
+        return false;
+    }
+
+    constexpr bool Elevator::PassedDestination(const Passenger& passenger) const {
+        if (heading == &GOING_UP()) {
+            return passenger.Destination() < current;
+        }
+        if (heading == &GOING_DOWN()) {
+            return passenger.Destination() > current;
+        }
+    }
+
+    constexpr bool Elevator::FurtherToGo() const {
+        if (heading->IsStopped()) {
+            return false;
+        }
+
+        if (boardedPassengers.empty()) {
+            for (const auto& pendingPassenger : pendingPassengers) {
+                if (!pendingPassenger->GoingMyWay(heading)) {
+                    continue;
+                }
+                if (heading->IsGoingUp() && pendingPassenger->Origin() > current) {
+                    return true;
+                }
+                if (heading->IsGoingDown() && pendingPassenger->Origin() < current) {
+                    return true;
+                }
+            }
+        }
+
+        for (const auto& boardedPassenger : boardedPassengers) {
+            if (heading->IsGoingUp() && boardedPassenger->Destination() > current) {
+                return true;
+            }
+            if (heading->IsGoingDown() && boardedPassenger->Destination() < current) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    constexpr double Elevator::FarthestToGo() const {
+        std::list<double> forwardStops;
+
+        for (const auto& pendingPassenger : pendingPassengers) {
+            if (!PassedOrigin(*pendingPassenger)) {
+                forwardStops.push_back(pendingPassenger->Origin());
+            }
+        }
+
+        for (const auto& boardedPassenger : boardedPassengers) {
+            if (!PassedDestination(*boardedPassenger)) {
+                forwardStops.push_back(boardedPassenger->Destination());
+            }
+        }
+
+        if (forwardStops.empty()) {
+            // No stops ahead; return current floor as fallback
+            return static_cast<double>(current);
+        }
+
+        if (heading->IsGoingUp()) {
+            return *std::max_element(forwardStops.begin(), forwardStops.end());
+        }
+        else if (heading->IsGoingDown()) {
+            return *std::min_element(forwardStops.begin(), forwardStops.end());
+        }
+        else {
+            // If stopped or unknown heading, return current floor
+            return static_cast<double>(current);
+        }
     }
 
     const Elevator Elevator::Activate() const {
@@ -136,6 +236,13 @@ namespace elevator {
         );
     }
 
+    // Asynchronous Move method returning future Elevator state
+    std::future<Elevator> Elevator::MoveAsync() const {
+        return std::async(std::launch::async, [this]() {
+            return this->MoveStep();
+            });
+    }
+
     const Elevator Elevator::MoveStep() const {
         Elevator newElevator = Activate();
 
@@ -144,47 +251,47 @@ namespace elevator {
         auto newDoorState = newElevator.doorState;
         auto newHeading = newElevator.heading;
 
-        bool board = newElevator.Board();
-        bool depart = newElevator.Leave();
-
-        /*if (elevator.pendingPassengers.empty() && elevator.boardedPassengers.empty()) {
-            elevator.Stop();
-        }*/
-
-        if (board || depart) {
-            std::cout << "An elevator is currently servicing floor " << current << std::endl;
-            std::cout << this << std::endl;
-            newDoorState = &DOORS_OPENING();
-            std::cout << "Doors opening..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door opening time
-            newDoorState = &DOORS_OPENED();
+        // Boarding/departing and door opening
+        const DoorState* doorAfterBoardDepart = HandleBoardingDeparting();
+        if (doorAfterBoardDepart != newDoorState) {
+            newDoorState = doorAfterBoardDepart;
+            if (onStateChange) onStateChange("DoorState", "DOORS_OPENING/OPENED");
         }
 
-        if (pendingPassengers.empty() && boardedPassengers.empty()) {
-            Deactivate();
-        }
-        else if (doorState->Opened()) {
-            newDoorState = &DOORS_CLOSING();
-            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs)); // Simulate door closing time
-            newDoorState = &DOORS_CLOSED();
-            std::cout << "Doors closed." << std::endl;
-        }
-        else if (!FurtherToGo()) {
-            if (heading->IsGoingUp()) {
-                newHeading = &GOING_DOWN();
-            }
-            else {
-                newHeading = &GOING_UP();
+        // Idle check
+        if (ShouldIdle()) {
+            newElevator = Deactivate();
+            newOperationState = newElevator.operationState;
+            newHeading = newElevator.heading;
+            if (onStateChange) {
+                onStateChange("OperationState", "IDLE");
+                onStateChange("Heading", "STOPPED");
             }
         }
+        else {
+            // Door closing if doors are open
+            const DoorState* doorAfterClosing = HandleDoorClosing(newDoorState);
+            if (doorAfterClosing != newDoorState) {
+                newDoorState = doorAfterClosing;
+                if (onStateChange) onStateChange("DoorState", "DOORS_CLOSING/CLOSED");
+            }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
-        if (heading->IsGoingUp()) {
-            newFloor = current + 1;
+            // Update heading if needed
+            const Heading* updatedHeading = UpdateHeadingIfNeeded(newHeading);
+            if (updatedHeading != newHeading) {
+                newHeading = updatedHeading;
+                if (onStateChange) {
+                    std::string headingStr = (newHeading->IsGoingUp()) ? "GOING_UP" : "GOING_DOWN";
+                    onStateChange("Heading", headingStr);
+                }
+            }
         }
-        if (heading->IsGoingDown()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs)); // Simulate time taken to move one floor
-            newFloor = current - 1;
+
+        // Move elevator one floor
+        int movedFloor = MoveOneFloor(newFloor, newHeading);
+        if (movedFloor != newFloor) {
+            newFloor = movedFloor;
+            if (onStateChange) onStateChange("Floor", std::to_string(newFloor));
         }
 
         return Elevator(
@@ -198,76 +305,6 @@ namespace elevator {
             boardedPassengers
         );
     };
-
-    // Asynchronous Move method returning future Elevator state
-    std::future<Elevator> Elevator::MoveAsync() const {
-        return std::async(std::launch::async, [this]() {
-            return this->MoveStep();
-            });
-    }
-
-    constexpr bool Elevator::FurtherToGo() const {
-        if (heading->IsStopped()) {
-            return false;
-        }
-
-        if (boardedPassengers.empty()) {
-            for (const auto& pendingPassenger : pendingPassengers) {
-                if (!heading->GoingMyWay(*pendingPassenger)) {
-                    continue;
-                }
-                if (heading->IsGoingUp() && pendingPassenger->Origin() > current) {
-                    return true;
-                }
-                if (heading->IsGoingDown() && pendingPassenger->Origin() < current) {
-                    return true;
-                }
-            }
-        }
-
-        for (const auto& boardedPassenger : boardedPassengers) {
-            if (heading->IsGoingUp() && boardedPassenger->Destination() > current) {
-                return true;
-            }
-            if (heading->IsGoingDown() && boardedPassenger->Destination() < current) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    constexpr double Elevator::FarthestToGo() const {
-        std::list<double> forwardStops;
-
-        for (const auto& pendingPassenger : pendingPassengers) {
-            if (!heading->PassedOrigin(*this, *pendingPassenger)) {
-                forwardStops.push_back(pendingPassenger->Origin());
-            }
-        }
-
-        for (const auto& boardedPassenger : boardedPassengers) {
-            if (!heading->PassedDestination(*this, *boardedPassenger)) {
-                forwardStops.push_back(boardedPassenger->Destination());
-            }
-        }
-
-        if (forwardStops.empty()) {
-            // No stops ahead; return current floor as fallback
-            return static_cast<double>(current);
-        }
-
-        if (heading->IsGoingUp()) {
-            return *std::max_element(forwardStops.begin(), forwardStops.end());
-        }
-        else if (heading->IsGoingDown()) {
-            return *std::min_element(forwardStops.begin(), forwardStops.end());
-        }
-        else {
-            // If stopped or unknown heading, return current floor
-            return static_cast<double>(current);
-        }
-    }
 
 
     constexpr bool Elevator::Board() const {
@@ -303,7 +340,57 @@ namespace elevator {
             }
         }
         return leave;
-    };
+    };  
+    
+    const DoorState* Elevator::HandleBoardingDeparting() const {
+        bool board = Board();
+        bool depart = Leave();
+
+        if (board || depart) {
+            std::cout << "An elevator is currently servicing floor " << current << std::endl;
+            std::cout << this << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs));
+            return &DOORS_OPENED();
+        }
+        return doorState;
+    }
+
+    bool Elevator::ShouldIdle() const {
+        return pendingPassengers.empty() && boardedPassengers.empty();
+    }
+
+    const DoorState* Elevator::HandleDoorClosing(const DoorState* currentDoorState) const {
+        if (*currentDoorState == DOORS_OPENED()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(doorDelayMs));
+            std::cout << "Doors closed." << std::endl;
+            return &DOORS_CLOSED();
+        }
+        return currentDoorState;
+    }
+
+    const Heading* Elevator::UpdateHeadingIfNeeded(const Heading* currentHeading) const {
+        if (!FurtherToGo()) {
+            if (currentHeading->IsGoingUp()) {
+                return &GOING_DOWN();
+            }
+            else {
+                return &GOING_UP();
+            }
+        }
+        return currentHeading;
+    }
+
+    int Elevator::MoveOneFloor(int currentFloor, const Heading* currentHeading) const {
+        std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs));
+        if (currentHeading->IsGoingUp()) {
+            return currentFloor + 1;
+        }
+        else if (currentHeading->IsGoingDown()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(moveDelayMs));
+            return currentFloor - 1;
+        }
+        return currentFloor;
+    }
 
     std::ostream& operator<<(std::ostream& os, const Elevator& elevator) {
         os << "Currently at floor " << elevator.current << ". ";

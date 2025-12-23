@@ -2,7 +2,7 @@
 #ifndef ELEVATOR_DETAIL_OPERATION_ACTIVE_H
 #define ELEVATOR_DETAIL_OPERATION_ACTIVE_H
 
-#include "OperationState.h"
+#include "elevator/detail/DomainState.h"
 
 namespace elevator::detail {
 
@@ -15,6 +15,8 @@ namespace elevator::detail {
         OperationActive& operator=(const OperationActive&) = delete;
         OperationActive(OperationActive&&) = delete;
         OperationActive& operator=(OperationActive&&) = delete;
+
+        constexpr bool IsActive() const override { return true; }
 
         constexpr std::string_view name() const noexcept { return "Active"; }
 

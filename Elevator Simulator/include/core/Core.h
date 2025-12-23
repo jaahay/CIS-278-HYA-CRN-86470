@@ -6,37 +6,31 @@
 #include "detail/Concepts.h"
 #include "detail/StateChangeCallback.h"
 #include "detail/StateChangeEvent.h"
-#include "detail/StateEventDispatcher.h"
 #include "detail/TemplateState.h"
+#include "detail/StateEventDispatcher.h"
 
 namespace core {
 
-    // Base polymorphic state type
     using BaseState = detail::BaseState;
 
-    // CRTP template for states
     template <typename Derived, typename DomainBase = BaseState>
     using TemplateState = detail::TemplateState<Derived, DomainBase>;
 
-    // Comparison operators from detail namespace
     using detail::operator==;
     using detail::operator!=;
     using detail::operator<=>;
 
-    // Concepts for type constraints
     using detail::DerivedFromBaseState;
-    using detail::StateDerivedFromCategory;
     using detail::EventLike;
 
-    // Template aliases for event system
-    template <typename Category, typename State>
-    using StateChangeEvent = detail::StateChangeEvent<Category, State>;
+    template <typename Category>
+    using StateChangeEvent = detail::StateChangeEvent<Category>;
 
     template <typename EventT>
     using StateChangeCallback = detail::StateChangeCallback<EventT>;
 
-    template <typename Category, typename State>
-    using StateEventDispatcher = detail::StateEventDispatcher<Category, State>;
+    template <typename Category>
+    using StateEventDispatcher = detail::StateEventDispatcher<Category>;
 
 } // namespace core
 

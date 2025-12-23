@@ -1,13 +1,19 @@
 #include "elevator/Passenger.h"
+#include "elevator/DomainStates.h"
+
+using elevator::detail::Heading;
+using elevator::DomainStates::GoingUp;
+using elevator::DomainStates::GoingDown;
+
 constexpr int Passenger::Origin() const {
     return origin;
 }
 constexpr int Passenger::Destination() const {
     return destination;
 }
-bool Passenger::GoingMyWay(const elevator::Heading* heading) const {
-    if (heading == &elevator::GOING_UP() && destination > origin) { return true; }
-    if (heading == &elevator::GOING_DOWN() && destination < origin) { return true; }
+const bool Passenger::GoingMyWay(const Heading* heading) const {
+    if (heading == &GoingUp() && destination > origin) { return true; }
+    if (heading == &GoingDown() && destination < origin) { return true; }
     return false;
 }
 std::ostream& operator<<(std::ostream& os, const Passenger& passenger) {

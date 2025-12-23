@@ -3,47 +3,58 @@ cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB_RECURSE elevator_PUBLIC_HEADERS
-    #RELATIVE ${CMAKE_SOURCE_DIR}
+## Glob all .cpp files inside src/elevator/
+file(GLOB_RECURSE elevator_sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+)
+
+list(REMOVE_ITEM elevator_sources
+    #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Passenger.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/ElevatorEventDispatcher.cpp"
+    #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Elevator.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/ElevatorController.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Bank.cpp"
+)
+
+# Glob all public headers: everything in include/elevator except detail/ and observers/
+file(GLOB_RECURSE elevator_public_headers
     ${CMAKE_SOURCE_DIR}/include/elevator/*.h
 )
 
-file(GLOB_RECURSE elevator_PRIVATE_HEADERS
-    #RELATIVE ${CMAKE_SOURCE_DIR}
+# Glob all private headers: detail/
+file(GLOB_RECURSE elevator_detail_headers
     ${CMAKE_SOURCE_DIR}/include/elevator/detail/*.h
 )
 
-#file(GLOB_RECURSE elevator_PUBLIC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include/elevator/*.h
-#)
+set(elevator_private_headers ${elevator_detail_headers})
 
-#file(GLOB_RECURSE elevator_PRIVATE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include/elevator/detail/*.h
-#)
+# Remove private headers from public headers
+list(REMOVE_ITEM elevator_public_headers ${elevator_private_headers})
 
-add_library(elevator STATIC
-    #Bank.cpp
-    Elevator.cpp
-    ElevatorController.cpp
-    #Panel.cpp
-    Passenger.cpp
-    States.cpp
-    # Add other elevator .cpp files here
-)
+#Add library with sources and all headers for IDE visibility
+add_library(elevator STATIC ${elevator_sources})
 
-target_sources(elevator
-    PRIVATE
-        ${elevator_PUBLIC_HEADERS}
-        ${elevator_PRIVATE_HEADERS}
+target_sources(elevator PRIVATE
+    ${elevator_public_headers}
+    ${elevator_private_headers}
 )
 
 target_include_directories(elevator
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include/elevator>
-        $<INSTALL_INTERFACE:include/elevator>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include/elevator/detail
 )
+
+# Organize source files in Visual Studio Solution Explorer
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "src" FILES ${elevator_sources})
+
+# Organize public headers under Headers/Public
+source_group(TREE ${CMAKE_SOURCE_DIR}/include/elevator PREFIX "headers\\public" FILES ${elevator_public_headers})
+
+# Organize private headers under Headers/Private
+source_group(TREE ${CMAKE_SOURCE_DIR}/include/elevator/detail PREFIX "headers\\private\\detail" FILES ${elevator_detail_headers})
 
 target_link_libraries(elevator PRIVATE core)
 

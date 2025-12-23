@@ -2,7 +2,7 @@
 #ifndef ELEVATOR_DETAIL_GOING_DOWN_H
 #define ELEVATOR_DETAIL_GOING_DOWN_H
 
-#include "Heading.h"
+#include "elevator/detail/DomainState.h"
 
 namespace elevator::detail {
 
@@ -20,13 +20,13 @@ namespace elevator::detail {
         bool IsGoingUp() const override { return false; }
         bool IsGoingDown() const override { return true; }
 
-        bool PassedOrigin(const Elevator& elevator, const Passenger& passenger) const override {
-            return passenger.Destination() > elevator.CurrentFloor();
-        }
+        //bool PassedOrigin(const Elevator& elevator, const Passenger& passenger) const override {
+        //    return passenger.Destination() > elevator.CurrentFloor();
+        //}
 
-        bool PassedDestination(const Elevator& elevator, const Passenger& passenger) const override {
-            return passenger.Destination() > elevator.CurrentFloor();
-        }
+        //bool PassedDestination(const Elevator& elevator, const Passenger& passenger) const override {
+        //    return passenger.Destination() > elevator.CurrentFloor();
+        //}
 
         constexpr std::string_view name() const noexcept { return "Going Down"; }
 

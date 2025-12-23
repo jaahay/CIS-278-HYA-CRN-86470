@@ -1,11 +1,15 @@
 // elevator/Elevator.h
 #ifndef ELEVATOR_H
 #define ELEVATOR_H
+
 #include <future>
 #include <iostream>
 #include <list>
-#include "States.h"
-#include "Passenger.h"
+#include <mutex>
+#include <condition_variable>
+#include "elevator/Passenger.h"
+#include "elevator/Domain.h"
+#include "core/Core.h"
 
 namespace elevator {
     class Elevator {
@@ -25,12 +29,7 @@ namespace elevator {
         // Query functions
         constexpr int CurrentFloor() const;
         constexpr bool IsIdle() const;
-        constexpr double Divergence(const Passenger&) const;
 
-        std::future<Elevator> ReceivePassenger(const Passenger&) const;
-        std::future<bool> Wait() const;
-
-        friend std::ostream& operator<<(std::ostream&, const Elevator&);
         /**
         * Calculate how inconvenient it would be to pick up a passenger. Cases:
         * 1. Same floor, doors opened and either stopped or same direction (0-distance)
@@ -43,6 +42,13 @@ namespace elevator {
         std::future<std::list<const Passenger*>> ReceivePassenger(const Passenger&) const;
         std::future<bool> Wait() const;
         */
+        constexpr double Divergence(const Passenger&) const;
+
+        std::future<Elevator> ReceivePassenger(const Passenger&) const;
+        std::future<bool> Wait() const;
+        Elevator AddCallback(core::StateChangeCallback<const core::detail::StateChangeEvent<detail::DoorState>&>) const;
+
+        friend std::ostream& operator<<(std::ostream&, const Elevator&);
         friend std::ostream& operator<<(std::ostream&, const Elevator&);
     private:
 
@@ -50,22 +56,9 @@ namespace elevator {
         const int moveDelayMs;
         const int current;
 
-        constexpr explicit Elevator(
-            const int,
-            const int,
-            const int,
-            const OperationState*,
-            const DoorState*,
-            const Heading*,
-            const std::list<const Passenger*>&,
-            const std::list<const Passenger*>&);
-
-        // Asynchronous move returns a future with new Elevator state
-        std::future<Elevator> MoveAsync() const;
-
-        const OperationState* operationState;
-        const DoorState* doorState;
-        const Heading* heading;
+        const detail::OperationState* operationState;
+        const detail::DoorState* doorState;
+        const detail::Heading* heading;
 
         mutable std::mutex activeMutex;
         mutable std::condition_variable activeCv;
@@ -73,10 +66,22 @@ namespace elevator {
         const std::list<const Passenger*> pendingPassengers;
         const std::list<const Passenger*> boardedPassengers;
 
-        constexpr bool DoorsOpened() const;
-        constexpr bool DoorsClosed() const;
+        core::StateChangeCallback<const core::detail::StateChangeEvent<detail::DoorState>&> onStateChange;
 
+        Elevator(
+            int doorDelayMs,
+            int moveDelayMs,
+            int current,
+            const detail::OperationState*,
+            const detail::DoorState*,
+            const detail::Heading*,
+            std::list<const Passenger*>,
+            std::list<const Passenger*>,
+            core::StateChangeCallback<const core::detail::StateChangeEvent<detail::DoorState>&>
+        );
 
+        constexpr bool PassedOrigin(const Passenger&) const;
+        constexpr bool PassedDestination(const Passenger&) const;
         constexpr bool FurtherToGo() const;
         /**
          * The farthest we must go at our current heading before we can change direction
@@ -84,12 +89,32 @@ namespace elevator {
          * Filter all boarded passengers ahead -> their Destination
          */
         constexpr double FarthestToGo() const;
-        constexpr bool Board() const;
-        constexpr bool Leave() const;
 
         const Elevator Activate() const;
         const Elevator Deactivate() const;
-        const Elevator MoveStep() const;
+
+        // Asynchronous move returns a future with new Elevator state
+        std::future<Elevator> MoveAsync() const;
+        
+        const Elevator MoveStep() const;// Returns updated DoorState pointer after handling boarding/departing
+
+        constexpr bool Board() const;
+        constexpr bool Leave() const;
+
+        const detail::DoorState* HandleBoardingDeparting() const;
+
+        // Returns true if elevator should idle (no passengers)
+        bool ShouldIdle() const;
+
+        // Returns updated DoorState pointer after handling door closing
+        const detail::DoorState* HandleDoorClosing(const detail::DoorState* currentDoorState) const;
+
+        // Returns updated Heading pointer after checking if direction should change
+        const detail::Heading* UpdateHeadingIfNeeded(const detail::Heading* currentHeading) const;
+
+        // Returns new floor after moving one step in current heading
+        int MoveOneFloor(int currentFloor, const detail::Heading* currentHeading) const;
+
     };
 } // namespace elevator
 #endif // ELEVATOR_H

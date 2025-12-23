@@ -4,6 +4,8 @@
 
 #include <functional>
 #include <concepts>
+#include <utility>
+#include <stdexcept>
 
 #include "Concepts.h"
 
@@ -30,6 +32,12 @@ namespace core::detail {
                 first(e);
                 second(e);
                 });
+        }
+
+        // operator+= for easier chaining
+        StateChangeCallback& operator+=(const StateChangeCallback& other) {
+            *this = this->Compose(other);
+            return *this;
         }
 
         explicit operator bool() const {

@@ -1,7 +1,7 @@
 /* Bank.cpp
  * Implementation of the Bank class for Elevator Simulator
  */
-#include "Bank.h"
+#include "elevator/Bank.h"
 
 template<class Elevator, class Passenger>
 const int Bank<Elevator, Passenger>::ClosestIdx(const Passenger& passenger) const {

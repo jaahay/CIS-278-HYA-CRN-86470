@@ -12,10 +12,6 @@ namespace core::detail {
 	template <typename T>
 	concept DerivedFromBaseState = std::is_base_of_v<BaseState, T>;
 
-	// Concept: State must derive from Category
-	template <typename Category, typename State>
-	concept StateDerivedFromCategory = std::is_base_of_v<Category, State>;
-
 	// Minimal concept for event-like types (copy constructible)
 	template <typename EventT>
 	concept EventLike = std::copy_constructible<EventT>;

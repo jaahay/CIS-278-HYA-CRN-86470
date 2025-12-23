@@ -2,7 +2,7 @@
 #ifndef ELEVATOR_DETAIL_DOORS_OPENING_H
 #define ELEVATOR_DETAIL_DOORS_OPENING_H
 
-#include "DoorState.h"
+#include "elevator/detail/DomainState.h"
 
 namespace elevator::detail {
 

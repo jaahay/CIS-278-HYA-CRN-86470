@@ -1,4 +1,4 @@
-// core/detail/StateEventDispatcher.h
+// core/detail/StateEventDispatcher.h      
 #ifndef CORE_DETAIL_STATE_EVENT_DISPATCHER_H
 #define CORE_DETAIL_STATE_EVENT_DISPATCHER_H
 
@@ -12,15 +12,15 @@
 
 namespace core::detail {
 
-    template <typename Category, typename State>
-        requires StateDerivedFromCategory<Category, State>
-    class EventDispatcher {
+    template <typename Category>
+        requires DerivedFromBaseState<Category>
+    class StateEventDispatcher {
     public:
-        using EventType = StateChangeEvent<Category, State>;
+        using EventType = StateChangeEvent<Category>;
         using CallbackType = StateChangeCallback<EventType>;
         using ObserverId = unsigned int;
 
-        EventDispatcher() : nextId_(1) {}
+        StateEventDispatcher() : nextId_(1) {}
 
         ObserverId AddObserver(CallbackType observer) {
             std::lock_guard lock(mutex_);
@@ -34,12 +34,8 @@ namespace core::detail {
             return observers_.erase(id) > 0;
         }
 
-        void Notify(const Category* category, const State& state) {
-            if (!category) {
-                std::cerr << "[StateEventDispatcher] Warning: Notify called with null category pointer\n";
-            }
-
-            EventType event(category, &state);
+        void Notify(const Category& state) {
+            StateChangeEvent<Category> event(state);
 
             std::unordered_map<ObserverId, CallbackType> snapshot;
             {

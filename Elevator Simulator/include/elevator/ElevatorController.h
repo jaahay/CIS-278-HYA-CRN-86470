@@ -2,7 +2,8 @@
 #ifndef ELEVATOR_CONTROLLER_H
 #define ELEVATOR_CONTROLLER_H
 
-#include "Elevator.h"
+#include "elevator/Elevator.h"
+#include "elevator/ElevatorEventDispatcher.h"
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
@@ -15,6 +16,17 @@ namespace elevator {
 
         // Add passenger, returns future of updated Elevator
         std::future<Elevator> AddPassenger(const Passenger& passenger);
+
+        // Add observer forwarding to dispatcher
+        ObserverId AddObserver(StateChangeCallback observer) {
+            return dispatcher.AddObserver(std::move(observer));
+        }
+        bool RemoveObserver(ObserverId id) {
+            return dispatcher.RemoveObserver(id);
+        }
+
+        // When elevator state changes inside async operations:
+        // dispatcher.Notify(StateChangeEvent(categoryPtr, statePtr));
 
         // Request elevator to move asynchronously
         std::future<Elevator> Move();
@@ -29,6 +41,7 @@ namespace elevator {
         mutable std::mutex mutex;
         mutable std::condition_variable cv;
         Elevator elevator;
+        ElevatorEventDispatcher dispatcher;
         std::atomic<bool> busy = false;
 
         void setBusy(bool busy);
