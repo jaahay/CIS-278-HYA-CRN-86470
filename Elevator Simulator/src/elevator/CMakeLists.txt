@@ -10,13 +10,13 @@ file(GLOB_RECURSE elevator_sources
 
 list(REMOVE_ITEM elevator_sources
     #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Passenger.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/ElevatorEventDispatcher.cpp"
+    #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/ElevatorEventDispatcher.cpp"
     #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Elevator.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/ElevatorController.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Bank.cpp"
 )
 
-# Glob all public headers: everything in include/elevator except detail/ and observers/
+# Glob all public headers: everything in include/elevator except detail/
 file(GLOB_RECURSE elevator_public_headers
     ${CMAKE_SOURCE_DIR}/include/elevator/*.h
 )

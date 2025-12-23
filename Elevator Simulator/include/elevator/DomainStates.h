@@ -17,31 +17,31 @@
 
 namespace elevator::DomainStates {
 
-    inline const elevator::detail::DoorState& DoorsClosed() {
+    inline const elevator::detail::DoorsClosed& DoorsClosed() {
         return detail::DoorsClosed::instance();
     }
-    inline const elevator::detail::DoorState& DoorsClosing() {
+    inline const elevator::detail::DoorsClosing& DoorsClosing() {
         return detail::DoorsClosing::instance();
     }
-    inline const elevator::detail::DoorState& DoorsOpened() {
+    inline const elevator::detail::DoorsOpened& DoorsOpened() {
         return detail::DoorsOpened::instance();
     }
-    inline const elevator::detail::DoorState& DoorsOpening() {
+    inline const elevator::detail::DoorsOpening& DoorsOpening() {
         return detail::DoorsOpening::instance();
     }
-    inline const elevator::detail::Heading& GoingDown() {
+    inline const elevator::detail::GoingDown& GoingDown() {
         return detail::GoingDown::instance();
     }
-    inline const elevator::detail::Heading& GoingUp() {
+    inline const elevator::detail::GoingUp& GoingUp() {
         return detail::GoingUp::instance();
     }
-    inline const elevator::detail::Heading& Stopped() {
+    inline const elevator::detail::Stopped& Stopped() {
         return detail::Stopped::instance();
     }
-    inline const elevator::detail::OperationState& Active() {
+    inline const elevator::detail::OperationActive& Active() {
         return detail::OperationActive::instance();
     }
-    inline const elevator::detail::OperationState& Idle() {
+    inline const elevator::detail::OperationIdle& Idle() {
         return detail::OperationIdle::instance();
     }
 

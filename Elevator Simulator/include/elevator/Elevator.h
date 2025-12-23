@@ -15,7 +15,7 @@ namespace elevator {
     class Elevator {
     public:
         // Constructor for initial state
-        constexpr Elevator(int doorDelayMs, int moveDelayMs, int currentFloor);
+        explicit Elevator(int doorDelayMs = 1000, int moveDelayMs = 500, int currentFloor = 1);
 
         // Copy/move semantics
         Elevator(const Elevator&) = default;
@@ -44,11 +44,13 @@ namespace elevator {
         */
         constexpr double Divergence(const Passenger&) const;
 
-        std::future<Elevator> ReceivePassenger(const Passenger&) const;
-        std::future<bool> Wait() const;
-        Elevator AddCallback(core::StateChangeCallback<const core::detail::StateChangeEvent<detail::DoorState>&>) const;
+        const std::future<Elevator> ReceivePassenger(const Passenger&) const;
+        const std::future<bool> Wait() const;
 
-        friend std::ostream& operator<<(std::ostream&, const Elevator&);
+        // Accepts polymorphic domain-wide callback
+        Elevator AddCallback(
+            const core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&>&) const;
+
         friend std::ostream& operator<<(std::ostream&, const Elevator&);
     private:
 
@@ -56,9 +58,9 @@ namespace elevator {
         const int moveDelayMs;
         const int current;
 
-        const detail::OperationState* operationState;
-        const detail::DoorState* doorState;
-        const detail::Heading* heading;
+        const detail::OperationState* const operationState;
+        const detail::DoorState* const doorState;
+        const detail::Heading* const heading;
 
         mutable std::mutex activeMutex;
         mutable std::condition_variable activeCv;
@@ -66,19 +68,20 @@ namespace elevator {
         const std::list<const Passenger*> pendingPassengers;
         const std::list<const Passenger*> boardedPassengers;
 
-        core::StateChangeCallback<const core::detail::StateChangeEvent<detail::DoorState>&> onStateChange;
+        const core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&> onStateChange;
 
         Elevator(
             int doorDelayMs,
             int moveDelayMs,
             int current,
-            const detail::OperationState*,
-            const detail::DoorState*,
-            const detail::Heading*,
-            std::list<const Passenger*>,
-            std::list<const Passenger*>,
-            core::StateChangeCallback<const core::detail::StateChangeEvent<detail::DoorState>&>
+            const detail::OperationState* operationState,
+            const detail::DoorState* doorState,
+            const detail::Heading* heading,
+            std::list<const Passenger*> pendingPassengers,
+            std::list<const Passenger*> boardedPassengers,
+            core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&> onStateChange
         );
+
 
         constexpr bool PassedOrigin(const Passenger&) const;
         constexpr bool PassedDestination(const Passenger&) const;
@@ -90,30 +93,29 @@ namespace elevator {
          */
         constexpr double FarthestToGo() const;
 
-        const Elevator Activate() const;
-        const Elevator Deactivate() const;
+        Elevator Transition(DomainStateVariant) const;
 
         // Asynchronous move returns a future with new Elevator state
         std::future<Elevator> MoveAsync() const;
         
-        const Elevator MoveStep() const;// Returns updated DoorState pointer after handling boarding/departing
+        Elevator MoveStep() const;
 
-        constexpr bool Board() const;
-        constexpr bool Leave() const;
+        std::pair<std::list<const Passenger*>, bool> BoardPassengers() const;
+        std::pair<std::list<const Passenger*>, bool> PassengersLeave() const;
 
-        const detail::DoorState* HandleBoardingDeparting() const;
+        Elevator HandleBoardingDeparting() const;
 
         // Returns true if elevator should idle (no passengers)
         bool ShouldIdle() const;
 
         // Returns updated DoorState pointer after handling door closing
-        const detail::DoorState* HandleDoorClosing(const detail::DoorState* currentDoorState) const;
+        Elevator HandleDoorClosing(const detail::DoorState*) const;
 
         // Returns updated Heading pointer after checking if direction should change
-        const detail::Heading* UpdateHeadingIfNeeded(const detail::Heading* currentHeading) const;
+        Elevator UpdateHeadingIfNeeded(const detail::Heading*) const;
 
         // Returns new floor after moving one step in current heading
-        int MoveOneFloor(int currentFloor, const detail::Heading* currentHeading) const;
+        int MoveOneFloor(int, const detail::Heading*) const;
 
     };
 } // namespace elevator

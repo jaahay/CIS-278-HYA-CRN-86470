@@ -3,19 +3,35 @@
 #define ELEVATOR_DOMAIN_EVENT_H
 
 #include "core/Core.h"
-#include "elevator/DomainRegistry.h"
-#include "elevator/detail/DomainState.h"
+#include "elevator/detail/Variants.h"
 
 namespace elevator {
 
-    using DoorEvent = detail::DoorState;
-    using HeadingEvent = detail::Heading;
-    using OperationEvent = detail::OperationState;
+    struct DomainStateChangeEvent {
+        DomainStateVariant state;
+        explicit DomainStateChangeEvent(DomainStateVariant s) : state(std::move(s)) {}
+    };
 
-    // Callbacks accept StateChangeEvent<Category> with polymorphic reference
-    using DoorStateChangeCallback = core::detail::StateChangeCallback<const core::detail::StateChangeEvent<DoorEvent>&>;
-    using HeadingStateChangeCallback = core::detail::StateChangeCallback<const core::detail::StateChangeEvent<HeadingEvent>&>;
-    using OperationStateChangeCallback = core::detail::StateChangeCallback<const core::detail::StateChangeEvent<OperationEvent>&>;
+    struct DoorStateChangeEvent {
+        DoorStateVariant state;
+        explicit DoorStateChangeEvent(DoorStateVariant s) : state(std::move(s)) {}
+    };
+
+    struct HeadingStateChangeEvent {
+        HeadingVariant state;
+        explicit HeadingStateChangeEvent(HeadingVariant s) : state(std::move(s)) {}
+    };
+
+    struct OperationStateChangeEvent {
+        OperationVariant state;
+        explicit OperationStateChangeEvent(OperationVariant s) : state(std::move(s)) {}
+    };
+
+    // Callback aliases
+    using DomainStateChangeCallback = core::StateChangeCallback<const DomainStateChangeEvent&>;
+    using DoorStateChangeCallback = core::StateChangeCallback<const DoorStateChangeEvent&>;
+    using HeadingStateChangeCallback = core::StateChangeCallback<const HeadingStateChangeEvent&>;
+    using OperationStateChangeCallback = core::StateChangeCallback<const OperationStateChangeEvent&>;
 
 } // namespace elevator
 

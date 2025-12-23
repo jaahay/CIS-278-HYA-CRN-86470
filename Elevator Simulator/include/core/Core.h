@@ -7,7 +7,7 @@
 #include "detail/StateChangeCallback.h"
 #include "detail/StateChangeEvent.h"
 #include "detail/TemplateState.h"
-#include "detail/StateEventDispatcher.h"
+#include "detail/EventDispatcher.h"
 
 namespace core {
 
@@ -30,7 +30,7 @@ namespace core {
     using StateChangeCallback = detail::StateChangeCallback<EventT>;
 
     template <typename Category>
-    using StateEventDispatcher = detail::StateEventDispatcher<Category>;
+    using EventDispatcher = detail::EventDispatcher<Category>;
 
 } // namespace core
 

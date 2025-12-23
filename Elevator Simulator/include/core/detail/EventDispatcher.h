@@ -1,10 +1,10 @@
 // core/detail/StateEventDispatcher.h      
-#ifndef CORE_DETAIL_STATE_EVENT_DISPATCHER_H
-#define CORE_DETAIL_STATE_EVENT_DISPATCHER_H
+// core/detail/EventDispatcher.h
+
+#ifndef CORE_DETAIL_EVENT_DISPATCHER_H
+#define CORE_DETAIL_EVENT_DISPATCHER_H
 
 #include "StateChangeCallback.h"
-#include "StateChangeEvent.h"
-#include "Concepts.h"
 #include <mutex>
 #include <unordered_map>
 #include <atomic>
@@ -12,15 +12,13 @@
 
 namespace core::detail {
 
-    template <typename Category>
-        requires DerivedFromBaseState<Category>
-    class StateEventDispatcher {
+    template <typename EventT>
+    class EventDispatcher {
     public:
-        using EventType = StateChangeEvent<Category>;
-        using CallbackType = StateChangeCallback<EventType>;
+        using CallbackType = StateChangeCallback<const EventT&>;
         using ObserverId = unsigned int;
 
-        StateEventDispatcher() : nextId_(1) {}
+        EventDispatcher() : nextId_(1) {}
 
         ObserverId AddObserver(CallbackType observer) {
             std::lock_guard lock(mutex_);
@@ -34,9 +32,7 @@ namespace core::detail {
             return observers_.erase(id) > 0;
         }
 
-        void Notify(const Category& state) {
-            StateChangeEvent<Category> event(state);
-
+        void Notify(const EventT& event) {
             std::unordered_map<ObserverId, CallbackType> snapshot;
             {
                 std::lock_guard lock(mutex_);
@@ -47,10 +43,10 @@ namespace core::detail {
                     observer(event);
                 }
                 catch (const std::exception& e) {
-                    std::cerr << "[StateEventDispatcher] Observer ID " << id << " threw: " << e.what() << "\n";
+                    std::cerr << "[EventDispatcher] Observer ID " << id << " threw: " << e.what() << "\n";
                 }
                 catch (...) {
-                    std::cerr << "[StateEventDispatcher] Observer ID " << id << " threw unknown exception\n";
+                    std::cerr << "[EventDispatcher] Observer ID " << id << " threw unknown exception\n";
                 }
             }
         }
@@ -63,4 +59,4 @@ namespace core::detail {
 
 } // namespace core::detail
 
-#endif // CORE_DETAIL_STATE_EVENT_DISPATCHER_H
+#endif // CORE_DETAIL_EVENT_DISPATCHER_H
