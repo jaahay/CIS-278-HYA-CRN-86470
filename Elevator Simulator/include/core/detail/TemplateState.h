@@ -60,4 +60,4 @@ namespace core::detail {
 
 } // namespace core::detail
 
-#endif // CORE_DETAIL::TEMPLATE_STATE_H
+#endif // CORE_DETAIL_TEMPLATE_STATE_H

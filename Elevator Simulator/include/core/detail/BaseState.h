@@ -14,7 +14,6 @@ namespace core::detail {
         virtual bool equals(const BaseState& other) const = 0;
         virtual std::strong_ordering compare(const BaseState& other) const = 0;
 
-        // Operators forwarding to virtual methods
         bool operator==(const BaseState& other) const {
             return equals(other);
         }
