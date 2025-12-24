@@ -1,9 +1,9 @@
-#include "elevator/Passenger.h"
-#include "elevator/DomainStates.h"
+#include "elevator/models/Passenger.h"
+#include "elevator/states/ElevatorStates.h"
 
 using elevator::detail::Heading;
-using elevator::DomainStates::GoingUp;
-using elevator::DomainStates::GoingDown;
+using elevator::states::GoingUp;
+using elevator::states::GoingDown;
 
 constexpr int Passenger::Origin() const {
     return origin;

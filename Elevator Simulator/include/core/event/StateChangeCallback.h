@@ -1,4 +1,4 @@
-// core/event/StateChangeCallback
+// core/event/StateChangeCallback.h
 #ifndef CORE_EVENT_STATE_CHANGE_CALLBACK_H
 #define CORE_EVENT_STATE_CHANGE_CALLBACK_H
 
@@ -11,12 +11,7 @@
 
 namespace core::event {
 
-    template <EventLike EventT>
-    inline StateChangeCallback<EventT> NoOpCallback() {
-        return StateChangeCallback<EventT>([](const EventT&) {});
-    }
-
-    template <EventLike EventT>
+    template <core::concepts::EventLike EventT>
     class StateChangeCallback {
     public:
         using CallbackType = std::function<void(const EventT&)>;
@@ -52,6 +47,11 @@ namespace core::event {
     private:
         CallbackType callback_;
     };
+
+    template <core::concepts::EventLike EventT>
+    inline StateChangeCallback<EventT> NoOpCallback() {
+        return StateChangeCallback<EventT>([](const EventT&) {});
+    }
 
 } // namespace core::event
 

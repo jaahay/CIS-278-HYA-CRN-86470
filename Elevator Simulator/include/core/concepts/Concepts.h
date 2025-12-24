@@ -10,7 +10,7 @@ namespace core::concepts {
 
 	// Concept: type must derive from BaseState
 	template <typename T>
-	concept DerivedFromBaseState = std::is_base_of_v<BaseState, T>;
+	concept DerivedFromBaseState = std::is_base_of_v<core::state::BaseState, T>;
 
 	// Minimal concept for event-like types (copy constructible)
 	template <typename EventT>

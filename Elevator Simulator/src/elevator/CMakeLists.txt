@@ -3,24 +3,29 @@ project(elevator LANGUAGES CXX)
 
 # Collect source files
 file(GLOB_RECURSE elevator_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/elevator/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/elevator/**/*.cpp
 )
 
 list(REMOVE_ITEM elevator_SOURCES
-    #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Passenger.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Elevator.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/ElevatorController.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/Bank.cpp"
+    #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Passenger.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/ElevatorService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/DoorService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/MovementService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/PassengerService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/StateNotificationService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/controllers/ElevatorController.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Elevator.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Bank.cpp"
 )
 
 # Collect elevator headers for IDE grouping
 file(GLOB_RECURSE elevator_HEADERS
-    ${CMAKE_SOURCE_DIR}/include/elevator/*.h
+    ${CMAKE_SOURCE_DIR}/include/elevator/**/*.h
 )
 
 # Collect core headers for IDE grouping inside elevator project
 file(GLOB_RECURSE core_HEADERS
-    ${CMAKE_SOURCE_DIR}/include/core/*.h
+    ${CMAKE_SOURCE_DIR}/include/core/**/*.h
 )
 
 add_library(elevator STATIC
