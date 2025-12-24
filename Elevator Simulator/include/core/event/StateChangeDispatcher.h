@@ -1,16 +1,15 @@
-// core/detail/StateEventDispatcher.h      
-// core/detail/EventDispatcher.h
+// core/event/StateChangeDispatcher.h
 
-#ifndef CORE_DETAIL_EVENT_DISPATCHER_H
-#define CORE_DETAIL_EVENT_DISPATCHER_H
+#ifndef CORE_EVENT_STATE_CHANGE_DISPATCHER_H
+#define CORE_EVENT_STATE_CHANGE_DISPATCHER_H
 
-#include "core/detail/StateChangeCallback.h"
+#include "core/state/StateChangeCallback.h"
 #include <mutex>
 #include <unordered_map>
 #include <atomic>
 #include <iostream>
 
-namespace core::detail {
+namespace core::event {
 
     template <typename EventT>
     class EventDispatcher {
@@ -57,6 +56,6 @@ namespace core::detail {
         std::atomic<ObserverId> nextId_;
     };
 
-} // namespace core::detail
+} // namespace core::event
 
-#endif // CORE_DETAIL_EVENT_DISPATCHER_H
+#endif // CORE_EVENT_STATE_CHANGE_DISPATCHER_H

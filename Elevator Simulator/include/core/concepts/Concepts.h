@@ -1,12 +1,12 @@
-// core/detail/Concepts.h
-#ifndef CORE_DETAIL_CONCEPTS_H
-#define CORE_DETAIL_CONCEPTS_H
+// core/concepts/Concepts.h
+#ifndef CORE_CONCEPTS_CONCEPTS_H
+#define CORE_CONCEPTS_CONCEPTS_H
 
 #include <type_traits>
 #include <concepts>
-#include "core/detail/BaseState.h"
+#include "core/state/BaseState.h"
 
-namespace core::detail::concepts {
+namespace core::concepts {
 
 	// Concept: type must derive from BaseState
 	template <typename T>
@@ -16,6 +16,6 @@ namespace core::detail::concepts {
 	template <typename EventT>
 	concept EventLike = std::copy_constructible<EventT>;
 
-} // namespace core::detail
+} // namespace core::concepts
 
-#endif // CORE_DETAIL_CONCEPTS_H
+#endif // CORE_CONCEPTS_CONCEPTS_H

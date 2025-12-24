@@ -1,10 +1,10 @@
-// core/detail/StateChangeEvent.h
-#ifndef CORE_DETAIL_STATE_CHANGE_EVENT_H
-#define CORE_DETAIL_STATE_CHANGE_EVENT_H
+// core/event/StateChangeEvent.h
+#ifndef CORE_EVENT_STATE_CHANGE_EVENT_H
+#define CORE_EVENT_STATE_CHANGE_EVENT_H
 
 #include <stdexcept>
 
-namespace core::detail {
+namespace core::event {
 
     template <typename Category>
     struct StateChangeEvent {
@@ -21,6 +21,6 @@ namespace core::detail {
         }
     };
 
-} // namespace core::detail
+} // namespace core::event
 
-#endif // CORE_DETAIL_STATE_CHANGE_EVENT_H
+#endif // CORE_EVENT_STATE_CHANGE_EVENT_H

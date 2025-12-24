@@ -1,11 +1,11 @@
-// core/detail/BaseState.h
-#ifndef CORE_DETAIL_BASE_STATE_H
-#define CORE_DETAIL_BASE_STATE_H
+// core/state/BaseState.h
+#ifndef CORE_STATE_BASE_STATE_H
+#define CORE_STATE_BASE_STATE_H
 
 #include <iostream>
 #include <compare>
 
-namespace core::detail {
+namespace core::state {
 
     struct BaseState {
         virtual ~BaseState() = default;
@@ -49,6 +49,6 @@ namespace core::detail {
         return static_cast<const BaseState&>(lhs) <=> static_cast<const BaseState&>(rhs);
     }
 
-} // namespace core::detail
+} // namespace core::state
 
-#endif // CORE_DETAIL_BASE_STATE_H
+#endif // CORE_STATE_BASE_STATE_H

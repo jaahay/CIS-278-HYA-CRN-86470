@@ -2,12 +2,12 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include "core/detail/BaseState.h"
-#include "core/detail/Concepts.h"
-#include "core/detail/StateChangeCallback.h"
-#include "core/detail/StateChangeEvent.h"
-#include "core/detail/TemplateState.h"
-#include "core/detail/EventDispatcher.h"
+#include "core/concepts/Concepts.h"
+#include "core/event/StateChangeCallback.h"
+#include "core/event/StateChangeDispatcher.h"
+#include "core/event/StateChangeEvent.h"
+#include "core/state/BaseState.h"
+#include "core/state/TemplateState.h"
 
 namespace core {
 

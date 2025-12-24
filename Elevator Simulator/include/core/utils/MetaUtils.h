@@ -1,12 +1,12 @@
-// core/detail/MetaUtils.h
-#ifndef CORE_DETAIL_META_UTILS_H
-#define CORE_DETAIL_META_UTILS_H
+// core/utils/Meta.h
+#ifndef CORE_UTILS_META_UTILS_H
+#define CORE_UTILS_META_UTILS_H
 
 #include <variant>
 #include <tuple>
 #include <type_traits>
 
-namespace core::detail::meta {
+namespace core::utils {
 
     // --- tuple_to_variant ---
     // Converts std::tuple<Ts...> to std::variant<Ts...>
@@ -73,6 +73,6 @@ namespace core::detail::meta {
     template <typename... Variants>
     using variant_concat_t = typename variant_concat<Variants...>::type;
 
-} // namespace core::detail::meta
+} // namespace core::utils
 
-#endif // CORE_DETAIL_META_UTILS_H
+#endif // CORE_UTILS_META_UTILS_H

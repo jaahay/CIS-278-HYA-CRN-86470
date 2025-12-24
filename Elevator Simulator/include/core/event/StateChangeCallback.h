@@ -1,15 +1,20 @@
-// core/detail/StateChangeCallback.h
-#ifndef CORE_DETAIL_STATE_CHANGE_CALLBACK_H
-#define CORE_DETAIL_STATE_CHANGE_CALLBACK_H
+// core/event/StateChangeCallback
+#ifndef CORE_EVENT_STATE_CHANGE_CALLBACK_H
+#define CORE_EVENT_STATE_CHANGE_CALLBACK_H
 
 #include <functional>
 #include <concepts>
 #include <utility>
 #include <stdexcept>
 
-#include "core/detail/Concepts.h"
+#include "core/concepts/Concepts.h"
 
-namespace core::detail {
+namespace core::event {
+
+    template <EventLike EventT>
+    inline StateChangeCallback<EventT> NoOpCallback() {
+        return StateChangeCallback<EventT>([](const EventT&) {});
+    }
 
     template <EventLike EventT>
     class StateChangeCallback {
@@ -48,6 +53,6 @@ namespace core::detail {
         CallbackType callback_;
     };
 
-} // namespace core::detail
+} // namespace core::event
 
-#endif // CORE_DETAIL_STATE_CHANGE_CALLBACK_H
+#endif // CORE_EVENT_STATE_CHANGE_CALLBACK_H

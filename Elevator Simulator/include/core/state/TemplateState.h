@@ -1,15 +1,15 @@
-// core/detail/TemplateState.h
-#ifndef CORE_DETAIL_TEMPLATE_STATE_H
-#define CORE_DETAIL_TEMPLATE_STATE_H
+// core/state/TemplateState.h
+#ifndef CORE_STATE_TEMPLATE_STATE_H
+#define CORE_STATE_TEMPLATE_STATE_H
 
 #include <string_view>
 #include <compare>
 #include <iostream>
 #include <typeinfo>
 
-#include "core/detail/BaseState.h"
+#include "core/state/BaseState.h"
 
-namespace core::detail {
+namespace core::state {
 
     template <typename Derived, typename DomainBase = BaseState>
     struct TemplateState : virtual DomainBase {
@@ -58,6 +58,6 @@ namespace core::detail {
         }
     };
 
-} // namespace core::detail
+} // namespace core::state
 
-#endif // CORE_DETAIL_TEMPLATE_STATE_H
+#endif // CORE_STATE_TEMPLATE_STATE_H

@@ -5,7 +5,7 @@ add_library(core INTERFACE)
 
 # Glob headers for IDE grouping only
 file(GLOB_RECURSE core_HEADERS
-    ${CMAKE_SOURCE_DIR}/include/core/*.h
+    ${CMAKE_SOURCE_DIR}/include/core/**/*.h
 )
 
 # Organize headers in IDE (Visual Studio)
