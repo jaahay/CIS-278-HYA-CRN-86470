@@ -1,10 +1,10 @@
-// elevator/states/details/Idle.h
-#ifndef ELEVATOR_STATES_DETAILS_IDLE_H
-#define ELEVATOR_STATES_DETAILS_IDLE_H
+// elevator/models/states/details/Idle.h
+#ifndef ELEVATOR_MODELS_STATES_DETAILS_IDLE_H
+#define ELEVATOR_MODELS_STATES_DETAILS_IDLE_H
 
-#include "elevator/states/Types.h"
+#include "elevator/models/states/Types.h"
 
-namespace elevator::states::details {
+namespace elevator::model::states::details {
 
     struct Idle : core::TemplateState<Idle, OperationState> {
     private:
@@ -30,6 +30,6 @@ namespace elevator::states::details {
         }
     };
 
-} // namespace elevator::states::details
+} // namespace elevator::model::states::details
 
-#endif // ELEVATOR_STATES_DETAILS_IDLE_H
+#endif // ELEVATOR_MODELS_STATES_DETAILS_IDLE_H
