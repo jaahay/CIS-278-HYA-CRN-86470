@@ -4,7 +4,7 @@
 #ifndef CORE_DETAIL_EVENT_DISPATCHER_H
 #define CORE_DETAIL_EVENT_DISPATCHER_H
 
-#include "StateChangeCallback.h"
+#include "core/detail/StateChangeCallback.h"
 #include <mutex>
 #include <unordered_map>
 #include <atomic>

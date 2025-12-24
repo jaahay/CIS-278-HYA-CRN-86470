@@ -4,9 +4,9 @@
 
 #include <type_traits>
 #include <concepts>
-#include "BaseState.h"
+#include "core/detail/BaseState.h"
 
-namespace core::detail {
+namespace core::detail::concepts {
 
 	// Concept: type must derive from BaseState
 	template <typename T>

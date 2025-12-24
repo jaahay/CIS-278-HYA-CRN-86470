@@ -11,7 +11,7 @@ namespace elevator {
         , heading(&DomainStates::Stopped())
         , pendingPassengers()
         , boardedPassengers()
-        , onStateChange()
+        , onStateChange(core::detail::NoOpCallback<const core::detail::StateChangeEvent<DomainStateVariant>&>())
     {
     }
 
@@ -37,11 +37,63 @@ namespace elevator {
     {
     }
 
+    // Compose a new Elevator with an additional domain state change observer callback
+    Elevator Elevator::AddCallback(
+        const core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&>& cb) const
+    {
+        // Compose the existing callback with the new one, preserving immutability
+        auto composedCallback = onStateChange.Compose(cb);
+
+        // Return a new Elevator instance with the composed callback
+        return Elevator(
+            doorDelayMs,
+            moveDelayMs,
+            current,
+            operationState,
+            doorState,
+            heading,
+            pendingPassengers,
+            boardedPassengers,
+            std::move(composedCallback));
+    }
+
+    Elevator Elevator::Transition(DomainStateVariant newState) const {
+        auto newElevator = std::visit([this](auto&& statePtr) -> Elevator {
+            if (statePtr == nullptr) {
+                throw std::invalid_argument("Null pointer in DomainStateVariant");
+            }
+            using T = std::decay_t<decltype(*statePtr)>;
+
+            if constexpr (std::is_base_of_v<detail::DoorState, T>) {
+                return Elevator(doorDelayMs, moveDelayMs, current, operationState, statePtr, heading, pendingPassengers, boardedPassengers, onStateChange);
+            }
+            else if constexpr (std::is_base_of_v<detail::Heading, T>) {
+                return Elevator(doorDelayMs, moveDelayMs, current, operationState, doorState, statePtr, pendingPassengers, boardedPassengers, onStateChange);
+            }
+            else if constexpr (std::is_base_of_v<detail::OperationState, T>) {
+                return Elevator(doorDelayMs, moveDelayMs, current, statePtr, doorState, heading, pendingPassengers, boardedPassengers, onStateChange);
+            }
+            else {
+                throw std::logic_error("Unhandled domain state type");
+            }
+            }, newState);
+
+        if (newElevator.onStateChange) {
+            core::detail::StateChangeEvent<DomainStateVariant> event(std::move(newState));
+            newElevator.onStateChange(event);
+        }
+
+        return newElevator;
+    }
+
+    template<class>
+    inline constexpr bool always_false = false;
+
     constexpr int Elevator::CurrentFloor() const {
         return current;
     }
 
-    constexpr bool Elevator::IsIdle() const
+    const bool Elevator::IsIdle() const
     {
         return pendingPassengers.empty() && boardedPassengers.empty() && operationState == &DomainStates::Idle();
     }
@@ -100,60 +152,7 @@ namespace elevator {
             });
     }
 
-    // Compose a new Elevator with an additional domain state change observer callback
-    Elevator Elevator::AddCallback(
-        const core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&>& cb) const
-    {
-        // Compose the existing callback with the new one, preserving immutability
-        auto composedCallback = onStateChange.Compose(cb);
-
-        // Return a new Elevator instance with the composed callback
-        return Elevator(
-            doorDelayMs,
-            moveDelayMs,
-            current,
-            operationState,
-            doorState,
-            heading,
-            pendingPassengers,
-            boardedPassengers,
-            std::move(composedCallback)
-        );
-    }
-
-    Elevator Elevator::Transition(DomainStateVariant newState) const {
-        auto newElevator = std::visit([this](auto&& statePtr) -> Elevator {
-            if (statePtr == nullptr) {
-                throw std::invalid_argument("Null pointer in DomainStateVariant");
-            }
-            using T = std::decay_t<decltype(*statePtr)>;
-
-            if constexpr (std::is_base_of_v<detail::DoorState, T>) {
-                return Elevator(doorDelayMs, moveDelayMs, current, operationState, statePtr, heading, pendingPassengers, boardedPassengers, onStateChange);
-            }
-            else if constexpr (std::is_base_of_v<detail::Heading, T>) {
-                return Elevator(doorDelayMs, moveDelayMs, current, operationState, doorState, statePtr, pendingPassengers, boardedPassengers, onStateChange);
-            }
-            else if constexpr (std::is_base_of_v<detail::OperationState, T>) {
-                return Elevator(doorDelayMs, moveDelayMs, current, statePtr, doorState, heading, pendingPassengers, boardedPassengers, onStateChange);
-            }
-            else {
-                throw std::logic_error("Unhandled domain state type");
-            }
-            }, newState);
-
-        if (newElevator.onStateChange) {
-            core::detail::StateChangeEvent<DomainStateVariant> event(std::move(newState));
-            newElevator.onStateChange(event);
-        }
-
-        return newElevator;
-    }
-
-    template<class>
-    inline constexpr bool always_false = false;
-
-    constexpr bool Elevator::PassedOrigin(const Passenger& passenger) const {
+    const bool Elevator::PassedOrigin(const Passenger& passenger) const {
         if (*heading == DomainStates::GoingUp()) {
             return passenger.Origin() < current;
         }
@@ -163,7 +162,7 @@ namespace elevator {
         return false;
     }
 
-    constexpr bool Elevator::PassedDestination(const Passenger& passenger) const {
+    const bool Elevator::PassedDestination(const Passenger& passenger) const {
         if (*heading == DomainStates::GoingUp()) {
             return passenger.Destination() < current;
         }
@@ -172,7 +171,7 @@ namespace elevator {
         }
     }
 
-    constexpr bool Elevator::FurtherToGo() const {
+    const bool Elevator::FurtherToGo() const {
         if (heading->IsStopped()) {
             return false;
         }
@@ -203,7 +202,7 @@ namespace elevator {
         return false;
     }
 
-    constexpr double Elevator::FarthestToGo() const {
+    const double Elevator::FarthestToGo() const {
         std::list<double> forwardStops;
 
         for (const auto& pendingPassenger : pendingPassengers) {
@@ -244,62 +243,75 @@ namespace elevator {
 
     Elevator Elevator::MoveStep() const {
         Elevator updated = *this;
-         //Boarding/departing and door opening
-        const DoorState* doorAfterBoardDepart = HandleBoardingDeparting();
-        if (doorAfterBoardDepart != newDoorState) {
-            newDoorState = doorAfterBoardDepart;
-            if (onStateChange) onStateChange("DoorState", "DOORS_OPENING/OPENED");
+
+        // Boarding/departing and door opening
+        Elevator afterBoardDepart = updated.HandleBoardingDeparting();
+        if (afterBoardDepart.doorState != updated.doorState) {
+            updated = afterBoardDepart;
+            // Notify door state change event
+            DoorStateVariant variant = updated.doorState;
+            core::detail::StateChangeEvent<DoorStateVariant> event(std::move(variant));
+            if (updated.onStateChange) updated.onStateChange(event);
         }
 
-        // Idle check
-        if (ShouldIdle()) {
+        // Idle check and operation state transition
+        if (updated.ShouldIdle()) {
             std::cout << "Elevator has come to a halt." << std::endl;
-            newElevator = 
-                Transition(DomainStateVariant{ &DomainStates::Idle() });
-            newOperationState = newElevator.operationState;
-            newHeading = newElevator.heading;
-            if (onStateChange) {
-                onStateChange("Heading", "STOPPED");
-                onStateChange("OperationState", "IDLE");
+            updated = updated.Transition(&DomainStates::Idle());
+
+            // Notify heading and operation state changes
+            {
+                HeadingVariant headingVar = updated.heading;
+                core::detail::StateChangeEvent<HeadingVariant> headingEvent(std::move(headingVar));
+                if (updated.onStateChange) updated.onStateChange(headingEvent);
+            }
+            {
+                HeadingVariant operationVar = updated.operationState;
+                core::detail::StateChangeEvent<HeadingVariant> operationEvent(std::move(operationVar));
+                if (updated.onStateChange) updated.onStateChange(operationEvent);
             }
         }
         else {
             // Door closing if doors are open
-            const DoorState* doorAfterClosing = HandleDoorClosing(newDoorState);
-            if (doorAfterClosing != newDoorState) {
-                newDoorState = doorAfterClosing;
-                if (onStateChange) onStateChange("DoorState", "DOORS_CLOSING/CLOSED");
+            Elevator afterDoorClosing = updated.HandleDoorClosing(updated.doorState);
+            if (afterDoorClosing.doorState != updated.doorState) {
+                updated = afterDoorClosing;
+                DoorStateVariant variant = updated.doorState;
+                core::detail::StateChangeEvent<DoorStateVariant> event(std::move(variant));
+                if (updated.onStateChange) updated.onStateChange(event);
             }
 
             // Update heading if needed
-            const Heading* updatedHeading = UpdateHeadingIfNeeded(newHeading);
-            if (updatedHeading != newHeading) {
-                newHeading = updatedHeading;
-                if (onStateChange) {
-                    std::string headingStr = (newHeading->IsGoingUp()) ? "GOING_UP" : "GOING_DOWN";
-                    onStateChange("Heading", headingStr);
-                }
+            Elevator afterHeadingUpdate = updated.UpdateHeadingIfNeeded(updated.heading);
+            if (afterHeadingUpdate.heading != updated.heading) {
+                updated = afterHeadingUpdate;
+                HeadingVariant variant = updated.heading;
+                core::detail::StateChangeEvent<HeadingVariant> event(std::move(variant));
+                if (updated.onStateChange) updated.onStateChange(event);
             }
         }
 
         // Move elevator one floor
-        int movedFloor = MoveOneFloor(newFloor, newHeading);
-        if (movedFloor != newFloor) {
-            newFloor = movedFloor;
-            if (onStateChange) onStateChange("Floor", std::to_string(newFloor));
+        int movedFloor = updated.MoveOneFloor(updated.current, updated.heading);
+        if (movedFloor != updated.current) {
+            updated = Elevator(
+                updated.doorDelayMs,
+                updated.moveDelayMs,
+                movedFloor,
+                updated.operationState,
+                updated.doorState,
+                updated.heading,
+                updated.pendingPassengers,
+                updated.boardedPassengers,
+                updated.onStateChange);
+
+            // Notify floor change event (consider adding a FloorState in domain if needed)
+            // For now, log externally or create a custom event
+            std::cout << "Elevator moved to floor " << movedFloor << std::endl;
         }
 
-        return Elevator(
-            doorDelayMs,
-            moveDelayMs,
-            newFloor,
-            newOperationState,
-            newDoorState,
-            newHeading,
-            pendingPassengers,
-            boardedPassengers
-        );
-    };
+        return updated;
+    }
 
     // Returns pair: (updated boardedPassengers, any passenger boarded)
     std::pair<std::list<const Passenger*>, bool> Elevator::BoardPassengers() const {

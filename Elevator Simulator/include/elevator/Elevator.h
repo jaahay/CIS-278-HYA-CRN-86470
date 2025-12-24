@@ -26,9 +26,13 @@ namespace elevator {
         // Comparison operator
         auto operator<=>(const Elevator&) const = default;
 
+        // Accepts polymorphic domain-wide callback
+        Elevator AddCallback(
+            const core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&>&) const;
+
         // Query functions
         constexpr int CurrentFloor() const;
-        constexpr bool IsIdle() const;
+        const bool IsIdle() const;
 
         /**
         * Calculate how inconvenient it would be to pick up a passenger. Cases:
@@ -46,10 +50,6 @@ namespace elevator {
 
         const std::future<Elevator> ReceivePassenger(const Passenger&) const;
         const std::future<bool> Wait() const;
-
-        // Accepts polymorphic domain-wide callback
-        Elevator AddCallback(
-            const core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&>&) const;
 
         friend std::ostream& operator<<(std::ostream&, const Elevator&);
     private:
@@ -82,18 +82,17 @@ namespace elevator {
             core::StateChangeCallback<const core::detail::StateChangeEvent<DomainStateVariant>&> onStateChange
         );
 
+        Elevator Transition(DomainStateVariant) const;
 
-        constexpr bool PassedOrigin(const Passenger&) const;
-        constexpr bool PassedDestination(const Passenger&) const;
-        constexpr bool FurtherToGo() const;
+        const bool PassedOrigin(const Passenger&) const;
+        const bool PassedDestination(const Passenger&) const;
+        const bool FurtherToGo() const;
         /**
          * The farthest we must go at our current heading before we can change direction
          * Filter all pending passengers that we have not passed -> their Origin
          * Filter all boarded passengers ahead -> their Destination
          */
-        constexpr double FarthestToGo() const;
-
-        Elevator Transition(DomainStateVariant) const;
+        const double FarthestToGo() const;
 
         // Asynchronous move returns a future with new Elevator state
         std::future<Elevator> MoveAsync() const;

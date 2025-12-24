@@ -7,7 +7,7 @@
 #include <utility>
 #include <stdexcept>
 
-#include "Concepts.h"
+#include "core/detail/Concepts.h"
 
 namespace core::detail {
 
