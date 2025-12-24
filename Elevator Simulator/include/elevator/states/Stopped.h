@@ -1,6 +1,6 @@
 // elevator/states/Stopped.h
-#ifndef ELEVATOR_STATES_DETAILS_STOPPED_H
-#define ELEVATOR_STATES_DETAILS_STOPPED_H
+#ifndef ELEVATOR_STATES_STOPPED_H
+#define ELEVATOR_STATES_STOPPED_H
 
 #include "elevator/states/ElevatorStateTypes.h"
 
@@ -34,4 +34,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATOR_STATES_DETAILS_STOPPED_H
+#endif // ELEVATOR_STATES_STOPPED_H

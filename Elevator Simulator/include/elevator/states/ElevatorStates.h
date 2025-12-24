@@ -17,32 +17,32 @@
 
 namespace elevator::states {
 
-    inline const elevator::states::DoorsClosed& DoorsClosed() {
-        returnelevator::states::DoorsClosed::instance();
+    inline const states::Closed& Closed() {
+        return elevator::states::Closed::instance();
     }
-    inline const elevator::states::DoorsClosing& DoorsClosing() {
-        returnelevator::states::DoorsClosing::instance();
+    inline const states::Closing& Closing() {
+        return elevator::states::Closing::instance();
     }
-    inline const elevator::states::DoorsOpened& DoorsOpened() {
-        returnelevator::states::DoorsOpened::instance();
+    inline const states::Opened& Opened() {
+        return elevator::states::Opened::instance();
     }
-    inline const elevator::states::DoorsOpening& DoorsOpening() {
-        returnelevator::states::DoorsOpening::instance();
+    inline const states::Opening& Opening() {
+        return elevator::states::Opening::instance();
     }
-    inline const elevator::states::GoingDown& GoingDown() {
-        returnelevator::states::GoingDown::instance();
+    inline const states::GoingDown& GoingDown() {
+        return elevator::states::GoingDown::instance();
     }
     inline const elevator::states::GoingUp& GoingUp() {
-        returnelevator::states::GoingUp::instance();
+        return elevator::states::GoingUp::instance();
     }
     inline const elevator::states::Stopped& Stopped() {
-        returnelevator::states::Stopped::instance();
+        return elevator::states::Stopped::instance();
     }
-    inline const elevator::states::OperationActive& Active() {
-        returnelevator::states::OperationActive::instance();
+    inline const elevator::states::Active& Active() {
+        return elevator::states::Active::instance();
     }
-    inline const elevator::states::OperationIdle& Idle() {
-        returnelevator::states::OperationIdle::instance();
+    inline const elevator::states::Idle& Idle() {
+        return elevator::states::Idle::instance();
     }
 
 } // namespace elevator::states

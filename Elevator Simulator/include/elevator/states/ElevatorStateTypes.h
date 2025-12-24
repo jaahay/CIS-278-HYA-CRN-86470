@@ -1,6 +1,6 @@
 // elevator/states/ElevatorStateTypes.h
-#ifndef ELEVATOR_STATES_DETAILS_ELEVATOR_STATE_TYPES_H
-#define ELEVATOR_STATES_DETAILS_ELEVATOR_STATE_TYPES_H
+#ifndef ELEVATOR_STATES_ELEVATOR_STATE_TYPES_H
+#define ELEVATOR_STATES_ELEVATOR_STATE_TYPES_H
 
 #include "core/Core.h"
 #include <compare>
@@ -10,8 +10,8 @@ namespace elevator::states {
 
     struct DoorState : core::BaseState {
         virtual ~DoorState() = default;
-        virtual bool Opened() const = 0;
-        virtual bool Closed() const = 0;
+        virtual bool IsOpened() const = 0;
+        virtual bool IsClosed() const = 0;
         void print(std::ostream& os) const override = 0;
     };
 
@@ -61,4 +61,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATOR_STATES_DETAILS_ELEVATOR_STATE_TYPES_H
+#endif // ELEVATOR_STATES_ELEVATOR_STATE_TYPES_H

@@ -1,6 +1,6 @@
 // elevator/states/GoingDown.h
-#ifndef ELEVATOR_STATES_DETAILS_GOING_DOWN_H
-#define ELEVATOR_STATES_DETAILS_GOING_DOWN_H
+#ifndef ELEVATOR_STATES_GOING_DOWN_H
+#define ELEVATOR_STATES_GOING_DOWN_H
 
 #include "elevator/states/ElevatorStateTypes.h"
 
@@ -34,4 +34,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATOR_STATES_DETAILS_GOING_DOWN_H
+#endif // ELEVATOR_STATES_GOING_DOWN_H

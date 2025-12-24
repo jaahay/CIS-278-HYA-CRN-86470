@@ -1,6 +1,6 @@
 // elevator/states/Opening.h
-#ifndef ELEVATOR_STATES_DETAILS_OPENING_H
-#define ELEVATOR_STATES_DETAILS_OPENING_H
+#ifndef ELEVATOR_STATES_OPENING_H
+#define ELEVATOR_STATES_OPENING_H
 
 #include "elevator/states/ElevatorStateTypes.h"
 
@@ -16,8 +16,8 @@ namespace elevator::states {
         Opening(Opening&&) = delete;
         Opening& operator=(Opening&&) = delete;
 
-        constexpr bool Opened() const { return false; }
-        constexpr bool Closed() const { return false; }
+        constexpr bool IsOpened() const { return false; }
+        constexpr bool IsClosed() const { return false; }
 
         constexpr std::string_view name() const noexcept { return "Opening"; }
 
@@ -33,4 +33,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATOR_STATES_DETAILS_OPENING_H
+#endif // ELEVATOR_STATES_OPENING_H

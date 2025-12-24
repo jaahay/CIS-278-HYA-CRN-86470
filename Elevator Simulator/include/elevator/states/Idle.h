@@ -1,6 +1,6 @@
 // elevator/states/Idle.h
-#ifndef ELEVATOR_STATES_DETAILS_IDLE_H
-#define ELEVATOR_STATES_DETAILS_IDLE_H
+#ifndef ELEVATOR_STATES_IDLE_H
+#define ELEVATOR_STATES_IDLE_H
 
 #include "elevator/states/ElevatorStateTypes.h"
 
@@ -32,4 +32,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATOR_STATES_DETAILS_IDLE_H
+#endif // ELEVATOR_STATES_IDLE_H

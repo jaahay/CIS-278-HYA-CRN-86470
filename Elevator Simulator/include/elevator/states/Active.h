@@ -1,6 +1,6 @@
 // elevator/states/Active.h
-#ifndef ELEVATOR_STATES_DETAILS_ACTIVE_H
-#define ELEVATOR_STATES_DETAILS_ACTIVE_H
+#ifndef ELEVATOR_STATES_ACTIVE_H
+#define ELEVATOR_STATES_ACTIVE_H
 
 #include "elevator/states/ElevatorStateTypes.h"
 
@@ -32,4 +32,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATOR_STATES_DETAILS_ACTIVE_H
+#endif // ELEVATOR_STATES_ACTIVE_H

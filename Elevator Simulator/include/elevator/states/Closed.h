@@ -16,8 +16,8 @@ namespace elevator::states {
         Closed(Closed&&) = delete;
         Closed& operator=(Closed&&) = delete;
 
-        constexpr bool Opened() const { return false; }
-        constexpr bool Closed() const { return true;  }
+        constexpr bool IsOpened() const { return false; }
+        constexpr bool IsClosed() const { return true;  }
 
         constexpr std::string_view name() const noexcept { return "Closed"; }
 
