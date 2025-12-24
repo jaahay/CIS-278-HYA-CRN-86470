@@ -1,10 +1,10 @@
-// elevator/models/states/details/Closed.h
+// elevator/states/Closed.h
 #ifndef ELEVATORS_STATES_CLOSED_H
 #define ELEVATORS_STATES_CLOSED_H
 
-#include "elevator/models/states/Types.h"
+#include "elevator/states/ElevatorStateTypes.h"
 
-namespace elevator::model::states::details {
+namespace elevator::states {
 
     struct Closed : core::TemplateState<Closed, DoorState> {
     private:
@@ -31,6 +31,6 @@ namespace elevator::model::states::details {
         }
     };
 
-} // namespace elevator::model::states::details
+} // namespace elevator::states
 
 #endif // ELEVATORS_STATES_CLOSED_H

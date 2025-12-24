@@ -16,6 +16,11 @@ namespace core::concepts {
 	template <typename EventT>
 	concept EventLike = std::copy_constructible<EventT>;
 
+	template <typename F, typename Arg>
+	concept CallableWith = requires(F f, Arg arg) {
+		{ f(arg) } -> std::same_as<void>;
+	};
+
 } // namespace core::concepts
 
 #endif // CORE_CONCEPTS_CONCEPTS_H

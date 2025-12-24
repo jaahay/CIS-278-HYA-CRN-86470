@@ -1,10 +1,10 @@
-// elevator/models/states/details/GoingUp.h
-#ifndef ELEVATOR_MODELS_STATES_DETAILS_GOING_UP_H
-#define ELEVATOR_MODELS_STATES_DETAILS_GOING_UP_H
+// elevator/states/GoingUp.h
+#ifndef ELEVATOR_STATES_DETAILS_GOING_UP_H
+#define ELEVATOR_STATES_DETAILS_GOING_UP_H
 
-#include "elevator/models/states/Types.h"
+#include "elevator/states/ElevatorStateTypes.h"
 
-namespace elevator::model::states::details {
+namespace elevator::states {
 
     struct GoingUp : core::TemplateState<GoingUp, Heading> {
     private:
@@ -32,6 +32,6 @@ namespace elevator::model::states::details {
         }
     };
 
-} // namespace elevator::model::states::details
+} // namespace elevator::states
 
-#endif // ELEVATOR_MODELS_STATES_DETAILS_GOING_UP_H
+#endif // ELEVATOR_STATES_DETAILS_GOING_UP_H

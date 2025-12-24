@@ -1,10 +1,10 @@
-// elevator/models/states/details/Active.h
-#ifndef ELEVATOR_MODELS_STATES_DETAILS_ACTIVE_H
-#define ELEVATOR_MODELS_STATES_DETAILS_ACTIVE_H
+// elevator/states/Active.h
+#ifndef ELEVATOR_STATES_DETAILS_ACTIVE_H
+#define ELEVATOR_STATES_DETAILS_ACTIVE_H
 
-#include "elevator/models/states/Types.h"
+#include "elevator/states/ElevatorStateTypes.h"
 
-namespace elevator::model::states::details {
+namespace elevator::states {
 
     struct Active : core::TemplateState<Active, OperationState> {
     private:
@@ -30,6 +30,6 @@ namespace elevator::model::states::details {
         }
     };
 
-} // namespace elevator::model::states::details
+} // namespace elevator::states
 
-#endif // ELEVATOR_MODELS_STATES_DETAILS_ACTIVE_H
+#endif // ELEVATOR_STATES_DETAILS_ACTIVE_H

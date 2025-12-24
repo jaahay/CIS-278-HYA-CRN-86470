@@ -4,15 +4,17 @@
 
 #include <stdexcept>
 
+#include "core/concepts/Concepts.h"
+
 namespace core::event {
 
-    template <typename Category>
+    template <typename ObjectType, typename StateType>
     struct StateChangeEvent {
-        const Category& stateInstance;  // polymorphic reference to concrete state
+        const ObjectType& objectInstance;
+        const StateType& stateInstance; // polymorphic reference to concrete state  
 
-        explicit StateChangeEvent(const Category& state)
-            : stateInstance(state)
-        {
+        StateChangeEvent(const ObjectType& obj, const StateType& state)
+            : objectInstance(obj), stateInstance(state) {
         }
 
         template <typename T>
@@ -20,6 +22,15 @@ namespace core::event {
             return dynamic_cast<const T*>(&stateInstance);
         }
     };
+
+    template<typename ObjectType, typename StateType, typename CallbackType>
+        requires CallableWith<CallbackType, const StateChangeEvent<ObjectType, StateType>&>
+    inline void NotifyStateChange(const ObjectType& obj, const StateType& state, const CallbackType& callback) {
+        if (callback) {
+            StateChangeEvent<ObjectType, StateType> event(obj, state);
+            callback(event);
+        }
+    }
 
 } // namespace core::event
 

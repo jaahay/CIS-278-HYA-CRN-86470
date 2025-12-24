@@ -1,10 +1,10 @@
-// elevator/models/states/details/Stopped.h
-#ifndef ELEVATOR_MODELS_STATES_DETAILS_STOPPED_H
-#define ELEVATOR_MODELS_STATES_DETAILS_STOPPED_H
+// elevator/states/Stopped.h
+#ifndef ELEVATOR_STATES_DETAILS_STOPPED_H
+#define ELEVATOR_STATES_DETAILS_STOPPED_H
 
-#include "elevator/models/states/Types.h"
+#include "elevator/states/ElevatorStateTypes.h"
 
-namespace elevator::model::states::details {
+namespace elevator::states {
 
     struct Stopped : core::TemplateState<Stopped, Heading> {
     private:
@@ -32,6 +32,6 @@ namespace elevator::model::states::details {
         }
     };
 
-} // namespace elevator::model::states::details
+} // namespace elevator::states
 
-#endif // ELEVATOR_MODELS_STATES_DETAILS_STOPPED_H
+#endif // ELEVATOR_STATES_DETAILS_STOPPED_H

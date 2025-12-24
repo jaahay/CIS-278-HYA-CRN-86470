@@ -1,10 +1,10 @@
-// elevator/models/states/details/Opening.h
-#ifndef ELEVATOR_MODELS_STATES_DETAILS_OPENING_H
-#define ELEVATOR_MODELS_STATES_DETAILS_OPENING_H
+// elevator/states/Opening.h
+#ifndef ELEVATOR_STATES_DETAILS_OPENING_H
+#define ELEVATOR_STATES_DETAILS_OPENING_H
 
-#include "elevator/models/states/Types.h"
+#include "elevator/states/ElevatorStateTypes.h"
 
-namespace elevator::model::states::details {
+namespace elevator::states {
 
     struct Opening : core::TemplateState<Opening, DoorState> {
     private:
@@ -31,6 +31,6 @@ namespace elevator::model::states::details {
         }
     };
 
-} // namespace elevator::model::states::details
+} // namespace elevator::states
 
-#endif // ELEVATOR_MODELS_STATES_DETAILS_OPENING_H
+#endif // ELEVATOR_STATES_DETAILS_OPENING_H

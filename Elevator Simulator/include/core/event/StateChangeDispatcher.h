@@ -1,7 +1,7 @@
-// core/event/StateChangeDispatcher.h
+// core/event/ChangeEventDispatcher.h
 
-#ifndef CORE_EVENT_STATE_CHANGE_DISPATCHER_H
-#define CORE_EVENT_STATE_CHANGE_DISPATCHER_H
+#ifndef CORE_EVENT_CHANGE_EVENT_DISPATCHER_H
+#define CORE_EVENT_CHANGE_EVENT_DISPATCHER_H
 
 #include "core/state/StateChangeCallback.h"
 #include <mutex>
@@ -11,13 +11,15 @@
 
 namespace core::event {
 
-    template <typename EventT>
-    class EventDispatcher {
-    public:
-        using CallbackType = StateChangeCallback<const EventT&>;
-        using ObserverId = unsigned int;
+    template <typename ObjectType, typename StateType>
+    using StateChangeCallback = core::event::StateChangeCallback<StateChangeEvent<ObjectType, StateType>>;
 
-        EventDispatcher() : nextId_(1) {}
+    template <typename ObjectType, typename StateType>
+    class StateChangeDispatcher {
+    public:
+        using EventT = StateChangeEvent<ObjectType, StateType>;
+        using CallbackType = StateChangeCallback<ObjectType, StateType>;
+        using ObserverId = unsigned int;
 
         ObserverId AddObserver(CallbackType observer) {
             std::lock_guard lock(mutex_);
@@ -31,7 +33,8 @@ namespace core::event {
             return observers_.erase(id) > 0;
         }
 
-        void Notify(const EventT& event) {
+        void Notify(const ObjectType& obj, const StateType& state) {
+            EventT event(obj, state);
             std::unordered_map<ObserverId, CallbackType> snapshot;
             {
                 std::lock_guard lock(mutex_);
@@ -42,10 +45,10 @@ namespace core::event {
                     observer(event);
                 }
                 catch (const std::exception& e) {
-                    std::cerr << "[EventDispatcher] Observer ID " << id << " threw: " << e.what() << "\n";
+                    std::cerr << "[StateChangeDispatcher] Observer ID " << id << " threw: " << e.what() << "\n";
                 }
                 catch (...) {
-                    std::cerr << "[EventDispatcher] Observer ID " << id << " threw unknown exception\n";
+                    std::cerr << "[StateChangeDispatcher] Observer ID " << id << " threw unknown exception\n";
                 }
             }
         }
@@ -53,9 +56,9 @@ namespace core::event {
     private:
         std::mutex mutex_;
         std::unordered_map<ObserverId, CallbackType> observers_;
-        std::atomic<ObserverId> nextId_;
+        std::atomic<ObserverId> nextId_{ 1 };
     };
 
 } // namespace core::event
 
-#endif // CORE_EVENT_STATE_CHANGE_DISPATCHER_H
+#endif // CORE_EVENT_CHANGE_EVENT_DISPATCHER_H

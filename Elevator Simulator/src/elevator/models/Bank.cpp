@@ -1,4 +1,4 @@
-/* Bank.cpp
+/* elevator/models/Bank.cpp
  * Implementation of the Bank class for Elevator Simulator
  */
 #include "elevator/Bank.h"
