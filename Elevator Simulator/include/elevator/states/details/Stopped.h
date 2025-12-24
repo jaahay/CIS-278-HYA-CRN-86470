@@ -1,10 +1,10 @@
-// elevator/detail/Stopped.h
-#ifndef ELEVATOR_DETAIL_STOPPED_H
-#define ELEVATOR_DETAIL_STOPPED_H
+// elevator/states/details/Stopped.h
+#ifndef ELEVATOR_STATES_DETAILS_STOPPED_H
+#define ELEVATOR_STATES_DETAILS_STOPPED_H
 
-#include "elevator/detail/DomainState.h"
+#include "elevator/states/Types.h"
 
-namespace elevator::detail {
+namespace elevator::states::details {
 
     struct Stopped : core::TemplateState<Stopped, Heading> {
     private:
@@ -20,14 +20,6 @@ namespace elevator::detail {
         bool IsGoingUp() const override { return false; }
         bool IsGoingDown() const override { return false; }
 
-        //bool PassedOrigin(const Elevator&, const Passenger&) const override {
-        //    return false;
-        //}
-
-        //bool PassedDestination(const Elevator&, const Passenger&) const override {
-        //    return false;
-        //}
-
         constexpr std::string_view name() const noexcept { return "Stopped"; }
 
         void print(std::ostream& os) const noexcept override {
@@ -40,6 +32,6 @@ namespace elevator::detail {
         }
     };
 
-} // namespace elevator::detail
+} // namespace elevator::states::details
 
-#endif // ELEVATOR_DETAIL_STOPPED_H
+#endif // ELEVATOR_STATES_DETAILS_STOPPED_H

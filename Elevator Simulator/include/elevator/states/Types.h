@@ -1,12 +1,12 @@
-// elevator/DomainState.h
-#ifndef ELEVATOR_DOMAIN_STATE_H
-#define ELEVATOR_DOMAIN_STATE_H
+// elevator/states/Types.h
+#ifndef ELEVATOR_STATES_TYPES_H
+#define ELEVATOR_STATES_TYPES_H
 
 #include "core/Core.h"
 #include <compare>
 #include <ostream>
 
-namespace elevator::detail {
+namespace elevator::states {
 
     struct DoorState : core::BaseState {
         virtual ~DoorState() = default;
@@ -59,6 +59,6 @@ namespace elevator::detail {
         return static_cast<const core::BaseState&>(lhs) <=> static_cast<const core::BaseState&>(rhs);
     }
 
-} // namespace elevator::detail
+} // namespace elevator::states
 
-#endif // ELEVATOR_DOMAIN_STATE_H
+#endif // ELEVATOR_STATES_TYPES_H

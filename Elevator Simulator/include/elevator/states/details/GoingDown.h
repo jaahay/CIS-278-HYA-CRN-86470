@@ -1,10 +1,10 @@
-// elevator/detail/GoingDown.h
-#ifndef ELEVATOR_DETAIL_GOING_DOWN_H
-#define ELEVATOR_DETAIL_GOING_DOWN_H
+// elevator/states/details/GoingDown.h
+#ifndef ELEVATOR_STATES_DETAILS_GOING_DOWN_H
+#define ELEVATOR_STATES_DETAILS_GOING_DOWN_H
 
-#include "elevator/detail/DomainState.h"
+#include "elevator/states/Types.h"
 
-namespace elevator::detail {
+namespace elevator::states::details {
 
     struct GoingDown : core::TemplateState<GoingDown, Heading> {
     private:
@@ -20,14 +20,6 @@ namespace elevator::detail {
         bool IsGoingUp() const override { return false; }
         bool IsGoingDown() const override { return true; }
 
-        //bool PassedOrigin(const Elevator& elevator, const Passenger& passenger) const override {
-        //    return passenger.Destination() > elevator.CurrentFloor();
-        //}
-
-        //bool PassedDestination(const Elevator& elevator, const Passenger& passenger) const override {
-        //    return passenger.Destination() > elevator.CurrentFloor();
-        //}
-
         constexpr std::string_view name() const noexcept { return "Going Down"; }
 
         void print(std::ostream& os) const noexcept override {
@@ -40,6 +32,6 @@ namespace elevator::detail {
         }
     };
 
-} // namespace elevator::detail
+} // namespace elevator::states::details
 
-#endif // ELEVATOR_DETAIL_GOING_DOWN_H
+#endif // ELEVATOR_STATES_DETAILS_GOING_DOWN_H
