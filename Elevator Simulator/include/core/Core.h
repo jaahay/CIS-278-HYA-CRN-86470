@@ -20,13 +20,13 @@ namespace core {
     using detail::operator!=;
     using detail::operator<=>;
 
-    using detail::DerivedFromBaseState;
-    using detail::EventLike;
+    using detail::concepts::DerivedFromBaseState;
+    using detail::concepts::EventLike;
 
     template <typename Category>
     using StateChangeEvent = detail::StateChangeEvent<Category>;
 
-    template <typename EventT>
+    template <EventLike EventT>
     using StateChangeCallback = detail::StateChangeCallback<EventT>;
 
     template <typename Category>

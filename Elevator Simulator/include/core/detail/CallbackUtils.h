@@ -5,7 +5,7 @@
 #include "core/detail/StateChangeCallback.h"
 #include "core/detail/Concepts.h"
 
-namespace core::detail:utils {
+namespace core::detail::utils {
 
     template <EventLike EventT>
     inline StateChangeCallback<EventT> NoOpCallback() {
