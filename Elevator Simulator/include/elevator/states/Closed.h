@@ -1,12 +1,13 @@
 // elevator/states/Closed.h
-#ifndef ELEVATORS_STATES_CLOSED_H
-#define ELEVATORS_STATES_CLOSED_H
+#ifndef ELEVATOR_STATES_CLOSED_H
+#define ELEVATOR_STATES_CLOSED_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct Closed : core::TemplateState<Closed, DoorState> {
+    struct Closed : core::state::TemplateState<Closed, DoorState> {
     private:
         Closed() = default;
 
@@ -33,4 +34,4 @@ namespace elevator::states {
 
 } // namespace elevator::states
 
-#endif // ELEVATORS_STATES_CLOSED_H
+#endif // ELEVATOR_STATES_CLOSED_H

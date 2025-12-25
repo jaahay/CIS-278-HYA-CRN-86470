@@ -1,12 +1,15 @@
-// elevator/services/PassengerService.cpp
-#include "elevator/services/PassengerService.h"
+// elevator/services/ElevatorPassengerService.cpp
+#include "elevator/services/ElevatorPassengerService.h"
+
+#include "elevator/models/Elevator.h"
+#include "elevator/models/Passenger.h"
 
 #include <algorithm>
 #include <iostream>
 
 namespace elevator::services {
 
-    Elevator PassengerService::AddPendingPassenger(const Elevator& elevator, std::shared_ptr<const Passenger> passenger) {
+    Elevator ElevatorPassengerService::AddPendingPassenger(const Elevator& elevator, std::shared_ptr<const Passenger> passenger) {
         auto newPending = elevator.GetPendingPassengers();
 
         // Prevent duplicates by comparing shared_ptr addresses or Passenger content
@@ -30,7 +33,49 @@ namespace elevator::services {
         );
     }
 
-    bool PassengerService::FurtherToGo(const Elevator& elevator) {
+    constexpr double ElevatorPassengerService::Divergence(const Elevator& elevator, const Passenger& passenger) const {
+        // std::cout << "Check ";
+        // passenger.print(std::cout);
+
+        if (Stopped()) {
+            if (current == passenger.Origin() && DoorsOpen() &&
+                (Idle() || passenger.GoingMyWay(*heading))
+                ) {
+                return 0;
+            }
+
+            if (Idle()) {
+                return std::abs(current - passenger.Origin());
+            }
+        }
+
+        if (passenger.GoingMyWay(*heading)) {
+            if (PassedOrigin(passenger)) {
+                return 2 * std::abs(current - FarthestToGo()) + std::abs(current - passenger.Origin());
+            }
+            else {
+                return std::abs(current - passenger.Origin());
+            }
+        }
+
+        if (!passenger.GoingMyWay(*heading)) {
+            double f = FarthestToGo();
+            return std::abs(f - current) + std::abs(f - passenger.Origin());
+        }
+
+        throw std::invalid_argument("Invalid heading for elevator.");
+    }
+
+    constexpr bool ElevatorPassengerService::PassedOrigin(const Elevator& elevator, const Passenger& passenger) const {
+        if (Stopped()) { return false; }
+        return GoingDown() && passenger.Origin() > current || GoingUp() && passenger.Origin() < current;
+    }
+
+    constexpr bool ElevatorPassengerService::PassedDestination(const Elevator& elevator, const Passenger& passenger) const {
+        if (Stopped()) { return false; }
+        return GoingDown() && passenger.Destination() > current || GoingUp() && passenger.Destination() < current;
+    }
+    bool ElevatorPassengerService::FurtherToGo(const Elevator& elevator) {
         const auto* heading = elevator.GetHeading();
         int current = elevator.CurrentFloor();
 
@@ -64,7 +109,7 @@ namespace elevator::services {
         return false;
     }
 
-    double PassengerService::FarthestToGo(const Elevator& elevator) {
+    double ElevatorPassengerService::FarthestToGo(const Elevator& elevator) {
         std::vector<int> forwardStops;
 
         for (const auto& pendingPassenger : elevator.GetPendingPassengers()) {
@@ -94,7 +139,7 @@ namespace elevator::services {
         }
     }
 
-    std::pair<std::list<std::shared_ptr<const Passenger>>, bool> PassengerService::PassengersLeave(
+    std::pair<std::list<std::shared_ptr<const Passenger>>, bool> ElevatorPassengerService::PassengersLeave(
         const Elevator& elevator) {
 
         bool leftAny = false;
@@ -114,7 +159,7 @@ namespace elevator::services {
         return { std::move(newBoarded), leftAny };
     }
 
-    std::pair<std::list<std::shared_ptr<const Passenger>>, bool> PassengerService::BoardPassengers(
+    std::pair<std::list<std::shared_ptr<const Passenger>>, bool> ElevatorPassengerService::BoardPassengers(
         const Elevator& elevator) {
 
         bool boardedAny = false;
@@ -138,7 +183,7 @@ namespace elevator::services {
         return { std::move(newBoarded), boardedAny };
     }
 
-    Elevator PassengerService::HandleBoardingDeparting(const Elevator& elevator) {
+    Elevator ElevatorPassengerService::HandleBoardingDeparting(const Elevator& elevator) {
         auto [newBoarded, boardedAny] = BoardPassengers(elevator);
         auto [newBoardedAfterLeave, leftAny] = PassengersLeave(
             Elevator(

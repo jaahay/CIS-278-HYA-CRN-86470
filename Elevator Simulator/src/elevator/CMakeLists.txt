@@ -8,24 +8,24 @@ file(GLOB_RECURSE elevator_SOURCES
 
 list(REMOVE_ITEM elevator_SOURCES
     #"F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Passenger.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/ElevatorService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Elevator.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/DoorService.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/MovementService.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/PassengerService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/ElevatorPassengerService.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/StateNotificationService.cpp"
+    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/services/ElevatorService.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/controllers/ElevatorController.cpp"
-    "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Elevator.cpp"
     "F:/Development/CIS-278-HYA-CRN-86470/Elevator Simulator/src/elevator/models/Bank.cpp"
 )
 
 # Collect elevator headers for IDE grouping
 file(GLOB_RECURSE elevator_HEADERS
-    ${CMAKE_SOURCE_DIR}/include/elevator/**/*.h
+    ${CMAKE_SOURCE_DIR}/include/elevator/*.h
 )
 
 # Collect core headers for IDE grouping inside elevator project
 file(GLOB_RECURSE core_HEADERS
-    ${CMAKE_SOURCE_DIR}/include/core/**/*.h
+    ${CMAKE_SOURCE_DIR}/include/core/*.h
 )
 
 add_library(elevator STATIC
@@ -70,7 +70,7 @@ target_compile_features(elevator PUBLIC cxx_std_20)
 # Install headers and library
 install(TARGETS elevator EXPORT elevatorTargets)
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/elevator
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include
     DESTINATION include
     FILES_MATCHING PATTERN "*.h"
 )

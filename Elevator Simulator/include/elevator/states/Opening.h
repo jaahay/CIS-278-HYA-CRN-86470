@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_OPENING_H
 #define ELEVATOR_STATES_OPENING_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct Opening : core::TemplateState<Opening, DoorState> {
+    struct Opening : core::state::TemplateState<Opening, DoorState> {
     private:
         Opening() = default;
 

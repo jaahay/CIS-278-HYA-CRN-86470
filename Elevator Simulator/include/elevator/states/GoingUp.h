@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_GOING_UP_H
 #define ELEVATOR_STATES_GOING_UP_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct GoingUp : core::TemplateState<GoingUp, Heading> {
+    struct GoingUp : core::state::TemplateState<GoingUp, Heading> {
     private:
         GoingUp() = default;
 

@@ -4,14 +4,14 @@
 
 #include "elevator/states/ElevatorStateTypes.h"
 
-#include "elevator/states/DoorsClosed.h"
-#include "elevator/states/DoorsClosing.h"
-#include "elevator/states/DoorsOpened.h"
-#include "elevator/states/DoorsOpening.h"
+#include "elevator/states/Closed.h"
+#include "elevator/states/Closing.h"
+#include "elevator/states/Opened.h"
+#include "elevator/states/Opening.h"
 #include "elevator/states/GoingDown.h"
 #include "elevator/states/GoingUp.h"
-#include "elevator/states/OperationActive.h"
-#include "elevator/states/OperationIdle.h"
+#include "elevator/states/Active.h"
+#include "elevator/states/Idle.h"
 #include "elevator/states/Stopped.h"
 
 #include <tuple>

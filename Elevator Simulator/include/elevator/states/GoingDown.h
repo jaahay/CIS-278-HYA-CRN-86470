@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_GOING_DOWN_H
 #define ELEVATOR_STATES_GOING_DOWN_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct GoingDown : core::TemplateState<GoingDown, Heading> {
+    struct GoingDown : core::state::TemplateState<GoingDown, Heading> {
     private:
         GoingDown() = default;
 

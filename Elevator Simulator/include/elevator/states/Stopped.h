@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_STOPPED_H
 #define ELEVATOR_STATES_STOPPED_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct Stopped : core::TemplateState<Stopped, Heading> {
+    struct Stopped : core::state::TemplateState<Stopped, Heading> {
     private:
         Stopped() = default;
 

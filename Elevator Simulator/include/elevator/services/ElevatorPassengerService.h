@@ -1,6 +1,6 @@
-// elevator/services/PassengerService.h
-#ifndef ELEVATOR_SERVICES_PASSENGER_SERVICE_H
-#define ELEVATOR_SERVICES_PASSENGER_SERVICE_H
+// elevator/services/ElevatorPassengerService.h
+#ifndef ELEVATOR_SERVICES_ELEVATOR_PASSENGER_SERVICE_H
+#define ELEVATOR_SERVICES_ELEVATOR_PASSENGER_SERVICE_H
 
 #include "elevator/models/Elevator.h"
 #include "elevator/models/Passenger.h"
@@ -35,4 +35,4 @@ namespace elevator::services {
 
 } // namespace elevator::services
 
-#endif ELEVATOR_SERVICES_PASSENGER_SERVICE_H
+#endif ELEVATOR_SERVICES_ELEVATOR_PASSENGER_SERVICE_H

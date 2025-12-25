@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_IDLE_H
 #define ELEVATOR_STATES_IDLE_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct Idle : core::TemplateState<Idle, OperationState> {
+    struct Idle : core::state::TemplateState<Idle, OperationState> {
     private:
         Idle() = default;
 

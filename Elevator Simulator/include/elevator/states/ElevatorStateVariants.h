@@ -2,6 +2,8 @@
 #ifndef ELEVATOR_STATES_ELEVATOR_STATE_VARIANTS_H
 #define ELEVATOR_STATES_ELEVATOR_STATE_VARIANTS_H
 
+#include <variant>
+
 // Concrete state includes
 #include "elevator/states/Closed.h"
 #include "elevator/states/Closing.h"
@@ -17,10 +19,10 @@ namespace elevator::states {
 
     // Category variants
     using DoorStateVariant = std::variant<
-        const elevator::states::DoorsClosed*,
-        const elevator::states::DoorsClosing*,
-        const elevator::states::DoorsOpened*,
-        const elevator::states::DoorsOpening*
+        const elevator::states::Closed*,
+        const elevator::states::Closing*,
+        const elevator::states::Opened*,
+        const elevator::states::Opening*
     >;
 
     using HeadingVariant = std::variant<
@@ -30,20 +32,20 @@ namespace elevator::states {
     >;
 
     using OperationVariant = std::variant<
-        const elevator::states::OperationActive*,
-        const elevator::states::OperationIdle*
+        const elevator::states::Active*,
+        const elevator::states::Idle*
     >;
 
     using ElevatorStateVariant = std::variant<
-        const elevator::states::DoorsClosed*,
-        const elevator::states::DoorsClosing*,
-        const elevator::states::DoorsOpened*,
-        const elevator::states::DoorsOpening*,
+        const elevator::states::Closed*,
+        const elevator::states::Closing*,
+        const elevator::states::Opened*,
+        const elevator::states::Opening*,
         const elevator::states::GoingUp*,
         const elevator::states::GoingDown*,
         const elevator::states::Stopped*,
-        const elevator::states::OperationActive*,
-        const elevator::states::OperationIdle*
+        const elevator::states::Active*,
+        const elevator::states::Idle*
     >;
 } // namespace elevator::states
 

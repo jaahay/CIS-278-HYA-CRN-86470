@@ -1,34 +1,10 @@
-#include <variant>
-#include <iostream>
-#include <type_traits>
-#include <stdexcept>
+#include "elevator/states/ElevatorStateVariants.h"
+#include "elevator/states/ElevatorStateRegistry.h"
 
-template<typename T>
-constexpr bool always_false = false;
-
-struct Base { virtual ~Base() = default; };
-struct DerivedA : Base {};
-struct DerivedB : Base {};
-
-using Variant = std::variant<const DerivedA*, const DerivedB*>;
+#include "elevator/models/Passenger.h"
+#include "elevator/models/Elevator.h"
 
 int main() {
-    Variant v = &DerivedA{};
-
-    auto result = std::visit([](auto&& ptr) {
-        using T = std::decay_t<decltype(*ptr)>;
-        if constexpr (std::is_same_v<T, DerivedA>) {
-            std::cout << "DerivedA\n";
-            return 1;
-        }
-        else if constexpr (std::is_same_v<T, DerivedB>) {
-            std::cout << "DerivedB\n";
-            return 2;
-        }
-        else {
-            throw std::logic_error("Unhandled type");
-        }
-        }, v);
-
-    std::cout << "Result: " << result << "\n";
+	elevator::models::Passenger passenger{ 2, 3 };
+	return 0;
 }

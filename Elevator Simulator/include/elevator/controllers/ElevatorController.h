@@ -5,19 +5,21 @@
 #include <future>
 #include "elevator/services/ElevatorService.h"
 
+#include "elevator/models/Elevator.h"
+
 namespace elevator::controllers {
 
     class ElevatorController {
     public:
-        explicit ElevatorController(elevator::ElevatorService& service);
+        explicit ElevatorController(services::ElevatorService& service);
 
-        std::future<elevator::Elevator> AddPassenger(const Passenger& passenger);
-        std::future<elevator::Elevator> Move();
+        std::future<models::Elevator> AddPassenger(const models::Passenger& passenger);
+        std::future<models::Elevator> Move();
         void Wait(std::chrono::milliseconds timeout = std::chrono::seconds(10));
-        elevator::Elevator GetElevator() const;
+        models::Elevator GetElevator() const;
 
     private:
-        elevator::ElevatorService& service_;
+        services::ElevatorService& service_;
     };
 
 } // namespace elevator::controllers

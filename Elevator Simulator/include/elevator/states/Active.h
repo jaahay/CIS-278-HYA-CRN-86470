@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_ACTIVE_H
 #define ELEVATOR_STATES_ACTIVE_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct Active : core::TemplateState<Active, OperationState> {
+    struct Active : core::state::TemplateState<Active, OperationState> {
     private:
         Active() = default;
 

@@ -12,3 +12,6 @@ add_subdirectory(src/elevator)
 # Optionally define an overall executable or tests here linking elevator (and core transitively)
 # add_executable(app src/app/main.cpp)
 # target_link_libraries(app PRIVATE elevator)
+
+add_executable(playground src/Playground.cpp)
+target_link_libraries(playground PRIVATE elevator)

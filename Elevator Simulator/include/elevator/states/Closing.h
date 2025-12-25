@@ -2,11 +2,12 @@
 #ifndef ELEVATOR_STATES_CLOSING_H
 #define ELEVATOR_STATES_CLOSING_H
 
+#include "core/state/TemplateState.h"
 #include "elevator/states/ElevatorStateTypes.h"
 
 namespace elevator::states {
 
-    struct Closing : core::TemplateState<Closing, DoorState> {
+    struct Closing : core::state::TemplateState<Closing, DoorState> {
     private:
         Closing() = default;
 

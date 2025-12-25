@@ -8,7 +8,8 @@
 
 namespace core::event {
 
-    template <typename ObjectType, typename StateType>
+    template <core::concepts::Abstract ObjectType, typename StateType>
+        requires ValidStateType<StateType, ObjectType>
     struct StateChangeEvent {
         const ObjectType& objectInstance;
         const StateType& stateInstance; // polymorphic reference to concrete state  

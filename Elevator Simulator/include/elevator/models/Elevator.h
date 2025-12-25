@@ -8,7 +8,9 @@
 #include <list>
 #include <memory>
 
-#include "core/Core.h"
+#include "core/event/StateChangeCallback.h"
+#include "core/event/StateChangeEvent.h"
+#include "elevator/states/ElevatorStateVariants.h"
 #include "elevator/models/Passenger.h"
 
 namespace elevator::models {
@@ -27,10 +29,10 @@ namespace elevator::models {
         auto operator<=>(const Elevator&) const = default;
 
         // Transition to a new elevator state variant (pure, immutable)
-        Elevator Transition(ElevatorStateVariant newState) const;
+        Elevator Transition(states::ElevatorStateVariant newState) const;
 
         Elevator AddCallback(
-            const core::event::StateChangeCallback<const core::event::StateChangeEvent<ElevatorStateVariant>&>&) const;
+            const core::event::StateChangeCallback<const core::event::StateChangeEvent<states::ElevatorStateVariant>&>&) const;
 
         // Public const accessors
         constexpr int CurrentFloor() const { return current_; }
@@ -58,7 +60,7 @@ namespace elevator::models {
             const states::Heading* heading,
             std::list<std::shared_ptr<const Passenger>> pendingPassengers,
             std::list<std::shared_ptr<const Passenger>> boardedPassengers,
-            core::StateChangeCallback<const core::event::StateChangeEvent<ElevatorStateVariant>&> onStateChange
+            core::event::StateChangeCallback<const core::event::StateChangeEvent<elevator::states::ElevatorStateVariant>&> onStateChange
         );
 
         // Private immutable members
@@ -69,11 +71,11 @@ namespace elevator::models {
         const std::list<std::shared_ptr<const Passenger>> pendingPassengers_;
         const std::list<std::shared_ptr<const Passenger>> boardedPassengers_;
 
-        const states::OperationState* const operationState_;
-        const states::DoorState* const doorState_;
-        const states::Heading* const heading_;
+        const elevator::states::OperationState* const operationState_;
+        const elevator::states::DoorState* const doorState_;
+        const elevator::states::Heading* const heading_;
 
-        const core::StateChangeCallback<const core::event::StateChangeEvent<ElevatorStateVariant>&> onStateChange_;
+        const core::event::StateChangeCallback<core::event::StateChangeEvent<elevator::states::ElevatorStateVariant>> onStateChange_;
     };
 
 } // namespace elevator::models

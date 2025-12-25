@@ -2,7 +2,7 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include "core/concepts/Concepts.h"
+//#include "core/concepts/Concepts.h"
 #include "core/event/ChangeEventDispatcher.h"
 #include "core/event/StateChangeCallback.h"
 #include "core/event/StateChangeEvent.h"
