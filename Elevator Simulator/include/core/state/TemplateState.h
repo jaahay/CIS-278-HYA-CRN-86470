@@ -18,28 +18,22 @@ namespace core::state {
         template<typename... Args>
         TemplateState(Args&&... args) : DomainBase(std::forward<Args>(args)...) {}
 
-        // Override BaseState virtual equals with polymorphic safe implementation
         bool equals(const BaseState& other) const override {
             if (typeid(*this) != typeid(other)) return false;
             auto p = dynamic_cast<const Derived*>(&other);
             return p && this == p;
         }
 
-        // Override BaseState virtual compare with polymorphic safe implementation
         std::strong_ordering compare(const BaseState& other) const override {
             if (typeid(*this) != typeid(other)) {
                 return std::string_view(typeid(*this).name()) <=> std::string_view(typeid(other).name());
             }
             auto p = dynamic_cast<const Derived*>(&other);
-            if (!p) {
-                // Defensive fallback: different types or invalid cast
-                return std::strong_ordering::less;
-            }
+            if (!p) return std::strong_ordering::less;
             if (this == p) return std::strong_ordering::equal;
             return this < p ? std::strong_ordering::less : std::strong_ordering::greater;
         }
 
-        // Convenient operators for Derived-to-Derived (non-polymorphic)
         constexpr std::strong_ordering operator<=>(const Derived& other) const {
             return this == &other ? std::strong_ordering::equal :
                 this < &other ? std::strong_ordering::less : std::strong_ordering::greater;

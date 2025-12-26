@@ -10,7 +10,6 @@ namespace core::state {
     struct BaseState {
         virtual ~BaseState() = default;
 
-        // Polymorphic interface for equality and ordering
         virtual bool equals(const BaseState& other) const = 0;
         virtual std::strong_ordering compare(const BaseState& other) const = 0;
 
@@ -30,7 +29,6 @@ namespace core::state {
         }
     };
 
-    // Template non-member operators for all BaseState-derived types
     template <typename StateType>
         requires std::is_base_of_v<BaseState, StateType>
     inline bool operator==(const StateType& lhs, const StateType& rhs) {

@@ -5,38 +5,28 @@
 #include <type_traits>
 #include <concepts>
 #include "core/state/BaseState.h"
+#include "core/event/Event.h"
 
 namespace core::concepts {
-	
-	// Checks if a type is abstract
-	template <typename T>
-	concept Abstract = std::is_abstract_v<T>;
 
-	// Checks if a type is concrete (not abstract)
-	template <typename T>
-	concept Concrete = !std::is_abstract_v<T>;
+    template <typename T>
+    concept DerivedFromBaseState = std::is_base_of_v<core::state::BaseState, T>;
 
-	template <typename Derived, typename Base>
-	concept DerivedFrom = std::is_base_of_v<Base, Derived>;
+    template <typename T>
+    concept SingletonState = requires {
+        { T::instance() } -> std::same_as<const T&>;
+    };
 
-	// Concept: type must derive from BaseState
-	template <typename T>
-	concept DerivedFromBaseState = std::is_base_of_v<core::state::BaseState, T>;
+    template <typename T>
+    concept ConcreteState = DerivedFromBaseState<T> && !std::is_abstract_v<T>;
 
-	template <typename StateType, typename ObjectType>
-	concept ValidStateType =
-		Concrete<StateType> &&
-		DerivedFrom<StateType, ObjectType>&&
-		DerivedFromBaseState<StateType>;
+    template <typename T>
+    concept EventType = std::is_base_of_v<core::event::Event, T>;
 
-	// Minimal concept for event-like types (copy constructible)
-	template <typename EventT>
-	concept EventLike = std::copy_constructible<EventT>;
-
-	template <typename F, typename Arg>
-	concept CallableWith = requires(F f, Arg arg) {
-		{ f(arg) } -> std::same_as<void>;
-	};
+    template <typename F, typename EventT>
+    concept CallableWithEvent = requires(F f, EventT e) {
+        { f(e) } -> std::same_as<void>;
+    };
 
 } // namespace core::concepts
 

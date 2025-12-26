@@ -13,5 +13,5 @@ add_subdirectory(src/elevator)
 # add_executable(app src/app/main.cpp)
 # target_link_libraries(app PRIVATE elevator)
 
-add_executable(playground src/Playground.cpp)
+add_executable(playground src/Playground.cpp "include/core/event/Event.h")
 target_link_libraries(playground PRIVATE elevator)
